@@ -950,8 +950,10 @@ async function enviarHistorico() {
 
 async function enviar(tipo, rows) {
   try {
-    const r = await fetch(scriptUrl, {method:'POST', body: JSON.stringify({tipo, rows})});
-    return (await r.text()).startsWith('OK');
+    const payload = encodeURIComponent(JSON.stringify({tipo, rows}));
+    const r = await fetch(scriptUrl + '?payload=' + payload);
+    const txt = await r.text();
+    return txt.includes('OK');
   } catch(e) { return false; }
 }
 
@@ -1401,7 +1403,7 @@ async function carregarPrefs() {
   const url = localStorage.getItem('ff_url');
   if (!url) return;
   try {
-    const resp = await fetch(url + '?acao=prefs');
+    const resp = await fetch(url + '?acao=getprefs');
     const prefs = await resp.json();
     if (prefs && Object.keys(prefs).length) {
       ['basico','lazer','divida','educacao'].forEach(c => {
@@ -1435,7 +1437,8 @@ async function salvarPrefs() {
   localStorage.setItem('ff_pcts', JSON.stringify(prefs));
   // Salva no Sheets
   try {
-    await fetch(url, { method: 'POST', body: JSON.stringify({ tipo: 'prefs', prefs }) });
+    const payload = encodeURIComponent(JSON.stringify({ acao: 'prefs', prefs }));
+    await fetch(url + '?payload=' + payload);
   } catch(e) {}
 }
 
