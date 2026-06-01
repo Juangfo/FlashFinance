@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLASHFINANCE</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FFF8F0;
+  --parchment: #F5ECD7;
+  --warm-white: #FAF5EB;
+  --lonestar: #880000;
+  --ship-gray: #3C3C3E;
+  --seashell: #FFF4E8;
+  --tobacco: #8B5E3C;
+  --bronze: #A0522D;
+  --ink: #1A1410;
+  --rust: #C14B1E;
+  --gold: #C9A84C;
+  --sand: #D4B896;
+  --border-light: rgba(26,20,16,0.12);
+  --border-dark: rgba(26,20,16,0.3);
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+  --font-body: 'Cormorant Garamond', serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* GRAIN OVERLAY */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 1000; pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 500;
+  background: var(--ink);
+  border-bottom: 2px solid var(--lonestar);
+  display: flex; align-items: stretch;
+  height: 56px;
+}
+.nav-logo {
+  display: flex; align-items: center;
+  padding: 0 28px;
+  font-family: var(--font-display);
+  font-size: 22px; letter-spacing: 3px;
+  color: var(--cream);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  white-space: nowrap;
+}
+.nav-logo em { color: var(--lonestar); font-style: normal; }
+.nav-tabs { display: flex; flex: 1; }
+.nav-tab {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 15px; letter-spacing: 2px;
+  color: rgba(255,255,255,0.4); border: none; background: transparent;
+  cursor: pointer; transition: all .25s;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  position: relative; overflow: hidden;
+}
+.nav-tab::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: var(--lonestar);
+  transform: scaleX(0); transition: transform .25s;
+}
+.nav-tab:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.03); }
+.nav-tab.active { color: var(--cream); }
+.nav-tab.active::after { transform: scaleX(1); }
+.nav-conn {
+  display: flex; align-items: center; padding: 0 20px;
+  font-family: var(--font-display); font-size: 11px; letter-spacing: 1px;
+  color: rgba(255,255,255,0.3); white-space: nowrap;
+  border-left: 1px solid rgba(255,255,255,0.08);
+}
+.nav-conn.live { color: #6fcf97; }
+
+/* PAGES */
+.page { display: none; animation: reveal .4s ease; }
+.page.active { display: block; }
+@keyframes reveal { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+
+/* HEADER BAND */
+.page-header {
+  background: var(--ink);
+  padding: 40px 48px 32px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  border-bottom: 1px solid var(--border-dark);
+}
+.page-header-left {}
+.eyebrow {
+  font-family: var(--font-display); font-size: 11px; letter-spacing: 3px;
+  color: var(--lonestar); margin-bottom: 8px;
+}
+.page-hed {
+  font-family: var(--font-display); font-size: 52px; letter-spacing: 4px;
+  color: var(--cream); line-height: 1;
+}
+.page-dek {
+  font-family: var(--font-body); font-style: italic; font-size: 16px;
+  color: rgba(255,255,255,0.4); margin-top: 8px;
+}
+.page-header-right { text-align: right; }
+.header-stat-val { font-family: var(--font-display); font-size: 36px; color: var(--gold); letter-spacing: 2px; }
+.header-stat-lbl { font-family: var(--font-body); font-style: italic; font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+/* CONTENT AREA */
+.content { padding: 40px 48px; max-width: 1100px; margin: 0 auto; }
+
+/* TYPE SWITCH */
+.type-switch {
+  display: flex; margin-bottom: 36px;
+  border: 1.5px solid var(--border-dark); border-radius: 2px;
+  overflow: hidden; max-width: 420px;
+}
+.type-btn {
+  flex: 1; padding: 14px 24px;
+  font-family: var(--font-display); font-size: 16px; letter-spacing: 3px;
+  background: var(--warm-white); color: rgba(26,20,16,0.4);
+  border: none; cursor: pointer; transition: all .2s;
+  border-right: 1.5px solid var(--border-dark);
+}
+.type-btn:last-child { border-right: none; }
+.type-btn.active-g { background: var(--lonestar); color: var(--cream); }
+.type-btn.active-r { background: var(--ship-gray); color: var(--cream); }
+.type-btn:not(.active-g):not(.active-r):hover { background: var(--parchment); color: var(--ink); }
+
+/* FORM */
+.form-section { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1.5px solid var(--border-dark); border-radius: 2px; overflow: hidden; max-width: 680px; }
+.field {
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  padding: 16px 20px;
+  background: var(--warm-white);
+  transition: background .2s;
+}
+.field:focus-within { background: var(--seashell); }
+.field.full { grid-column: 1 / -1; border-right: none; }
+.field.last-row { border-bottom: none; }
+.field:nth-child(even):not(.full) { border-right: none; }
+.field-label {
+  font-family: var(--font-display); font-size: 10px; letter-spacing: 2.5px;
+  color: var(--tobacco); margin-bottom: 6px;
+}
+.field-input, .field-select {
+  background: transparent; border: none; outline: none;
+  font-family: var(--font-body); font-size: 16px; color: var(--ink);
+  width: 100%;
+}
+.field-input::placeholder { color: rgba(26,20,16,0.3); font-style: italic; }
+.field-select { cursor: pointer; }
+.field-select option { background: var(--warm-white); }
+
+.btn-submit {
+  margin-top: 20px; max-width: 680px; width: 100%;
+  padding: 18px; border: none; cursor: pointer;
+  font-family: var(--font-display); font-size: 18px; letter-spacing: 4px;
+  transition: all .2s; position: relative; overflow: hidden;
+}
+.btn-submit::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: rgba(255,255,255,0.1); transition: left .3s;
+}
+.btn-submit:hover::before { left: 100%; }
+.btn-submit:hover { transform: translateY(-1px); }
+.btn-submit.g { background: var(--lonestar); color: var(--cream); }
+.btn-submit.r { background: var(--ship-gray); color: var(--cream); }
+
+/* STATUS */
+.status { margin-top: 16px; max-width: 680px; padding: 14px 20px; border-left: 3px solid; font-family: var(--font-body); font-style: italic; font-size: 15px; display: none; }
+.status.ok { border-color: var(--ship-gray); background: #3C3C3E0a; color: var(--ship-gray); }
+.status.err { border-color: var(--lonestar); background: #8800000a; color: var(--lonestar); }
+.status.sending { border-color: var(--gold); background: #C9A84C0a; color: var(--tobacco); }
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--border-light); margin: 40px 0; }
+.section-label {
+  font-family: var(--font-display); font-size: 11px; letter-spacing: 3px;
+  color: var(--tobacco); margin-bottom: 20px; display: flex; align-items: center; gap: 16px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border-light); }
+
+/* TABLE */
+.ledger { width: 100%; border-collapse: collapse; border: 1.5px solid var(--border-dark); }
+.ledger thead tr { background: var(--ink); }
+.ledger thead th { padding: 12px 18px; text-align: left; font-family: var(--font-display); font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.5); font-weight: 400; }
+.ledger tbody tr { border-bottom: 1px solid var(--border-light); transition: background .15s; }
+.ledger tbody tr:hover { background: var(--parchment); }
+.ledger tbody td { padding: 13px 18px; font-family: var(--font-body); font-size: 15px; }
+.ledger tbody td:first-child { font-weight: 600; }
+.tag { display: inline-flex; padding: 2px 10px; font-family: var(--font-display); font-size: 11px; letter-spacing: 1px; }
+.val-d { color: var(--lonestar); font-style: italic; }
+.val-c { color: #2D6A4F; font-style: italic; }
+.td-muted { color: rgba(26,20,16,0.45); font-size: 13px; font-style: italic; }
+
+/* EMPTY STATE */
+.empty { padding: 48px; text-align: center; font-family: var(--font-body); font-style: italic; color: rgba(26,20,16,0.35); font-size: 18px; border: 1.5px solid var(--border-dark); }
+
+/* MIGRAÇÃO */
+.migration-box {
+  border: 1.5px solid var(--border-dark); padding: 28px 32px; margin-bottom: 24px;
+  display: flex; justify-content: space-between; align-items: center; gap: 24px;
+  flex-wrap: wrap;
+}
+.migration-info {}
+.migration-title { font-family: var(--font-display); font-size: 22px; letter-spacing: 2px; }
+.migration-sub { font-family: var(--font-body); font-style: italic; font-size: 14px; color: var(--tobacco); margin-top: 4px; }
+.btn-migrate {
+  padding: 16px 32px; background: var(--ink); color: var(--cream);
+  border: none; cursor: pointer; font-family: var(--font-display); font-size: 14px; letter-spacing: 3px;
+  transition: all .2s; white-space: nowrap;
+}
+.btn-migrate:hover { background: var(--lonestar); }
+
+/* GUIA */
+.steps { display: flex; flex-direction: column; }
+.step {
+  display: flex; gap: 0;
+  border: 1.5px solid var(--border-dark);
+  border-bottom: none;
+}
+.step:last-child { border-bottom: 1.5px solid var(--border-dark); }
+.step-num-col {
+  width: 80px; min-height: 100%;
+  background: var(--ink); display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 28px; flex-shrink: 0;
+}
+.step-num-text { font-family: var(--font-display); font-size: 36px; color: var(--lonestar); }
+.step-content { padding: 28px 32px; flex: 1; }
+.step-title { font-family: var(--font-serif); font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+.step-body { font-family: var(--font-body); font-size: 15px; color: rgba(26,20,16,0.7); line-height: 1.9; }
+.step-body strong { color: var(--ink); font-weight: 600; }
+code {
+  font-family: 'Courier New', monospace; font-size: 12px;
+  background: var(--parchment); border: 1px solid var(--border-dark);
+  padding: 2px 7px; color: var(--lonestar);
+}
+.code-block {
+  background: var(--ink); color: #c8f135; font-family: 'Courier New', monospace;
+  font-size: 12px; line-height: 1.8; padding: 20px 24px; margin-top: 14px;
+  white-space: pre-wrap; word-break: break-all; position: relative;
+  border-left: 3px solid var(--lonestar);
+}
+.btn-copy {
+  position: absolute; top: 12px; right: 12px; padding: 5px 14px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.5); font-size: 11px; cursor: pointer;
+  font-family: var(--font-display); letter-spacing: 1px; transition: all .2s;
+}
+.btn-copy:hover { color: #c8f135; border-color: #c8f135; }
+.url-field {
+  margin-top: 12px; padding: 14px 18px; width: 100%;
+  background: var(--parchment); border: 1.5px solid var(--border-dark);
+  font-family: 'Courier New', monospace; font-size: 13px; color: var(--ink);
+  outline: none; transition: border-color .2s;
+}
+.url-field:focus { border-color: var(--lonestar); }
+.btn-test {
+  margin-top: 10px; padding: 12px 28px;
+  background: var(--ship-gray); color: var(--cream);
+  border: none; cursor: pointer; font-family: var(--font-display);
+  font-size: 14px; letter-spacing: 2px; transition: all .2s;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.btn-test:hover { background: var(--ink); }
+.conn-badge { font-family: var(--font-display); font-size: 11px; letter-spacing: 1px; padding: 4px 12px; }
+.conn-badge.ok { background: #2D6A4F20; color: #2D6A4F; border: 1px solid #2D6A4F40; }
+.conn-badge.no { background: #88000015; color: var(--lonestar); border: 1px solid #88000030; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 32px; right: 32px; z-index: 9999;
+  padding: 14px 24px; font-family: var(--font-display); font-size: 14px; letter-spacing: 2px;
+  transform: translateY(60px); opacity: 0; pointer-events: none;
+  transition: all .35s cubic-bezier(.34,1.56,.64,1);
+  border-left: 3px solid;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.ok { background: var(--ink); color: var(--cream); border-color: #6fcf97; }
+.toast.err { background: var(--cream); color: var(--lonestar); border-color: var(--lonestar); border: 1.5px solid var(--lonestar); }
+
+@media(max-width: 700px) {
+  .page-header { padding: 28px 20px 20px; }
+  .page-hed { font-size: 36px; }
+  .content { padding: 24px 20px; }
+  .form-section { grid-template-columns: 1fr; }
+  .field:nth-child(even):not(.full) { border-right: none; }
+  .step { flex-direction: column; }
+  .step-num-col { width: 100%; padding: 16px 24px; align-items: center; }
+  .migration-box { flex-direction: column; }
+  .page-header-right { display: none; }
+}
+
+/* ===== IMPORT CSV ===== */
+.drop-zone {
+  border: 2px dashed var(--border-dark); padding: 56px 40px; text-align: center;
+  cursor: pointer; transition: all .2s; margin-bottom: 32px;
+  background: var(--warm-white);
+}
+.drop-zone:hover, .drop-zone.drag { border-color: var(--lonestar); background: var(--seashell); }
+.drop-icon { font-size: 48px; color: var(--lonestar); font-family: var(--font-display); line-height: 1; margin-bottom: 12px; }
+.drop-title { font-family: var(--font-display); font-size: 22px; letter-spacing: 4px; color: var(--ink); margin-bottom: 8px; }
+.drop-sub { font-family: var(--font-body); font-style: italic; font-size: 14px; color: var(--tobacco); }
+
+.import-table-wrap { overflow-x: auto; }
+.import-table-wrap .ledger td { padding: 10px 12px; vertical-align: middle; }
+.import-table-wrap .ledger td:first-child { font-weight: 400; }
+
+.imp-select {
+  background: transparent; border: none; border-bottom: 1px solid var(--border-dark);
+  font-family: var(--font-body); font-size: 14px; color: var(--ink);
+  padding: 4px 2px; outline: none; cursor: pointer; min-width: 100px;
+}
+.imp-select:focus { border-color: var(--lonestar); }
+.imp-select option { background: var(--warm-white); }
+
+.btn-bulk {
+  padding: 10px 20px; background: var(--ship-gray); color: var(--cream);
+  border: none; cursor: pointer; font-family: var(--font-display);
+  font-size: 12px; letter-spacing: 2px; transition: all .2s;
+}
+.btn-bulk:hover { background: var(--ink); }
+.btn-bulk.red { background: var(--lonestar); }
+.btn-bulk.red:hover { background: #6a0000; }
+
+.filter-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-chip {
+  padding: 6px 16px; font-family: var(--font-display); font-size: 11px;
+  letter-spacing: 2px; border: 1.5px solid var(--border-dark);
+  cursor: pointer; transition: all .2s; background: var(--warm-white);
+  color: rgba(26,20,16,0.5);
+}
+.filter-chip:hover { border-color: var(--ink); color: var(--ink); }
+.filter-chip.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+
+.row-sel { background: #8800000a !important; }
+
+/* ===== METAS ===== */
+.mes-select{background:var(--warm-white);border:1.5px solid var(--border-dark);padding:10px 14px;font-family:var(--font-body);font-size:15px;color:var(--ink);outline:none;cursor:pointer;min-width:140px}
+.mes-select:focus{border-color:var(--lonestar)}
+.metas-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:16px}
+.meta-mes-label{font-family:var(--font-display);font-size:11px;letter-spacing:2px;color:var(--tobacco);margin-right:10px}
+.receita-banner{background:var(--parchment);border:1.5px solid var(--border-dark);padding:16px 24px;margin-bottom:24px;display:flex;gap:32px;flex-wrap:wrap}
+.rec-item-val{font-family:var(--font-display);font-size:20px;letter-spacing:1px}
+.rec-item-lbl{font-family:var(--font-body);font-style:italic;font-size:12px;color:var(--tobacco);margin-top:2px}
+.dist-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.dist-card{background:var(--warm-white);border:1.5px solid var(--border-dark);padding:22px}
+.dist-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.dist-card-title{font-family:var(--font-display);font-size:15px;letter-spacing:2px}
+.dist-pct-input{width:65px;background:transparent;border:none;border-bottom:1.5px solid var(--border-dark);font-family:var(--font-display);font-size:22px;color:var(--lonestar);text-align:right;outline:none;padding:2px 4px}
+.dist-pct-input:focus{border-color:var(--lonestar)}
+.dist-pct-sym{font-family:var(--font-display);font-size:14px;color:var(--tobacco)}
+.dist-bar-wrap{background:rgba(26,20,16,0.08);height:6px;margin:12px 0;overflow:hidden}
+.dist-bar-fill{height:100%;transition:width .5s ease}
+.dist-bar-fill.ok{background:var(--ship-gray)}
+.dist-bar-fill.warn{background:var(--warning)}
+.dist-bar-fill.over{background:var(--lonestar)}
+.dist-values{display:flex;justify-content:space-between;margin-top:10px}
+.dist-val-item{text-align:center}
+.dist-val-num{font-family:var(--font-display);font-size:16px;letter-spacing:0.5px}
+.dist-val-num.budget{color:var(--tobacco)}
+.dist-val-num.spent{color:var(--ink)}
+.dist-val-num.ok{color:#2D6A4F}
+.dist-val-num.warn{color:var(--warning)}
+.dist-val-num.over{color:var(--lonestar)}
+.dist-val-lbl{font-family:var(--font-body);font-style:italic;font-size:11px;color:var(--tobacco);margin-top:2px}
+.inv-card{background:var(--ink);padding:24px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.inv-lbl{font-family:var(--font-display);font-size:10px;letter-spacing:3px;color:rgba(255,255,255,0.4);margin-bottom:6px}
+.inv-pct{font-family:var(--font-display);font-size:42px;color:var(--gold);letter-spacing:2px;line-height:1}
+.inv-val{font-family:var(--font-display);font-size:28px;color:var(--cream);letter-spacing:1px}
+.inv-sub{font-family:var(--font-body);font-style:italic;font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px}
+.flash-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.flash-card{background:var(--warm-white);border:1.5px solid var(--border-dark);padding:22px}
+.flash-title{font-family:var(--font-display);font-size:13px;letter-spacing:2px;margin-bottom:4px}
+.flash-sub{font-family:var(--font-body);font-style:italic;font-size:12px;color:var(--tobacco);margin-bottom:18px}
+.flash-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border-light)}
+.flash-row:last-child{border-bottom:none}
+.flash-row-lbl{font-family:var(--font-display);font-size:11px;letter-spacing:1px;color:var(--tobacco)}
+.flash-inputs{display:flex;align-items:center;gap:6px}
+.flash-pct{width:52px;background:transparent;border:none;border-bottom:1.5px solid var(--border-light);font-family:var(--font-display);font-size:15px;color:var(--ink);text-align:right;outline:none;padding:2px 4px}
+.flash-pct:focus{border-color:var(--lonestar)}
+.flash-sym{font-family:var(--font-display);font-size:11px;color:var(--tobacco)}
+.flash-val{font-family:var(--font-display);font-size:13px;color:var(--lonestar);min-width:80px;text-align:right}
+@media(max-width:700px){.dist-grid,.flash-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">FLASH<em>FINANCE</em></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('registro',this)">REGISTRAR</button>
+    <button class="nav-tab" onclick="showPage('recentes',this)">RECENTES</button>
+    <button class="nav-tab" onclick="showPage('importar',this)">IMPORTAR CSV</button>
+    <button class="nav-tab" onclick="showPage('metas',this)">METAS</button>
+    <button class="nav-tab" onclick="showPage('guia',this)">CONFIGURAR</button>
+  </div>
+  <div class="nav-conn" id="nav-conn-dot">● OFFLINE</div>
+</nav>
+
+<!-- ========== REGISTRO ========== -->
+<div class="page active" id="page-registro">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">CONTROLE FINANCEIRO PESSOAL</div>
+      <div class="page-hed">NOVO REGISTRO</div>
+      <div class="page-dek" id="conn-status-text">Não conectado ao Sheets — configure abaixo</div>
+    </div>
+    <div class="page-header-right">
+      <div class="header-stat-val">47%</div>
+      <div class="header-stat-lbl">meta R$ 10k concluída</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="type-switch">
+      <button class="type-btn active-g" id="tab-g" onclick="setTipo('gasto')">💸 GASTO</button>
+      <button class="type-btn" id="tab-r" onclick="setTipo('receita')">💰 RECEITA</button>
+    </div>
+
+    <div class="form-section" id="form-fields">
+      <div class="field full">
+        <div class="field-label">TÍTULO / DESCRIÇÃO</div>
+        <input class="field-input" id="f-titulo" placeholder="Ex: Almoço facul, Academia, Salário...">
+      </div>
+      <div class="field">
+        <div class="field-label">VALOR (R$)</div>
+        <input class="field-input" id="f-valor" type="number" step="0.01" min="0" placeholder="0,00">
+      </div>
+      <div class="field">
+        <div class="field-label">DATA</div>
+        <input class="field-input" id="f-data" type="date">
+      </div>
+      <!-- GASTO -->
+      <div class="field" id="fg-tipo">
+        <div class="field-label">TIPO</div>
+        <select class="field-select" id="f-tipo">
+          <option value="">Selecione...</option>
+          <option>Alimentação</option><option>Bar</option><option>Bebida</option>
+          <option>Beleza</option><option>Conta</option><option>Festa</option>
+          <option>Imprevisto</option><option>Lifestyle</option><option>Material</option>
+          <option>Mercado</option><option>Roupa</option><option>Saúde</option><option>Transporte</option>
+        </select>
+      </div>
+      <div class="field" id="fg-classe">
+        <div class="field-label">CLASSE</div>
+        <select class="field-select" id="f-classe">
+          <option value="">Selecione...</option>
+          <option>Básico</option><option>Lazer</option><option>Dívida</option><option>Educação</option>
+        </select>
+      </div>
+      <div class="field" id="fg-metodo">
+        <div class="field-label">MÉTODO DE PAGAMENTO</div>
+        <select class="field-select" id="f-metodo">
+          <option value="">Selecione...</option>
+          <option>Crédito Nubank</option><option>Pix C6</option>
+          <option>FlashEats</option><option>FlashMoove</option>
+        </select>
+      </div>
+      <div class="field last-row" id="fg-parcela">
+        <div class="field-label">PARCELA (EX: 1/3)</div>
+        <input class="field-input" id="f-parcela" placeholder="1/1 se à vista">
+      </div>
+      <!-- RECEITA -->
+      <div class="field full last-row" id="fg-rec" style="display:none">
+        <div class="field-label">TIPO DE RECEITA</div>
+        <select class="field-select" id="f-tipo-rec">
+          <option value="">Selecione...</option>
+          <option>Salário</option><option>Mesada</option><option>Projeto</option>
+          <option>FlashEats</option><option>FlashMoove</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-submit g" id="btn-save" onclick="salvar()">SALVAR GASTO</button>
+    <div class="status" id="sb-form"></div>
+  </div>
+</div>
+
+<!-- ========== RECENTES ========== -->
+<div class="page" id="page-recentes">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">LANÇAMENTOS</div>
+      <div class="page-hed">RECENTES</div>
+      <div class="page-dek">Registros desta sessão</div>
+    </div>
+  </div>
+  <div class="content">
+
+    <div class="migration-box">
+      <div class="migration-info">
+        <div class="migration-title">MIGRAÇÃO DO HISTÓRICO</div>
+        <div class="migration-sub">594 gastos + 60 receitas — nov/25 até mai/26 — prontos para o Sheets</div>
+      </div>
+      <button class="btn-migrate" onclick="enviarHistorico()">📤 ENVIAR AO SHEETS</button>
+    </div>
+    <div class="status" id="sb-hist" style="margin-bottom:24px"></div>
+
+    <div class="section-label">NOVOS REGISTROS</div>
+    <div id="rec-wrap">
+      <div class="empty">Nenhum registro nesta sessão ainda —<br><em>use a aba Registrar para começar</em></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== GUIA ========== -->
+<div class="page" id="page-guia">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">SETUP</div>
+      <div class="page-hed">CONFIGURAR</div>
+      <div class="page-dek">Google Sheets + Apps Script — ~10 minutos</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-num-col"><span class="step-num-text">01</span></div>
+        <div class="step-content">
+          <div class="step-title">Crie o Google Sheets</div>
+          <div class="step-body">
+            Acesse <strong>sheets.google.com</strong>, crie uma planilha chamada <code>FlashFinance</code>.<br>
+            Crie duas abas: <code>gastos</code> e <code>receitas</code>.<br><br>
+            Na aba <code>gastos</code>, linha 1, cole os cabeçalhos:
+          </div>
+          <div class="code-block">ID&#9;Titulo&#9;Tipo&#9;Classe&#9;Metodo&#9;Valor&#9;Data&#9;Mes&#9;Parcela<button class="btn-copy" onclick="cop('ID	Titulo	Tipo	Classe	Metodo	Valor	Data	Mes	Parcela',this)">COPIAR</button></div>
+          <div class="step-body" style="margin-top:14px">Na aba <code>receitas</code>, linha 1:</div>
+          <div class="code-block">ID&#9;Titulo&#9;Tipo&#9;Valor&#9;Data&#9;Mes<button class="btn-copy" onclick="cop('ID	Titulo	Tipo	Valor	Data	Mes',this)">COPIAR</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num-col"><span class="step-num-text">02</span></div>
+        <div class="step-content">
+          <div class="step-title">Cole o Apps Script</div>
+          <div class="step-body">
+            No Sheets: <strong>Extensões → Apps Script</strong>.<br>
+            Apague o conteúdo existente, cole o código abaixo e salve com <strong>Ctrl+S</strong>.
+          </div>
+          <div class="code-block" id="script-disp">function doPost(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var data = JSON.parse(e.postData.contents);
+    var tipo = data.tipo;
+    var rows = data.rows;
+    if (tipo === 'ping') return ContentService.createTextOutput('OK');
+    var sheet = ss.getSheetByName(tipo === 'gasto' ? 'gastos' : 'receitas');
+    if (!sheet) return ContentService.createTextOutput('SHEET_NOT_FOUND');
+    for (var i = 0; i &lt; rows.length; i++) { sheet.appendRow(rows[i]); }
+    return ContentService.createTextOutput('OK:' + rows.length);
+  } catch(err) {
+    return ContentService.createTextOutput('ERROR:' + err.toString());
+  }
+}
+function doGet(e) {
+  return ContentService.createTextOutput('FlashFinance API OK');
+}<button class="btn-copy" onclick="copScript()">COPIAR SCRIPT</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num-col"><span class="step-num-text">03</span></div>
+        <div class="step-content">
+          <div class="step-title">Publique como Web App</div>
+          <div class="step-body">
+            No Apps Script: <strong>Implantar → Nova implantação</strong>.<br>
+            Tipo: <code>App da Web</code> · Executar como: <code>Eu</code> · Acesso: <code>Qualquer pessoa</code>.<br>
+            Clique <strong>Implantar</strong>, autorize e copie a URL gerada.<br>
+            Ela tem o formato <code>https://script.google.com/macros/s/.../exec</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num-col"><span class="step-num-text">04</span></div>
+        <div class="step-content">
+          <div class="step-title">Cole a URL e teste</div>
+          <div class="step-body">Depois de publicar, cole a URL aqui para conectar o formulário ao Sheets:</div>
+          <input class="url-field" id="script-url" placeholder="https://script.google.com/macros/s/..." oninput="salvarUrl()">
+          <div style="display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap">
+            <button class="btn-test" onclick="testarConn()">TESTAR CONEXÃO</button>
+            <span id="conn-chip"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num-col"><span class="step-num-text">05</span></div>
+        <div class="step-content">
+          <div class="step-title">Conecte no Looker Studio</div>
+          <div class="step-body">
+            Com os dados no Sheets, acesse <strong>lookerstudio.google.com</strong>.<br>
+            <strong>Criar → Relatório → adicione sua planilha</strong> <code>FlashFinance</code> como fonte de dados.<br><br>
+            A partir daí é arrastar e soltar — gráficos de barra, rosca, tabelas, KPIs de meta.<br>
+            Como você já usa BI no trabalho, vai dominar em menos de 30 minutos.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ========== IMPORTAR CSV ========== -->
+<div class="page" id="page-importar">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">NUBANK / FATURA</div>
+      <div class="page-hed">IMPORTAR CSV</div>
+      <div class="page-dek">Arraste a fatura exportada do Nubank — classifique e envie ao Sheets</div>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- DROP ZONE -->
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('csv-input').click()">
+      <input type="file" id="csv-input" accept=".csv" style="display:none" onchange="lerCSV(this.files[0])">
+      <div class="drop-icon">↓</div>
+      <div class="drop-title">SOLTAR O CSV AQUI</div>
+      <div class="drop-sub">ou clique para selecionar · arquivo exportado pelo Nubank</div>
+    </div>
+
+    <!-- PREVIEW TABLE -->
+    <div id="import-preview" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+        <div class="section-label" style="margin-bottom:0" id="import-count">0 LANÇAMENTOS ENCONTRADOS</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn-bulk" onclick="classificarTodos('classe','Básico')">TUDO BÁSICO</button>
+          <button class="btn-bulk" onclick="classificarTodos('classe','Lazer')">TUDO LAZER</button>
+          <button class="btn-bulk red" onclick="enviarImportados()">ENVIAR AO SHEETS →</button>
+        </div>
+      </div>
+
+      <!-- FILTRO DE CLASSE RÁPIDO -->
+      <div class="filter-row" id="filter-row"></div>
+
+      <div class="import-table-wrap">
+        <table class="ledger" id="import-table">
+          <thead>
+            <tr>
+              <th style="width:36px"><input type="checkbox" id="chk-all" onchange="toggleAll(this)" style="accent-color:var(--lonestar)"></th>
+              <th>DATA</th>
+              <th>TÍTULO NUBANK</th>
+              <th>VALOR</th>
+              <th>TIPO</th>
+              <th>CLASSE</th>
+              <th>MÉTODO</th>
+            </tr>
+          </thead>
+          <tbody id="import-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="status" id="sb-import" style="margin-top:16px"></div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ========== METAS ========== -->
+<div class="page" id="page-metas">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">DISTRIBUIÇÃO & CONTROLE</div>
+      <div class="page-hed">METAS</div>
+      <div class="page-dek">Defina suas porcentagens e acompanhe em tempo real</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="metas-header">
+      <div style="display:flex;align-items:center">
+        <span class="meta-mes-label">MÊS</span>
+        <select class="mes-select" id="meta-mes" onchange="calcMetas()">
+          <option value="2025-11">2025-11</option>
+          <option value="2025-12">2025-12</option>
+          <option value="2026-01">2026-01</option>
+          <option value="2026-02">2026-02</option>
+          <option value="2026-03">2026-03</option>
+          <option value="2026-04">2026-04</option>
+          <option value="2026-05" selected>2026-05</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="receita-banner">
+      <div class="rec-item"><div class="rec-item-val" id="rec-total">—</div><div class="rec-item-lbl">receita total</div></div>
+      <div class="rec-item"><div class="rec-item-val" id="rec-vr">—</div><div class="rec-item-lbl">VR (FlashEats)</div></div>
+      <div class="rec-item"><div class="rec-item-val" id="rec-vt">—</div><div class="rec-item-lbl">VT (FlashMoove)</div></div>
+      <div class="rec-item"><div class="rec-item-val" id="rec-liq" style="color:var(--lonestar)">—</div><div class="rec-item-lbl">receita líquida (base)</div></div>
+    </div>
+
+    <div class="dist-grid">
+      <div class="dist-card">
+        <div class="dist-card-header">
+          <div class="dist-card-title">BÁSICO</div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <input class="dist-pct-input" id="pct-basico" type="number" min="0" max="100" value="35" oninput="calcMetas()">
+            <span class="dist-pct-sym">%</span>
+          </div>
+        </div>
+        <div class="dist-bar-wrap"><div class="dist-bar-fill ok" id="bar-basico" style="width:0%"></div></div>
+        <div class="dist-values">
+          <div class="dist-val-item"><div class="dist-val-num budget" id="bud-basico">—</div><div class="dist-val-lbl">orçamento</div></div>
+          <div class="dist-val-item"><div class="dist-val-num spent" id="spent-basico">—</div><div class="dist-val-lbl">gasto</div></div>
+          <div class="dist-val-item"><div class="dist-val-num ok" id="left-basico">—</div><div class="dist-val-lbl">disponível</div></div>
+        </div>
+      </div>
+      <div class="dist-card">
+        <div class="dist-card-header">
+          <div class="dist-card-title">LAZER</div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <input class="dist-pct-input" id="pct-lazer" type="number" min="0" max="100" value="20" oninput="calcMetas()">
+            <span class="dist-pct-sym">%</span>
+          </div>
+        </div>
+        <div class="dist-bar-wrap"><div class="dist-bar-fill ok" id="bar-lazer" style="width:0%"></div></div>
+        <div class="dist-values">
+          <div class="dist-val-item"><div class="dist-val-num budget" id="bud-lazer">—</div><div class="dist-val-lbl">orçamento</div></div>
+          <div class="dist-val-item"><div class="dist-val-num spent" id="spent-lazer">—</div><div class="dist-val-lbl">gasto</div></div>
+          <div class="dist-val-item"><div class="dist-val-num ok" id="left-lazer">—</div><div class="dist-val-lbl">disponível</div></div>
+        </div>
+      </div>
+      <div class="dist-card">
+        <div class="dist-card-header">
+          <div class="dist-card-title">DÍVIDA</div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <input class="dist-pct-input" id="pct-divida" type="number" min="0" max="100" value="15" oninput="calcMetas()">
+            <span class="dist-pct-sym">%</span>
+          </div>
+        </div>
+        <div class="dist-bar-wrap"><div class="dist-bar-fill ok" id="bar-divida" style="width:0%"></div></div>
+        <div class="dist-values">
+          <div class="dist-val-item"><div class="dist-val-num budget" id="bud-divida">—</div><div class="dist-val-lbl">orçamento</div></div>
+          <div class="dist-val-item"><div class="dist-val-num spent" id="spent-divida">—</div><div class="dist-val-lbl">gasto</div></div>
+          <div class="dist-val-item"><div class="dist-val-num ok" id="left-divida">—</div><div class="dist-val-lbl">disponível</div></div>
+        </div>
+      </div>
+      <div class="dist-card">
+        <div class="dist-card-header">
+          <div class="dist-card-title">EDUCAÇÃO</div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <input class="dist-pct-input" id="pct-educacao" type="number" min="0" max="100" value="5" oninput="calcMetas()">
+            <span class="dist-pct-sym">%</span>
+          </div>
+        </div>
+        <div class="dist-bar-wrap"><div class="dist-bar-fill ok" id="bar-educacao" style="width:0%"></div></div>
+        <div class="dist-values">
+          <div class="dist-val-item"><div class="dist-val-num budget" id="bud-educacao">—</div><div class="dist-val-lbl">orçamento</div></div>
+          <div class="dist-val-item"><div class="dist-val-num spent" id="spent-educacao">—</div><div class="dist-val-lbl">gasto</div></div>
+          <div class="dist-val-item"><div class="dist-val-num ok" id="left-educacao">—</div><div class="dist-val-lbl">disponível</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="inv-card">
+      <div>
+        <div class="inv-lbl">INVESTIDO (RESTANTE)</div>
+        <div class="inv-pct" id="inv-pct">—%</div>
+        <div class="inv-sub">100% menos as classes acima</div>
+      </div>
+      <div>
+        <div class="inv-lbl">VALOR PROJETADO</div>
+        <div class="inv-val" id="inv-val">—</div>
+        <div class="inv-sub">receita líquida × % investido</div>
+      </div>
+    </div>
+
+    <div class="section-label">BENEFÍCIOS FLASH — DISTRIBUIÇÃO</div>
+    <div class="flash-grid">
+      <div class="flash-card">
+        <div class="flash-title">FLASHEATS — VR</div>
+        <div class="flash-sub" id="flash-vr-sub">Recebido: —</div>
+        <div class="flash-row">
+          <div class="flash-row-lbl">BÁSICO %</div>
+          <div class="flash-inputs">
+            <input class="flash-pct" id="fpct-vr-b" type="number" min="0" max="100" value="70" oninput="calcFlash()">
+            <span class="flash-sym">%</span>
+            <div class="flash-val" id="fval-vr-b">—</div>
+          </div>
+        </div>
+        <div class="flash-row">
+          <div class="flash-row-lbl">LAZER %</div>
+          <div class="flash-inputs">
+            <input class="flash-pct" id="fpct-vr-l" type="number" min="0" max="100" value="30" oninput="calcFlash()">
+            <span class="flash-sym">%</span>
+            <div class="flash-val" id="fval-vr-l">—</div>
+          </div>
+        </div>
+        <div class="flash-row"><div class="flash-row-lbl">GASTO BÁSICO</div><div class="flash-val" id="fg-vr-b" style="color:var(--ink)">—</div></div>
+        <div class="flash-row"><div class="flash-row-lbl">GASTO LAZER</div><div class="flash-val" id="fg-vr-l" style="color:var(--ink)">—</div></div>
+        <div class="flash-row"><div class="flash-row-lbl" style="color:var(--lonestar)">SALDO VR</div><div class="flash-val" id="fs-vr">—</div></div>
+      </div>
+      <div class="flash-card">
+        <div class="flash-title">FLASHMOOVE — VT</div>
+        <div class="flash-sub" id="flash-vt-sub">Recebido: —</div>
+        <div class="flash-row">
+          <div class="flash-row-lbl">BÁSICO %</div>
+          <div class="flash-inputs">
+            <input class="flash-pct" id="fpct-vt-b" type="number" min="0" max="100" value="80" oninput="calcFlash()">
+            <span class="flash-sym">%</span>
+            <div class="flash-val" id="fval-vt-b">—</div>
+          </div>
+        </div>
+        <div class="flash-row">
+          <div class="flash-row-lbl">LAZER %</div>
+          <div class="flash-inputs">
+            <input class="flash-pct" id="fpct-vt-l" type="number" min="0" max="100" value="20" oninput="calcFlash()">
+            <span class="flash-sym">%</span>
+            <div class="flash-val" id="fval-vt-l">—</div>
+          </div>
+        </div>
+        <div class="flash-row"><div class="flash-row-lbl">GASTO BÁSICO</div><div class="flash-val" id="fg-vt-b" style="color:var(--ink)">—</div></div>
+        <div class="flash-row"><div class="flash-row-lbl">GASTO LAZER</div><div class="flash-val" id="fg-vt-l" style="color:var(--ink)">—</div></div>
+        <div class="flash-row"><div class="flash-row-lbl" style="color:var(--lonestar)">SALDO VT</div><div class="flash-val" id="fs-vt">—</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const HIST_GASTOS = [["1", "Itaú", "Conta", "Dívida", "Crédito Nubank", 30.0, "2025-11-01", "nov/25", ""], ["2", "HBOMAX", "Lifestyle", "Básico", "Crédito Nubank", 30.0, "2025-11-01", "nov/25", ""], ["3", "Academia", "Lifestyle", "Básico", "Crédito Nubank", 90.0, "2025-11-01", "nov/25", ""], ["4", "IFOOD, LIGHTROOM,APLLE MUSIC", "Lifestyle", "Básico", "Crédito Nubank", 24.0, "2025-11-01", "nov/25", ""], ["5", "ICLOUD E GOOGLE ONE", "Lifestyle", "Básico", "Crédito Nubank", 34.0, "2025-11-01", "nov/25", ""], ["6", "ÁGUA", "Conta", "Dívida", "Crédito Nubank", 180.0, "2025-11-01", "nov/25", ""], ["7", "TESTE", "Conta", "Básico", "Pix C6", 1.0, "2025-11-01", "nov/25", ""], ["8", "TESTE", "Conta", "Lazer", "Pix C6", 1.0, "2025-11-01", "nov/25", ""], ["9", "TESTE", "Conta", "Lazer", "Crédito Nubank", 1.0, "2025-11-01", "nov/25", ""], ["11", "Psicologa", "Saúde", "Básico", "Pix C6", 210.0, "2025-11-01", "nov/25", ""], ["12", "Uber Volta eric", "Transporte", "Dívida", "Crédito Nubank", 18.0, "2025-11-16", "nov/25", ""], ["13", "TESTE", "Alimentação", "Básico", "FlashEats", 1.0, "2025-11-01", "nov/25", ""], ["14", "TESTE", "Alimentação", "Básico", "FlashMoove", 1.0, "2025-11-01", "nov/25", ""], ["15", "Creme cabelo eudora", "Beleza", "Básico", "Crédito Nubank", 43.0, "2025-11-01", "nov/25", ""], ["16", "hidratante ", "Beleza", "Básico", "Crédito Nubank", 66.89, "2025-11-01", "nov/25", ""], ["17", "Renan de Paiva Menezes 2/2", "Transporte", "Básico", "Crédito Nubank", 14.57, "2025-11-04", "nov/25", "2/2"], ["18", "Thalles Renan Gomes de Sá 2/2", "Transporte", "Básico", "Crédito Nubank", 12.46, "2025-11-04", "nov/25", "2/2"], ["19", "99 Tecnologia LTDA 2/2", "Transporte", "Básico", "Crédito Nubank", 17.14, "2025-11-04", "nov/25", "2/2"], ["20", "Davidson Martins Silva 2/2", "Transporte", "Lazer", "Crédito Nubank", 28.72, "2025-11-04", "nov/25", "2/2"], ["21", "MercadoPago *2produto 5/5", "Beleza", "Básico", "Crédito Nubank", 34.64, "2025-11-04", "nov/25", "5/5"], ["22", "Ingresso 3/4", "Festa", "Lazer", "Crédito Nubank", 27.63, "2025-11-04", "nov/25", "3/4"], ["23", "Shopee *Petpeixeaquars 2/3 - FANTASIA", "Roupa", "Lazer", "Crédito Nubank", 15.6, "2025-11-04", "nov/25", "2/3"], ["24", "Gusto Italiano Restaurante LTDA 2/2", "Alimentação", "Lazer", "Crédito Nubank", 62.38, "2025-11-04", "nov/25", "2/2"], ["25", "Assistencia Tec 3/4", "Imprevisto", "Dívida", "Crédito Nubank", 104.97, "2025-11-04", "nov/25", "3/4"], ["26", "V P F LTDA 1/2", "Lifestyle", "Lazer", "Crédito Nubank", 39.82, "2025-11-04", "nov/25", "1/2"], ["27", "Azul Linhas Wh14wy 4/4", "Lifestyle", "Lazer", "Crédito Nubank", 122.69, "2025-11-04", "nov/25", "4/4"], ["28", "Uber do Brasil Tecnologia LTDA 2/2", "Transporte", "Básico", "Crédito Nubank", 13.68, "2025-11-04", "nov/25", "2/2"], ["29", "MJP Plaza Niterói Restaurante LTDA 2/3", "Alimentação", "Lazer", "Crédito Nubank", 62.45, "2025-11-04", "nov/25", "2/3"], ["30", "Zig Tickets *Zig Ticke 3/4", "Festa", "Lazer", "Crédito Nubank", 17.61, "2025-11-04", "nov/25", "3/4"], ["31", "Puma Sports LTDA 7/10", "Roupa", "Básico", "Crédito Nubank", 79.99, "2025-11-04", "nov/25", "7/10"], ["32", "Raia Drogasil SA 2/2", "Beleza", "Básico", "Crédito Nubank", 70.72, "2025-11-04", "nov/25", "2/2"], ["33", "Farmácia Pague Menos 2/3", "Mercado", "Básico", "Crédito Nubank", 21.83, "2025-11-04", "nov/25", "2/3"], ["34", "99 Tecnologia LTDA", "Transporte", "Básico", "Crédito Nubank", 30.16, "2025-11-11", "nov/25", ""], ["35", "Mrc Rações LTDA 1/2", "Mercado", "Básico", "Crédito Nubank", 36.68, "2025-11-11", "nov/25", "1/2"], ["36", "McDonald's", "Alimentação", "Básico", "Crédito Nubank", 18.91, "2025-11-11", "nov/25", ""], ["37", "Uber do Brasil Tecnologia LTDA", "Transporte", "Lazer", "Crédito Nubank", 141.42, "2025-11-11", "nov/25", ""], ["38", "Telefônica BRAS", "Conta", "Dívida", "Crédito Nubank", 128.05, "2025-11-11", "nov/25", ""], ["39", "Ventania São Francisco Comércio de Alimentos LTDA", "Alimentação", "Básico", "Crédito Nubank", 14.02, "2025-11-11", "nov/25", ""], ["40", "Amauri Cunha Santana 1/2", "Transporte", "Básico", "Crédito Nubank", 17.82, "2025-11-11", "nov/25", "1/2"], ["41", "Uber do Brasil Tecnologia LTDA", "Transporte", "Lazer", "Crédito Nubank", 35.53, "2025-11-11", "nov/25", ""], ["42", "Shen Xiao", "Roupa", "Lazer", "Crédito Nubank", 47.0, "2025-11-11", "nov/25", ""], ["43", "A Princesa - fantasia", "Roupa", "Lazer", "Crédito Nubank", 28.72, "2025-11-11", "nov/25", ""], ["44", "Refil Caderno", "Material", "Educação", "Crédito Nubank", 17.6, "2025-11-06", "nov/25", ""], ["45", "Lanche facu", "Alimentação", "Básico", "FlashEats", 8.0, "2025-11-06", "nov/25", ""], ["46", "BARRINHAS", "Alimentação", "Básico", "FlashEats", 21.8, "2025-11-08", "nov/25", ""], ["47", "Onibus facul", "Transporte", "Básico", "FlashMoove", 30.0, "2025-11-08", "nov/25", ""], ["48", "Claraedor x(1/3)", "Saúde", "Básico", "Crédito Nubank", 30.25, "2025-11-09", "nov/25", "1/3"], ["49", "Uber para cachaça", "Transporte", "Lazer", "Crédito Nubank", 10.0, "2025-11-14", "nov/25", ""], ["50", "Uber Volta Lapa", "Transporte", "Lazer", "Crédito Nubank", 36.0, "2025-11-14", "nov/25", ""], ["51", "Cookie Bia 2X", "Alimentação", "Básico", "Crédito Nubank", 16.3, "2025-11-18", "nov/25", ""], ["52", "Doce GERAR", "Alimentação", "Básico", "FlashEats", 11.99, "2025-11-10", "nov/25", ""], ["53", "Doce GERAR", "Alimentação", "Básico", "FlashEats", 5.0, "2025-11-10", "nov/25", ""], ["54", "Alface", "Mercado", "Básico", "FlashEats", 5.0, "2025-11-10", "nov/25", ""], ["55", "Almoço Facu + Anna", "Alimentação", "Básico", "FlashEats", 48.0, "2025-11-11", "nov/25", ""], ["56", "Lanche Facu", "Alimentação", "Básico", "FlashEats", 14.0, "2025-11-11", "nov/25", ""], ["57", "Pão com queijo café", "Mercado", "Básico", "FlashEats", 6.14, "2025-11-12", "nov/25", ""], ["58", "Almoço geral GERAR", "Alimentação", "Básico", "FlashEats", 31.79, "2025-11-12", "nov/25", ""], ["59", "Sorvete havanna", "Alimentação", "Básico", "FlashEats", 18.0, "2025-11-12", "nov/25", ""], ["60", "Doce GERAR", "Alimentação", "Básico", "FlashEats", 7.5, "2025-11-12", "nov/25", ""], ["61", "RioCard Facu", "Transporte", "Básico", "FlashMoove", 20.0, "2025-11-12", "nov/25", ""], ["62", "Starbucks", "Alimentação", "Básico", "FlashEats", 24.9, "2025-11-12", "nov/25", ""], ["63", "Uber da Facu", "Transporte", "Básico", "FlashMoove", 26.95, "2025-11-13", "nov/25", ""], ["64", "Lanche Facu", "Alimentação", "Básico", "FlashEats", 34.47, "2025-11-13", "nov/25", ""], ["65", "Lanche Bar", "Alimentação", "Lazer", "FlashEats", 55.0, "2025-11-14", "nov/25", ""], ["66", "Bar Cachaça", "Alimentação", "Lazer", "FlashEats", 40.7, "2025-11-15", "nov/25", ""], ["67", "Pipoca+bis", "Alimentação", "Lazer", "FlashEats", 32.0, "2025-11-15", "nov/25", ""], ["68", "Almoço GERAR", "Alimentação", "Básico", "FlashEats", 24.91, "2025-11-17", "nov/25", ""], ["69", "Coookie", "Alimentação", "Básico", "FlashEats", 17.5, "2025-11-17", "nov/25", ""], ["70", "Rei do Mate", "Alimentação", "Básico", "FlashEats", 16.5, "2025-11-17", "nov/25", ""], ["71", "Doce GERAR", "Alimentação", "Básico", "FlashEats", 13.0, "2025-11-17", "nov/25", ""], ["72", "milkshake bobs", "Alimentação", "Lazer", "FlashEats", 10.0, "2025-11-22", "nov/25", ""], ["73", "Uber volta facu", "Transporte", "Básico", "Crédito Nubank", 28.8, "2025-11-18", "nov/25", ""], ["74", "Uber facu", "Transporte", "Básico", "Crédito Nubank", 17.91, "2025-11-19", "nov/25", ""], ["76", "Uber multicenter trip", "Transporte", "Lazer", "Crédito Nubank", 12.9, "2025-11-20", "nov/25", ""], ["77", "Uber volta facu", "Transporte", "Básico", "Crédito Nubank", 11.18, "2025-11-18", "nov/25", ""], ["78", "Bar JF", "Bebida", "Lazer", "Crédito Nubank", 35.9, "2025-11-20", "nov/25", ""], ["79", "Uber casa pós TRIP", "Transporte", "Lazer", "Crédito Nubank", 25.4, "2025-11-23", "nov/25", ""], ["80", "Facu geral - doce", "Alimentação", "Básico", "Pix C6", 37.0, "2025-11-24", "nov/25", ""], ["81", "Mcdonalds cine", "Alimentação", "Lazer", "Pix C6", 35.6, "2025-11-19", "nov/25", ""], ["82", "Uber Gávea", "Transporte", "Lazer", "Pix C6", 25.51, "2025-11-19", "nov/25", ""], ["83", "Almoços facu", "Alimentação", "Básico", "FlashEats", 68.0, "2025-11-28", "nov/25", ""], ["84", "Uber fábrica", "Transporte", "Básico", "Crédito Nubank", 23.63, "2025-11-26", "nov/25", ""], ["85", "Uber volta facu p2 C4", "Transporte", "Básico", "Crédito Nubank", 12.2, "2025-11-26", "nov/25", ""], ["86", "Assistencia Tec - Parcela 4/4", "Imprevisto", "Dívida", "Crédito Nubank", 104.97, "2025-12-28", "dez/25", "4/4"], ["87", "Shopee *Petpeixeaquars - Parcela 3/3", "Roupa", "Lazer", "Crédito Nubank", 15.6, "2025-12-23", "dez/25", "3/3"], ["88", "Zig Tickets *Zig Ticke - Parcela 4/4", "Festa", "Lazer", "Crédito Nubank", 17.61, "2025-12-16", "dez/25", "4/4"], ["89", "Puma Sports Ltda. - Parcela 8/10", "Roupa", "Básico", "Crédito Nubank", 79.99, "2025-12-14", "dez/25", "8/10"], ["90", "Ingresse - Parcela 4/4", "Festa", "Lazer", "Crédito Nubank", 27.63, "2025-12-13", "dez/25", "4/4"], ["91", "99 FOOD - 2/2", "Alimentação", "Lazer", "Crédito Nubank", 16.3, "2025-12-12", "dez/25", "2/2"], ["92", "FARMACIA PAGUE MENOS - 3/3", "Lifestyle", "Básico", "Crédito Nubank", 21.82, "2025-12-12", "dez/25", "3/3"], ["93", "UBER DO BRASIL TECNOLOGIA LTDA. - 2/2", "Transporte", "Básico", "Crédito Nubank", 15.07, "2025-12-12", "dez/25", "2/2"], ["94", "SUELEN SABINO LEITE", "Transporte", "Básico", "Crédito Nubank", 28.03, "2025-12-12", "dez/25", ""], ["95", "Mrc Racoes Ltda - 2/2", "Mercado", "Básico", "Crédito Nubank", 36.67, "2025-12-12", "dez/25", "2/2"], ["96", "Amauri Cunha Santana - 2/2", "Transporte", "Lazer", "Crédito Nubank", 17.82, "2025-12-12", "dez/25", "2/2"], ["97", "V P F LTDA - 2/2", "Lifestyle", "Lazer", "Crédito Nubank", 39.82, "2025-12-12", "dez/25", "2/2"], ["98", "MJP PLAZA NITEROI RESTAURANTE LTDA - 3/3", "Alimentação", "Lazer", "Crédito Nubank", 62.45, "2025-12-12", "dez/25", "3/3"], ["99", "DANIELLE MAGNOLIA MEDEIROS MANSO DUARTE", "Transporte", "Básico", "Crédito Nubank", 35.12, "2025-12-12", "dez/25", ""], ["100", "99 TECNOLOGIA LTDA - 1/2", "Transporte", "Básico", "Crédito Nubank", 25.29, "2025-12-12", "dez/25", "1/2"], ["101", "App *Dentalrm - Parcela 2/3", "Beleza", "Básico", "Crédito Nubank", 30.98, "2025-12-09", "dez/25", "2/3"], ["103", "HBOMAX", "Lifestyle", "Básico", "Crédito Nubank", 15.0, "2025-12-01", "dez/25", ""], ["104", "Academia", "Lifestyle", "Básico", "Crédito Nubank", 115.0, "2025-12-01", "dez/25", ""], ["105", "LIGHTROOM,APLLE MUSIC", "Lifestyle", "Básico", "Crédito Nubank", 24.0, "2025-12-01", "dez/25", ""], ["106", "ICLOUD E GOOGLE ONE", "Lifestyle", "Básico", "Crédito Nubank", 34.0, "2025-12-01", "dez/25", ""], ["107", "ÁGUA", "Conta", "Dívida", "Crédito Nubank", 131.0, "2025-12-01", "dez/25", ""], ["108", "Mercado ", "Mercado", "Básico", "FlashEats", 65.68, "2025-12-01", "dez/25", ""], ["109", "Almoço com Anna 1/2", "Alimentação", "Lazer", "Crédito Nubank", 50.43, "2025-12-04", "dez/25", "1/2"], ["110", "Ração pipoca 1/2", "Conta", "Básico", "Crédito Nubank", 33.81, "2025-12-05", "dez/25", "1/2"], ["111", "passagem", "Transporte", "Básico", "FlashMoove", 10.0, "2025-12-02", "dez/25", ""], ["112", "Barrinha", "Alimentação", "Básico", "FlashEats", 10.9, "2025-12-02", "dez/25", ""], ["113", "Salgado", "Alimentação", "Básico", "FlashEats", 8.0, "2025-12-02", "dez/25", ""], ["114", "Janta", "Alimentação", "Básico", "FlashEats", 46.0, "2025-12-02", "dez/25", ""], ["115", "passagem ", "Transporte", "Básico", "FlashMoove", 100.0, "2025-12-03", "dez/25", ""], ["116", "casquinha", "Alimentação", "Básico", "FlashEats", 8.0, "2025-12-03", "dez/25", ""], ["117", "doce", "Alimentação", "Básico", "FlashEats", 5.0, "2025-12-03", "dez/25", ""], ["118", "mercado, ovo", "Alimentação", "Básico", "FlashEats", 24.0, "2025-12-03", "dez/25", ""], ["119", "uber", "Transporte", "Básico", "FlashMoove", 18.9, "2025-12-04", "dez/25", ""], ["120", "doce", "Alimentação", "Lazer", "FlashEats", 9.0, "2025-12-04", "dez/25", ""], ["121", "uber facu", "Alimentação", "Básico", "FlashMoove", 18.0, "2025-12-05", "dez/25", ""], ["122", "barrinha", "Alimentação", "Básico", "FlashEats", 12.0, "2025-12-05", "dez/25", ""], ["123", "mercado ", "Alimentação", "Básico", "FlashEats", 31.16, "2025-12-05", "dez/25", ""], ["124", "frango+ ovo", "Alimentação", "Básico", "FlashEats", 45.33, "2025-12-06", "dez/25", ""], ["125", "oliva", "Alimentação", "Básico", "FlashEats", 50.25, "2025-12-01", "dez/25", ""], ["126", "pão", "Alimentação", "Básico", "FlashEats", 5.0, "2025-12-01", "dez/25", ""], ["127", "doce", "Alimentação", "Básico", "FlashEats", 6.0, "2025-12-01", "dez/25", ""], ["128", "Passagem", "Transporte", "Básico", "FlashMoove", 20.0, "2025-12-01", "dez/25", ""], ["129", "Rei do mate", "Alimentação", "Básico", "FlashEats", 12.0, "2025-12-01", "dez/25", ""], ["130", "doce", "Alimentação", "Básico", "FlashEats", 9.0, "2025-12-01", "dez/25", ""], ["131", "Psico", "Saúde", "Básico", "Crédito Nubank", 233.0, "2025-12-10", "dez/25", ""], ["132", "Show Rosalia 1/2", "Festa", "Lazer", "Crédito Nubank", 150.0, "2025-12-10", "dez/25", "1/2"], ["133", "uber prova", "Transporte", "Básico", "Crédito Nubank", 35.0, "2025-12-09", "dez/25", ""], ["134", "cookie", "Alimentação", "Lazer", "Crédito Nubank", 30.0, "2025-12-09", "dez/25", ""], ["135", "Uber sasa", "Transporte", "Lazer", "Crédito Nubank", 36.0, "2025-12-10", "dez/25", ""], ["136", "Carteirinha estudante", "Imprevisto", "Dívida", "Crédito Nubank", 30.0, "2025-12-10", "dez/25", ""], ["137", "Braco Camis", "Alimentação", "Lazer", "Pix C6", 33.7, "2025-12-08", "dez/25", ""], ["138", "Débito itau", "Conta", "Dívida", "Pix C6", 15.0, "2025-12-10", "dez/25", ""], ["139", "Cookie Facu", "Alimentação", "Básico", "Pix C6", 16.0, "2025-12-10", "dez/25", ""], ["140", "Almço", "Bebida", "Lazer", "FlashEats", 26.0, "2025-12-11", "dez/25", ""], ["141", "111 DiscBar", "Alimentação", "Lazer", "FlashEats", 138.48, "2025-12-12", "dez/25", ""], ["142", "Alface", "Alimentação", "Básico", "FlashEats", 9.0, "2025-12-12", "dez/25", ""], ["143", "Bis", "Alimentação", "Lazer", "FlashEats", 7.49, "2025-12-13", "dez/25", ""], ["144", "Firma", "Alimentação", "Lazer", "FlashEats", 72.5, "2025-12-14", "dez/25", ""], ["145", "doce", "Alimentação", "Básico", "FlashEats", 15.0, "2025-12-08", "dez/25", ""], ["146", "baccio", "Alimentação", "Básico", "FlashEats", 21.95, "2025-12-08", "dez/25", ""], ["147", "Mercado", "Alimentação", "Básico", "FlashEats", 24.0, "2025-12-10", "dez/25", ""], ["149", "Uber", "Transporte", "Básico", "FlashMoove", 25.96, "2025-12-06", "dez/25", ""], ["150", "Riocard", "Transporte", "Básico", "FlashMoove", 10.0, "2025-12-08", "dez/25", ""], ["151", "Uber", "Transporte", "Lazer", "FlashMoove", 32.05, "2025-12-09", "dez/25", ""], ["152", "Uber SaSa", "Transporte", "Lazer", "Crédito Nubank", 23.3, "2025-12-10", "dez/25", ""], ["153", "Farmácio", "Saúde", "Lazer", "Crédito Nubank", 16.57, "2025-12-11", "dez/25", ""], ["154", "Uber volta Sasa", "Transporte", "Lazer", "Crédito Nubank", 23.8, "2025-12-12", "dez/25", ""], ["155", "Livros", "Lifestyle", "Educação", "Crédito Nubank", 50.0, "2025-12-12", "dez/25", ""], ["156", "Uber Firma", "Transporte", "Lazer", "Crédito Nubank", 22.93, "2025-12-14", "dez/25", ""], ["157", "Amigo Oculto", "Lifestyle", "Lazer", "Crédito Nubank", 64.0, "2025-12-14", "dez/25", ""], ["158", "Sorvete", "Alimentação", "Lazer", "Crédito Nubank", 15.0, "2025-12-14", "dez/25", ""], ["159", "Farmácia", "Lifestyle", "Básico", "Crédito Nubank", 10.08, "2025-12-14", "dez/25", ""], ["160", "Uber", "Transporte", "Lazer", "Crédito Nubank", 15.94, "2025-12-14", "dez/25", ""], ["161", "Uber multi", "Lifestyle", "Básico", "Crédito Nubank", 30.33, "2025-12-16", "dez/25", ""], ["162", "CORTE CABELP", "Lifestyle", "Básico", "Crédito Nubank", 60.0, "2025-12-16", "dez/25", ""], ["163", "Uber volta cabelo", "Transporte", "Básico", "Crédito Nubank", 11.14, "2025-12-16", "dez/25", ""], ["164", "Uber Luiza", "Transporte", "Lazer", "Crédito Nubank", 14.0, "2025-12-17", "dez/25", ""], ["166", "Uber volta nobrega", "Transporte", "Lazer", "Crédito Nubank", 20.2, "2025-12-17", "dez/25", ""], ["167", "Uber casa karol", "Transporte", "Lazer", "Crédito Nubank", 24.4, "2025-12-22", "dez/25", ""], ["168", "Beats Botafogo", "Bebida", "Lazer", "Crédito Nubank", 15.0, "2025-12-21", "dez/25", ""], ["169", "Uber ida e volta aldeia", "Transporte", "Lazer", "Crédito Nubank", 68.0, "2025-12-21", "dez/25", ""], ["170", "Uber casa ias", "Transporte", "Lazer", "Crédito Nubank", 37.0, "2025-12-21", "dez/25", ""], ["171", "Riocard", "Transporte", "Lazer", "FlashMoove", 56.71, "2025-12-21", "dez/25", ""], ["172", "Tempero", "Alimentação", "Básico", "Crédito Nubank", 2.5, "2025-12-23", "dez/25", ""], ["173", "Uber Torta", "Transporte", "Lazer", "Crédito Nubank", 33.66, "2025-12-23", "dez/25", ""], ["174", "Zig Tickets *Zig Ticke - Parcela 2/2", "Festa", "Lazer", "Crédito Nubank", 59.42, "2026-01-18", "jan/26", "2/2"], ["175", "Puma Sports Ltda. - Parcela 9/10", "Roupa", "Básico", "Crédito Nubank", 79.99, "2026-01-14", "jan/26", "9/10"], ["176", "PET FUN - 2/2", "Conta", "Dívida", "Crédito Nubank", 33.81, "2026-01-11", "jan/26", "2/2"], ["177", "RAGAZZA DI PASTA - PASTIFICIO E ALIMENTOS LTDA - 2/2", "Alimentação", "Lazer", "Crédito Nubank", 50.43, "2026-01-11", "jan/26", "2/2"], ["178", "ACH EVENTOS E FEIRAS DE ALIMENTOS LTDA - 2/2", "Alimentação", "Lazer", "Crédito Nubank", 47.97, "2026-01-11", "jan/26", "2/2"], ["179", "OCEAN FARMA DE ITACOATIARA MEDICAMENTOS LTDA - 2/2", "Saúde", "Básico", "Crédito Nubank", 50.3, "2026-01-11", "jan/26", "2/2"], ["180", "99 TECNOLOGIA LTDA - 2/2", "Transporte", "Lazer", "Crédito Nubank", 25.29, "2026-01-11", "jan/26", "2/2"], ["181", "Ec *Ticketmaster - Parcela 2/2", "Festa", "Lazer", "Crédito Nubank", 143.0, "2026-01-10", "jan/26", "2/2"], ["182", "App *Dentalrm - Parcela 3/3", "Saúde", "Básico", "Crédito Nubank", 30.98, "2026-01-09", "jan/26", "3/3"], ["183", "Conta água ", "Conta", "Dívida", "Crédito Nubank", 270.0, "2026-01-01", "jan/26", ""], ["184", "HBOMAX", "Lifestyle", "Básico", "Crédito Nubank", 15.0, "2026-01-01", "jan/26", ""], ["185", "Academia", "Lifestyle", "Básico", "Crédito Nubank", 115.0, "2026-01-01", "jan/26", ""], ["186", "LIGHTROOM,APLLE MUSIC", "Lifestyle", "Básico", "Crédito Nubank", 24.0, "2026-01-01", "jan/26", ""], ["187", "ICLOUD E GOOGLE ONE", "Lifestyle", "Básico", "Crédito Nubank", 34.0, "2026-01-01", "jan/26", ""], ["188", "Não contabilizei mas mercado", "Alimentação", "Básico", "FlashEats", 98.26, "2025-12-25", "dez/25", ""], ["189", "Uber ano novo", "Transporte", "Lazer", "Crédito Nubank", 22.38, "2025-12-31", "dez/25", ""], ["190", "Uber casa ano novo", "Transporte", "Lazer", "Crédito Nubank", 16.79, "2025-12-31", "dez/25", ""], ["191", "Agenda nova (1/2)", "Lifestyle", "Lazer", "Crédito Nubank", 36.96, "2025-12-31", "dez/25", "1/2"], ["192", "Gilete e bala", "Lifestyle", "Básico", "Pix C6", 38.0, "2025-12-31", "dez/25", ""], ["193", "Agenda nova (2/2)", "Material", "Básico", "Crédito Nubank", 36.96, "2026-01-01", "jan/26", "2/2"], ["194", "Mercado", "Alimentação", "Básico", "FlashEats", 22.39, "2026-01-01", "jan/26", ""], ["195", "Lucca", "Bar", "Lazer", "FlashEats", 118.8, "2026-01-01", "jan/26", ""], ["196", "Comida", "Alimentação", "Básico", "FlashEats", 20.49, "2026-01-01", "jan/26", ""], ["197", "Torta Holandesa", "Alimentação", "Lazer", "FlashEats", 111.08, "2026-01-01", "jan/26", ""], ["198", "uber karol", "Transporte", "Lazer", "FlashMoove", 27.89, "2026-01-01", "jan/26", ""], ["199", "Padaria", "Alimentação", "Básico", "FlashEats", 15.4, "2026-01-01", "jan/26", ""], ["200", "Uber casa eric", "Transporte", "Lazer", "FlashMoove", 21.01, "2026-01-01", "jan/26", ""], ["201", "Uber volta ano novo", "Transporte", "Lazer", "FlashMoove", 25.53, "2026-01-02", "jan/26", ""], ["202", "Bolsa", "Roupa", "Básico", "Pix C6", 40.32, "2026-01-02", "jan/26", ""], ["203", "Vivo", "Conta", "Básico", "Pix C6", 85.41, "2026-01-02", "jan/26", ""], ["204", "Gilette sasa", "Imprevisto", "Básico", "Pix C6", 20.23, "2026-01-03", "jan/26", ""], ["205", "Beats", "Bebida", "Lazer", "Pix C6", 13.0, "2026-01-04", "jan/26", ""], ["206", "Uber", "Transporte", "Lazer", "Pix C6", 45.0, "2026-01-04", "jan/26", ""], ["207", "BATATA", "Alimentação", "Básico", "Pix C6", 10.9, "2026-01-04", "jan/26", ""], ["208", "Uber", "Transporte", "Lazer", "Pix C6", 39.0, "2026-01-08", "jan/26", ""], ["209", "Pipoca cinema", "Alimentação", "Lazer", "Crédito Nubank", 26.0, "2026-01-08", "jan/26", ""], ["210", "Mercado", "Mercado", "Básico", "FlashEats", 17.16, "2026-01-02", "jan/26", ""], ["211", "Almoço", "Alimentação", "Básico", "FlashEats", 40.0, "2026-01-03", "jan/26", ""], ["212", "Gilette Sasa", "Beleza", "Básico", "FlashEats", 21.99, "2026-01-03", "jan/26", ""], ["213", "Uber", "Transporte", "Lazer", "FlashMoove", 86.94, "2026-01-03", "jan/26", ""], ["214", "BEATS LEBLON", "Bebida", "Lazer", "FlashEats", 27.0, "2026-01-03", "jan/26", ""], ["215", "BEATS ZS", "Bebida", "Lazer", "FlashEats", 16.99, "2026-01-04", "jan/26", ""], ["216", "Uber", "Transporte", "Lazer", "FlashMoove", 46.98, "2026-01-04", "jan/26", ""], ["217", "BEATS ZS", "Bebida", "Lazer", "FlashEats", 11.9, "2026-01-04", "jan/26", ""], ["218", "uber", "Transporte", "Lazer", "FlashMoove", 29.95, "2026-01-04", "jan/26", ""], ["219", "Mercado", "Mercado", "Básico", "FlashEats", 27.39, "2026-01-05", "jan/26", ""], ["220", "Esfirra DOCE PQP", "Alimentação", "Lazer", "FlashEats", 29.41, "2026-01-06", "jan/26", ""], ["221", "Mercado", "Mercado", "Básico", "FlashEats", 31.89, "2026-01-07", "jan/26", ""], ["222", "Uber", "Transporte", "Lazer", "FlashMoove", 28.95, "2026-01-08", "jan/26", ""], ["223", "Goldko", "Alimentação", "Lazer", "FlashEats", 66.3, "2026-01-08", "jan/26", ""], ["224", "uber", "Transporte", "Lazer", "FlashMoove", 38.92, "2026-01-02", "jan/26", ""], ["225", "Whey (1/3)", "Saúde", "Básico", "Crédito Nubank", 48.96, "2026-01-09", "jan/26", "1/3"], ["226", "Uber ipanema ", "Transporte", "Lazer", "Pix C6", 43.24, "2026-01-10", "jan/26", ""], ["227", "Nadas", "Alimentação", "Lazer", "Pix C6", 10.0, "2026-01-10", "jan/26", ""], ["228", "Quiosque (1/2)", "Alimentação", "Lazer", "Crédito Nubank", 103.84, "2026-01-10", "jan/26", "1/2"], ["229", "Belmonte", "Bar", "Lazer", "Crédito Nubank", 105.9, "2026-01-10", "jan/26", ""], ["230", "Uber volta leblon", "Transporte", "Lazer", "Crédito Nubank", 67.0, "2026-01-10", "jan/26", ""], ["231", "Mercado", "Alimentação", "Básico", "FlashEats", 29.0, "2026-01-09", "jan/26", ""], ["232", "Mercado", "Alimentação", "Básico", "FlashEats", 8.0, "2026-01-10", "jan/26", ""], ["233", "Sorvete Baccio", "Alimentação", "Lazer", "FlashEats", 26.0, "2026-01-10", "jan/26", ""], ["234", "Batata ruffles", "Alimentação", "Lazer", "FlashEats", 9.0, "2026-01-10", "jan/26", ""], ["235", "Uber Vilela", "Transporte", "Lazer", "Crédito Nubank", 45.0, "2026-01-12", "jan/26", ""], ["236", "Parque bar", "Festa", "Lazer", "Crédito Nubank", 65.67, "2026-01-15", "jan/26", ""], ["237", "Uber volta Parque", "Transporte", "Lazer", "Crédito Nubank", 45.27, "2026-01-15", "jan/26", ""], ["238", "Uber Sasa", "Transporte", "Lazer", "FlashMoove", 61.93, "2026-01-17", "jan/26", ""], ["239", "Beats", "Bebida", "Lazer", "Pix C6", 10.0, "2026-01-15", "jan/26", ""], ["240", "Mercado", "Alimentação", "Básico", "Crédito Nubank", 10.9, "2026-01-12", "jan/26", ""], ["241", "Comidas Praia", "Alimentação", "Lazer", "Crédito Nubank", 38.0, "2026-01-17", "jan/26", ""], ["242", "Uber Praia (1/2)", "Transporte", "Lazer", "Crédito Nubank", 10.0, "2026-01-17", "jan/26", "1/2"], ["243", "Nobrega", "Alimentação", "Lazer", "Crédito Nubank", 87.8, "2026-01-18", "jan/26", ""], ["244", "Comida Praia", "Alimentação", "Lazer", "Crédito Nubank", 28.7, "2026-01-18", "jan/26", ""], ["245", "Uber volta Karol", "Transporte", "Lazer", "Crédito Nubank", 17.0, "2026-01-18", "jan/26", ""], ["246", "BrawlStars", "Lifestyle", "Lazer", "Crédito Nubank", 30.0, "2026-01-22", "jan/26", ""], ["247", "Barrinha", "Alimentação", "Lazer", "Crédito Nubank", 12.0, "2026-01-22", "jan/26", ""], ["248", "Broto Cezareth", "Bar", "Lazer", "Crédito Nubank", 43.0, "2026-01-23", "jan/26", ""], ["249", "Uber Broto", "Transporte", "Lazer", "Crédito Nubank", 45.0, "2026-01-23", "jan/26", ""], ["250", "Frango+Ovo", "Mercado", "Básico", "Crédito Nubank", 43.0, "2026-01-24", "jan/26", ""], ["251", "Restatne VR", "Alimentação", "Básico", "FlashEats", 89.0, "2026-01-23", "jan/26", ""], ["252", "Uber ida sasa", "Transporte", "Lazer", "Crédito Nubank", 12.0, "2026-01-24", "jan/26", ""], ["253", "Uber volta Sasa", "Transporte", "Lazer", "Crédito Nubank", 23.0, "2026-01-25", "jan/26", ""], ["254", "alface+milho", "Mercado", "Básico", "Crédito Nubank", 15.0, "2026-01-26", "jan/26", ""], ["255", "Puma Sports Ltda. - Parcela 10/10", "Roupa", "Básico", "Crédito Nubank", 79.99, "2026-02-14", "fev/26", "10/10"], ["256", "Zig Tickets *Zig Ticke - Parcela 2/3", "Festa", "Lazer", "Crédito Nubank", 65.67, "2026-02-14", "fev/26", "2/3"], ["257", "IVAN MACEDO DE SA", "Transporte", "Lazer", "Crédito Nubank", 35.83, "2026-02-11", "fev/26", ""], ["258", "PET FUN - 1/2", "Mercado", "Básico", "Crédito Nubank", 35.37, "2026-02-11", "fev/26", "1/2"], ["259", "UBER DO BRASIL TECNOLOGIA LTDA. - 2/2", "Transporte", "Lazer", "Crédito Nubank", 45.27, "2026-02-11", "fev/26", "2/2"], ["260", "Fabiano de Marins Santos - 2/2", "Transporte", "Básico", "Crédito Nubank", 10.02, "2026-02-11", "fev/26", "2/2"], ["261", "SUPERMERCADO REAL DE NITEROI LTDA", "Mercado", "Lazer", "Crédito Nubank", 34.52, "2026-02-11", "fev/26", ""], ["262", "DROGARIA ITAMARATY LIMITADA - 1/2", "Beleza", "Básico", "Crédito Nubank", 79.27, "2026-02-11", "fev/26", "1/2"], ["263", "ACH EVENTOS E FEIRAS DE ALIMENTOS LTDA - 2/2", "Alimentação", "Lazer", "Crédito Nubank", 87.8, "2026-02-11", "fev/26", "2/2"], ["264", "Julia Salgueiro Cassel", "Alimentação", "Lazer", "Crédito Nubank", 49.69, "2026-02-11", "fev/26", ""], ["265", "LA CARIOCA - 2/2", "Alimentação", "Lazer", "Crédito Nubank", 103.84, "2026-02-11", "fev/26", "2/2"], ["266", "Mp *Growthsupplements - Parcela 2/3", "Lifestyle", "Básico", "Crédito Nubank", 48.96, "2026-02-09", "fev/26", "2/3"], ["267", "Icloud", "Conta", "Básico", "Crédito Nubank", 19.9, "2026-02-10", "fev/26", ""], ["268", "HBO MAX", "Conta", "Básico", "Crédito Nubank", 30.0, "2026-02-20", "fev/26", ""], ["269", "Apple music", "Conta", "Básico", "Crédito Nubank", 21.9, "2026-02-20", "fev/26", ""], ["270", "To-do List", "Conta", "Básico", "Crédito Nubank", 12.99, "2026-02-12", "fev/26", ""], ["271", "Vivo", "Conta", "Dívida", "Crédito Nubank", 85.41, "2026-02-01", "fev/26", ""], ["272", "Conta de água", "Conta", "Dívida", "Crédito Nubank", 288.0, "2026-02-01", "fev/26", ""], ["273", "Roupa Carnaval", "Roupa", "Lazer", "Crédito Nubank", 25.69, "2026-01-30", "jan/26", ""], ["274", "Barrinha", "Alimentação", "Lazer", "Crédito Nubank", 12.5, "2026-01-27", "jan/26", ""], ["275", "Barrinha", "Alimentação", "Lazer", "Crédito Nubank", 17.0, "2026-01-28", "jan/26", ""], ["276", "NarsCorretivo 1/5", "Beleza", "Lazer", "Crédito Nubank", 46.62, "2026-01-30", "jan/26", "1/5"], ["277", "Contorno  1/2", "Beleza", "Lazer", "Crédito Nubank", 78.7, "2026-01-30", "jan/26", "1/2"], ["278", "Livro", "Material", "Básico", "Crédito Nubank", 42.1, "2026-02-01", "fev/26", ""], ["279", "Cabelo", "Beleza", "Básico", "Crédito Nubank", 68.96, "2026-02-01", "fev/26", ""], ["280", "Corretivo NARS 2/5", "Beleza", "Lazer", "Crédito Nubank", 46.62, "2026-02-01", "fev/26", "2/5"], ["281", "Contorno 2/2", "Beleza", "Lazer", "Crédito Nubank", 78.7, "2026-02-01", "fev/26", "2/2"], ["282", "Matcha", "Alimentação", "Lazer", "FlashEats", 23.52, "2026-02-01", "fev/26", ""], ["283", "Uber icarai-casa", "Transporte", "Básico", "FlashMoove", 15.9, "2026-02-01", "fev/26", ""], ["284", "Mercado dieta", "Mercado", "Básico", "FlashEats", 62.34, "2026-02-01", "fev/26", ""], ["285", "alface", "Mercado", "Básico", "FlashEats", 4.0, "2026-02-01", "fev/26", ""], ["286", "Uber Multicenter", "Transporte", "Básico", "FlashMoove", 10.0, "2026-02-01", "fev/26", ""], ["287", "Uber volta multi", "Transporte", "Básico", "FlashMoove", 20.93, "2026-02-01", "fev/26", ""], ["288", "Ida e Volta MARICÁ", "Transporte", "Lazer", "Crédito Nubank", 84.0, "2026-02-03", "fev/26", ""], ["289", "Alface", "Mercado", "Básico", "FlashEats", 4.0, "2026-02-01", "fev/26", ""], ["290", "Uber", "Transporte", "Básico", "FlashMoove", 30.0, "2026-02-01", "fev/26", ""], ["291", "Botfogo saída", "Bar", "Lazer", "FlashEats", 84.0, "2026-02-01", "fev/26", ""], ["292", "Uber botafogo-casa", "Transporte", "Lazer", "FlashMoove", 25.0, "2026-02-01", "fev/26", ""], ["293", "barrinha", "Alimentação", "Lazer", "FlashEats", 12.0, "2026-02-02", "fev/26", ""], ["294", "Padaria", "Transporte", "Lazer", "FlashMoove", 14.0, "2026-02-03", "fev/26", ""], ["295", "Mercado", "Alimentação", "Básico", "FlashEats", 20.34, "2026-02-03", "fev/26", ""], ["296", "Barrinha", "Mercado", "Lazer", "FlashEats", 16.23, "2026-02-04", "fev/26", ""], ["297", "Casas pedro", "Mercado", "Lazer", "FlashEats", 9.0, "2026-02-05", "fev/26", ""], ["298", "Bala", "Mercado", "Lazer", "FlashEats", 15.0, "2026-02-06", "fev/26", ""], ["299", "Cookie", "Alimentação", "Básico", "Crédito Nubank", 16.0, "2026-02-08", "fev/26", ""], ["300", "Barrinha carnaval", "Alimentação", "Lazer", "Crédito Nubank", 50.11, "2026-02-09", "fev/26", ""], ["301", "Fantasias", "Transporte", "Lazer", "Crédito Nubank", 55.5, "2026-02-10", "fev/26", ""], ["302", "Uber volta centro (1/2)", "Transporte", "Lazer", "Crédito Nubank", 19.86, "2026-02-10", "fev/26", "1/2"], ["303", "Uber trabalho", "Transporte", "Básico", "Crédito Nubank", 14.7, "2026-02-11", "fev/26", ""], ["304", "Uber maricá", "Transporte", "Básico", "Crédito Nubank", 45.9, "2026-02-12", "fev/26", ""], ["305", "Uber volta MARICA (1/2)", "Transporte", "Básico", "Crédito Nubank", 27.73, "2026-02-12", "fev/26", "1/2"], ["306", "Uber Carna", "Transporte", "Lazer", "Crédito Nubank", 49.95, "2026-02-13", "fev/26", ""], ["307", "Uber centro>aterro", "Transporte", "Lazer", "Crédito Nubank", 27.0, "2026-02-13", "fev/26", ""], ["308", "Caipirinha bloco", "Bebida", "Lazer", "Crédito Nubank", 18.9, "2026-02-13", "fev/26", ""], ["309", "Bebida bloco", "Bebida", "Lazer", "Crédito Nubank", 18.5, "2026-02-15", "fev/26", ""], ["310", "Uber até boitolo", "Transporte", "Lazer", "Crédito Nubank", 80.0, "2026-02-15", "fev/26", ""], ["311", "Uber casa gabriel", "Transporte", "Lazer", "Crédito Nubank", 11.0, "2026-02-16", "fev/26", ""], ["312", "Caipirinha vene (1/2", "Bebida", "Lazer", "Crédito Nubank", 14.26, "2026-02-16", "fev/26", "1/2"], ["313", "Uber pós bota", "Transporte", "Lazer", "Crédito Nubank", 22.99, "2026-02-16", "fev/26", ""], ["314", "Uber bloco", "Transporte", "Lazer", "Crédito Nubank", 30.82, "2026-02-17", "fev/26", ""], ["315", "Beats", "Bebida", "Lazer", "Crédito Nubank", 21.0, "2026-02-17", "fev/26", ""], ["316", "Casquinha", "Alimentação", "Lazer", "Crédito Nubank", 13.4, "2026-02-17", "fev/26", ""], ["317", "Água", "Bebida", "Básico", "Crédito Nubank", 5.0, "2026-02-17", "fev/26", ""], ["318", "Uber volta casa", "Transporte", "Lazer", "Crédito Nubank", 11.7, "2026-02-17", "fev/26", ""], ["319", "Mercado", "Mercado", "Básico", "Crédito Nubank", 7.0, "2026-02-17", "fev/26", ""], ["320", "Uber volta barco (1/2)", "Transporte", "Lazer", "Crédito Nubank", 13.42, "2026-02-21", "fev/26", "1/2"], ["321", "Mercado e bebida", "Alimentação", "Lazer", "FlashEats", 378.57, "2026-02-22", "fev/26", ""], ["322", "Uber", "Transporte", "Lazer", "FlashMoove", 87.0, "2026-02-22", "fev/26", ""], ["267", "Icloud", "Conta", "Básico", "Crédito Nubank", 19.9, "2026-03-10", "mar/26", ""], ["268", "HBO MAX", "Conta", "Básico", "Crédito Nubank", 30.0, "2026-03-20", "mar/26", ""], ["269", "Spotify", "Conta", "Básico", "Crédito Nubank", 24.0, "2026-03-20", "mar/26", ""], ["270", "To-do List", "Conta", "Básico", "Crédito Nubank", 12.99, "2026-03-12", "mar/26", ""], ["271", "Vivo", "Conta", "Dívida", "Crédito Nubank", 85.41, "2026-03-01", "mar/26", ""], ["272", "Conta de água", "Conta", "Dívida", "Crédito Nubank", 122.86, "2026-03-01", "mar/26", ""], ["273", "Sephora Store - Parcela 3/5", "Beleza", "Básico", "Crédito Nubank", 46.62, "2026-03-30", "mar/26", "3/5"], ["274", "Zig Tickets *Zig Ticke - Parcela 3/3", "Festa", "Lazer", "Crédito Nubank", 65.67, "2026-03-14", "mar/26", "3/3"], ["275", "DIEGO BARBOSA DE SOUZA - 2/2", "Transporte", "Lazer", "Crédito Nubank", 27.73, "2026-03-13", "mar/26", "2/2"], ["276", "LANCHONETE FERREIRINHA DO MACHADO LTDA - 1/2", "Alimentação", "Básico", "Crédito Nubank", 31.38, "2026-03-13", "mar/26", "1/2"], ["277", "MATHEUS VIEIRA COSTA DE AZEREDO - 2/2", "Transporte", "Lazer", "Crédito Nubank", 13.42, "2026-03-13", "mar/26", "2/2"], ["278", "Vania De Oliveira Fernandes Da Silva - 1/2", "Alimentação", "Lazer", "Crédito Nubank", 18.87, "2026-03-13", "mar/26", "1/2"], ["279", "99 TECNOLOGIA LTDA - 2/2", "Transporte", "Lazer", "Crédito Nubank", 19.86, "2026-03-13", "mar/26", "2/2"], ["280", "PET FUN - 2/2", "Mercado", "Básico", "Crédito Nubank", 35.37, "2026-03-13", "mar/26", "2/2"], ["281", "Vania De Oliveira Fernandes Da Silva - 2/2", "Transporte", "Básico", "Crédito Nubank", 14.26, "2026-03-13", "mar/26", "2/2"], ["282", "DROGARIA ITAMARATY LIMITADA - 2/2", "Beleza", "Básico", "Crédito Nubank", 79.27, "2026-03-13", "mar/26", "2/2"], ["283", "99 TECNOLOGIA LTDA", "Transporte", "Lazer", "Crédito Nubank", 29.07, "2026-03-13", "mar/26", ""], ["284", "Mp *Growthsupplements - Parcela 3/3", "Saúde", "Básico", "Crédito Nubank", 48.96, "2026-03-09", "mar/26", "3/3"], ["323", "Mercado", "Mercado", "Básico", "Crédito Nubank", 16.0, "2026-02-16", "fev/26", ""], ["324", "comidinha pop", "Imprevisto", "Básico", "Crédito Nubank", 3.5, "2026-02-16", "fev/26", ""], ["325", "Uber devendo", "Transporte", "Básico", "Crédito Nubank", 30.18, "2026-02-22", "fev/26", ""], ["326", "Cinema", "Lifestyle", "Lazer", "Crédito Nubank", 22.0, "2026-02-25", "fev/26", ""], ["327", "PET FUN", "Mercado", "Dívida", "Crédito Nubank", 62.4, "2026-03-13", "mar/26", ""], ["328", "JUAN GOMES FERNANDES DE OLIVEIRA", "Mercado", "Lazer", "Crédito Nubank", 31.72, "2026-03-13", "mar/26", ""], ["329", "UBER DO BRASIL TECNOLOGIA LTDA. - 1/2", "Transporte", "Básico", "Crédito Nubank", 24.07, "2026-03-13", "mar/26", "1/2"], ["330", "59.899.817 GIUSEPPE ACHILLE DE SOUZA MARTIRE", "Transporte", "Lazer", "Crédito Nubank", 28.57, "2026-03-13", "mar/26", ""], ["331", "Almoço Salmão", "Alimentação", "Lazer", "FlashEats", 62.55, "2026-03-01", "mar/26", ""], ["332", "Whey", "Saúde", "Básico", "FlashEats", 168.33, "2026-03-01", "mar/26", ""], ["333", "Salgadinho", "Alimentação", "Lazer", "FlashEats", 8.99, "2026-03-01", "mar/26", ""], ["334", "Matcha", "Alimentação", "Lazer", "FlashEats", 23.52, "2026-03-01", "mar/26", ""], ["335", "Mercado fit", "Mercado", "Básico", "FlashEats", 37.35, "2026-03-01", "mar/26", ""], ["336", "Mercado cookies", "Alimentação", "Lazer", "FlashEats", 90.63, "2026-03-01", "mar/26", ""], ["337", "uber karol", "Transporte", "Básico", "FlashMoove", 25.93, "2026-03-01", "mar/26", ""], ["338", "Frontera+shopping", "Alimentação", "Lazer", "FlashEats", 96.67, "2026-03-01", "mar/26", ""], ["339", "Uber casa karol + casa pós", "Transporte", "Lazer", "FlashMoove", 43.94, "2026-03-01", "mar/26", ""], ["340", "Brawlstars", "Lifestyle", "Lazer", "Crédito Nubank", 42.4, "2026-03-04", "mar/26", ""], ["341", "Academia", "Saúde", "Básico", "Crédito Nubank", 120.0, "2026-03-15", "mar/26", ""], ["342", "Fone imprevisto (1/2)", "Imprevisto", "Básico", "Crédito Nubank", 27.38, "2026-03-05", "mar/26", "1/2"], ["343", "Fone JBL novo (1/4)", "Imprevisto", "Básico", "Crédito Nubank", 74.4, "2026-03-06", "mar/26", "1/4"], ["344", "Presilha cabelo", "Roupa", "Básico", "Crédito Nubank", 12.23, "2026-03-08", "mar/26", ""], ["345", "Material facul", "Material", "Educação", "Crédito Nubank", 52.8, "2026-03-09", "mar/26", ""], ["346", "Barrinha goldko", "Alimentação", "Lazer", "Crédito Nubank", 18.9, "2026-03-09", "mar/26", ""], ["347", "Salgado trabalho", "Alimentação", "Básico", "Crédito Nubank", 8.0, "2026-03-10", "mar/26", ""], ["348", "Uber facu", "Transporte", "Básico", "Crédito Nubank", 14.0, "2026-03-11", "mar/26", ""], ["349", "DOCE FACU", "Alimentação", "Básico", "Pix C6", 9.0, "2026-03-11", "mar/26", ""], ["350", "Doação", "Imprevisto", "Lazer", "Pix C6", 15.0, "2026-03-13", "mar/26", ""], ["351", "DOCE FACU", "Alimentação", "Lazer", "Pix C6", 4.0, "2026-03-13", "mar/26", ""], ["352", "Mercado Urgente (1/2)", "Mercado", "Básico", "Crédito Nubank", 40.21, "2026-03-14", "mar/26", "1/2"], ["353", "Alface", "Mercado", "Básico", "Crédito Nubank", 3.68, "2026-03-14", "mar/26", ""], ["354", "Disney Plus", "Lifestyle", "Básico", "Crédito Nubank", 9.0, "2026-03-14", "mar/26", ""], ["355", "Chave casa nova ", "Imprevisto", "Dívida", "Crédito Nubank", 53.74, "2026-03-15", "mar/26", ""], ["356", "Comida Presencial", "Alimentação", "Básico", "Crédito Nubank", 30.0, "2026-03-16", "mar/26", ""], ["357", "Salgado", "Alimentação", "Básico", "Crédito Nubank", 9.0, "2026-03-19", "mar/26", ""], ["358", "Ingresso AnivKarol", "Festa", "Lazer", "Crédito Nubank", 46.25, "2026-03-19", "mar/26", ""], ["359", "Mercado (1/2)", "Mercado", "Básico", "Crédito Nubank", 7.16, "2026-03-16", "mar/26", "1/2"], ["360", "Almoço Vó", "Alimentação", "Básico", "Crédito Nubank", 67.0, "2026-03-21", "mar/26", ""], ["361", "Bar da cachaça", "Bar", "Lazer", "Crédito Nubank", 52.0, "2026-03-21", "mar/26", ""], ["362", "Barrinha", "Alimentação", "Lazer", "Crédito Nubank", 25.0, "2026-03-21", "mar/26", ""], ["363", "Frango mercado", "Alimentação", "Básico", "Crédito Nubank", 27.0, "2026-03-23", "mar/26", ""], ["364", "barrinha", "Alimentação", "Lazer", "Crédito Nubank", 11.9, "2026-03-21", "mar/26", ""], ["365", "Milho praia", "Alimentação", "Lazer", "Crédito Nubank", 16.0, "2026-03-21", "mar/26", ""], ["366", "Cookie", "Alimentação", "Lazer", "Crédito Nubank", 22.13, "2026-03-22", "mar/26", ""], ["367", "MERCADO MAIORIA", "Alimentação", "Básico", "FlashEats", 325.0, "2026-03-23", "mar/26", ""], ["368", "UBER", "Transporte", "Lazer", "FlashMoove", 175.53, "2026-03-23", "mar/26", ""], ["369", "frango", "Mercado", "Básico", "Crédito Nubank", 25.92, "2026-03-27", "mar/26", ""], ["370", "uber facu", "Transporte", "Lazer", "Crédito Nubank", 15.0, "2026-03-28", "mar/26", ""], ["371", "lanche estág", "Alimentação", "Lazer", "Crédito Nubank", 23.5, "2026-03-28", "mar/26", ""], ["372", "farmácia", "Alimentação", "Básico", "Crédito Nubank", 12.0, "2026-03-29", "mar/26", ""], ["373", "Sephora Store - Parcela 4/5", "Beleza", "Básico", "Crédito Nubank", 46.62, "2026-04-30", "abr/26", "4/5"], ["374", "EXCLUSIVO COMERCIO DE ALIMENTOS LTDA", "Alimentação", "Básico", "Crédito Nubank", 32.6, "2026-04-11", "abr/26", ""], ["375", "LANCHONETE FERREIRINHA DO MACHADO LTDA - 2/2", "Alimentação", "Básico", "Crédito Nubank", 31.38, "2026-04-11", "abr/26", "2/2"], ["376", "EXCLUSIVO COMERCIO DE ALIMENTO - 2/2", "Mercado", "Básico", "Crédito Nubank", 7.16, "2026-04-11", "abr/26", "2/2"], ["377", "EXCLUSIVO COMERCIO DE ALIMENTO", "Mercado", "Básico", "Crédito Nubank", 17.22, "2026-04-11", "abr/26", ""], ["378", "Vania De Oliveira Fernandes Da Silva - 2/2", "Transporte", "Lazer", "Crédito Nubank", 18.87, "2026-04-11", "abr/26", "2/2"], ["379", "BIO MUNDO", "Mercado", "Básico", "Crédito Nubank", 21.76, "2026-04-11", "abr/26", ""], ["380", "EXCLUSIVO COMERCIO DE ALIMENTO - 1/2", "Mercado", "Básico", "Crédito Nubank", 29.44, "2026-04-11", "abr/26", "1/2"], ["381", "EXCLUSIVO COMERCIO DE ALIMENTOS LTDA", "Mercado", "Básico", "Crédito Nubank", 36.87, "2026-04-11", "abr/26", ""], ["382", "UBER DO BRASIL TECNOLOGIA LTDA. - 2/2", "Transporte", "Básico", "Crédito Nubank", 24.07, "2026-04-11", "abr/26", "2/2"], ["383", "IFOOD COM AGENCIA DE RESTAURANTES ONLINE S A - 2/2", "Alimentação", "Lazer", "Crédito Nubank", 40.2, "2026-04-11", "abr/26", "2/2"], ["384", "99 FOOD - 2/2", "Transporte", "Lazer", "Crédito Nubank", 22.14, "2026-04-11", "abr/26", "2/2"], ["385", "IBB ARTIGOS ELETRONICOS LTDA - 2/2", "Imprevisto", "Básico", "Crédito Nubank", 27.38, "2026-04-11", "abr/26", "2/2"], ["386", "EXCLUSIVO COMERCIO DE ALIMENTO - 1/2", "Material", "Lazer", "Crédito Nubank", 10.84, "2026-04-11", "abr/26", "1/2"], ["387", "Mercadolivre*Mercadol - Parcela 2/4", "Imprevisto", "Básico", "Crédito Nubank", 74.39, "2026-04-07", "abr/26", "2/4"], ["388", "Icloud", "Conta", "Dívida", "Crédito Nubank", 19.9, "2026-04-01", "abr/26", ""], ["389", "HBO MAX", "Conta", "Dívida", "Crédito Nubank", 30.0, "2026-04-01", "abr/26", ""], ["390", "Spotify", "Conta", "Dívida", "Crédito Nubank", 12.99, "2026-04-01", "abr/26", ""], ["391", "To-do List", "Conta", "Dívida", "Crédito Nubank", 12.99, "2026-04-01", "abr/26", ""], ["392", "Vivo", "Conta", "Dívida", "Crédito Nubank", 85.41, "2026-04-01", "abr/26", ""], ["393", "Conta de água", "Conta", "Dívida", "Crédito Nubank", 118.0, "2026-04-01", "abr/26", ""], ["341", "Academia", "Saúde", "Dívida", "Crédito Nubank", 120.0, "2026-04-15", "abr/26", ""], ["394", "Apple music", "Lifestyle", "Básico", "Crédito Nubank", 24.0, "2026-03-31", "mar/26", ""], ["395", "Blusa nova", "Roupa", "Lazer", "Pix C6", 85.67, "2026-03-31", "mar/26", ""], ["396", "Uber volta sabrina", "Transporte", "Lazer", "Crédito Nubank", 24.44, "2026-03-31", "mar/26", ""], ["397", "Cabelo+ creme (1/2)", "Beleza", "Básico", "Crédito Nubank", 61.22, "2026-04-04", "abr/26", "1/2"], ["398", "Escova de dente", "Saúde", "Básico", "Crédito Nubank", 29.0, "2026-04-04", "abr/26", ""], ["399", "RioFW (1/2)", "Lifestyle", "Lazer", "Crédito Nubank", 25.0, "2026-04-04", "abr/26", "1/2"], ["400", "Alface +barrinha", "Mercado", "Básico", "FlashEats", 18.17, "2026-04-01", "abr/26", ""], ["401", "Uber facu", "Transporte", "Básico", "FlashMoove", 15.91, "2026-04-01", "abr/26", ""], ["402", "Mercado dieta", "Mercado", "Básico", "FlashEats", 81.24, "2026-04-01", "abr/26", ""], ["403", "Mercado DIETA", "Mercado", "Básico", "FlashEats", 76.39, "2026-04-01", "abr/26", ""], ["404", "Uber Facu", "Transporte", "Básico", "FlashMoove", 18.92, "2026-04-02", "abr/26", ""], ["405", "Almoço empresa", "Alimentação", "Básico", "FlashEats", 32.89, "2026-04-02", "abr/26", ""], ["406", "DOCE EMPRESA", "Mercado", "Básico", "FlashEats", 4.9, "2026-04-02", "abr/26", ""], ["407", "Salada Sasa", "Alimentação", "Lazer", "FlashEats", 42.89, "2026-04-03", "abr/26", ""], ["408", "Uber cabelo", "Transporte", "Básico", "FlashMoove", 31.0, "2026-04-04", "abr/26", ""], ["409", "Barra Páscoa Mãe", "Mercado", "Lazer", "FlashEats", 18.0, "2026-04-04", "abr/26", ""], ["410", "Amazon livro+ skin acre", "Lifestyle", "Básico", "Crédito Nubank", 96.86, "2026-04-05", "abr/26", ""], ["411", "WheyDUX", "Saúde", "Básico", "Crédito Nubank", 164.07, "2026-04-05", "abr/26", ""], ["412", "Boné", "Roupa", "Lazer", "Crédito Nubank", 28.4, "2026-04-05", "abr/26", ""], ["413", "Comida pip", "Mercado", "Dívida", "Crédito Nubank", 65.0, "2026-04-05", "abr/26", ""], ["414", "Uber facu", "Transporte", "Básico", "Crédito Nubank", 12.27, "2026-04-06", "abr/26", ""], ["415", "Sapato MrCat (1/4)", "Roupa", "Lazer", "Crédito Nubank", 100.0, "2026-04-07", "abr/26", "1/4"], ["416", "Uber Facu", "Transporte", "Lazer", "Crédito Nubank", 33.0, "2026-04-08", "abr/26", ""], ["417", "Fumo", "Bebida", "Lazer", "Crédito Nubank", 19.38, "2026-04-08", "abr/26", ""], ["418", "Pix Ma~e, vai voltar em Maio", "Imprevisto", "Dívida", "Crédito Nubank", 100.0, "2026-04-09", "abr/26", ""], ["419", "Lanche facu", "Alimentação", "Básico", "FlashEats", 8.0, "2026-04-06", "abr/26", ""], ["420", "Uber volta Facu", "Transporte", "Básico", "FlashMoove", 15.91, "2026-04-06", "abr/26", ""], ["421", "Mercado", "Mercado", "Básico", "FlashEats", 25.93, "2026-04-06", "abr/26", ""], ["422", "Mercado", "Mercado", "Básico", "FlashEats", 107.4, "2026-04-07", "abr/26", ""], ["423", "Barrinha", "Mercado", "Básico", "FlashEats", 14.0, "2026-04-07", "abr/26", ""], ["424", "Lanche facu", "Alimentação", "Básico", "FlashEats", 8.0, "2026-04-07", "abr/26", ""], ["425", "Mercado", "Mercado", "Básico", "FlashEats", 43.8, "2026-04-09", "abr/26", ""], ["426", "RioFw", "Bebida", "Lazer", "Crédito Nubank", 75.0, "2026-04-19", "abr/26", ""], ["427", "Pizza (1/2)", "Alimentação", "Lazer", "Crédito Nubank", 36.0, "2026-04-19", "abr/26", "1/2"], ["428", "calculadora", "Material", "Educação", "Crédito Nubank", 44.0, "2026-04-08", "abr/26", ""], ["429", "uber facu", "Transporte", "Básico", "Crédito Nubank", 14.0, "2026-04-11", "abr/26", ""], ["430", "hidratante", "Beleza", "Básico", "Crédito Nubank", 63.0, "2026-04-12", "abr/26", ""], ["431", "mercado trabalho", "Alimentação", "Básico", "Crédito Nubank", 30.0, "2026-04-16", "abr/26", ""], ["432", "Deja Vu", "Bar", "Lazer", "Crédito Nubank", 92.0, "2026-04-18", "abr/26", ""], ["433", "Uber sasa", "Transporte", "Básico", "Crédito Nubank", 20.8, "2026-04-21", "abr/26", ""], ["434", "Bosque Ias (1/5)", "Festa", "Lazer", "Crédito Nubank", 42.56, "2026-04-22", "abr/26", "1/5"], ["435", "Uber sasa (1/2)", "Transporte", "Lazer", "Crédito Nubank", 14.31, "2026-04-24", "abr/26", "1/2"], ["436", "Combo 1 bosque (1/3)", "Bebida", "Lazer", "Crédito Nubank", 34.06, "2026-04-24", "abr/26", "1/3"], ["437", "Uber aniv PRI (1/2)", "Transporte", "Lazer", "Crédito Nubank", 15.55, "2026-04-25", "abr/26", "1/2"], ["438", "Uber facu", "Transporte", "Básico", "FlashMoove", 43.0, "2026-04-11", "abr/26", ""], ["439", "Uber facu", "Transporte", "Básico", "FlashMoove", 28.0, "2026-04-13", "abr/26", ""], ["440", "Facul lanche", "Alimentação", "Básico", "FlashEats", 29.0, "2026-04-13", "abr/26", ""], ["441", "Pós facu anna", "Alimentação", "Lazer", "FlashEats", 32.0, "2026-04-13", "abr/26", ""], ["442", "Uber casa pós facu", "Transporte", "Básico", "FlashEats", 15.0, "2026-04-13", "abr/26", ""], ["443", "Mercado", "Mercado", "Básico", "FlashEats", 41.02, "2026-04-13", "abr/26", ""], ["444", "Mercado", "Mercado", "Básico", "FlashEats", 68.41, "2026-04-14", "abr/26", ""], ["445", "Uber facu", "Transporte", "Básico", "FlashMoove", 17.0, "2026-04-15", "abr/26", ""], ["446", "lanche facu", "Alimentação", "Lazer", "FlashEats", 16.0, "2026-04-15", "abr/26", ""], ["447", "UBER VOLTA FACU", "Transporte", "Básico", "FlashMoove", 13.0, "2026-04-15", "abr/26", ""], ["448", "Mercado", "Mercado", "Básico", "FlashEats", 8.77, "2026-04-15", "abr/26", ""], ["449", "Uber facu", "Transporte", "Básico", "FlashMoove", 23.0, "2026-04-16", "abr/26", ""], ["450", "Casa pedro", "Alimentação", "Básico", "FlashEats", 12.0, "2026-04-16", "abr/26", ""], ["451", "Mercado", "Transporte", "Básico", "FlashMoove", 5.15, "2026-04-17", "abr/26", ""], ["452", "Mercade", "Transporte", "Básico", "FlashMoove", 3.49, "2026-04-18", "abr/26", ""], ["453", "Uber facu", "Transporte", "Básico", "FlashMoove", 47.07, "2026-04-18", "abr/26", ""], ["454", "Uber volta karol", "Transporte", "Básico", "FlashMoove", 30.0, "2026-04-19", "abr/26", ""], ["455", "Uber volta nobrega ", "Transporte", "Lazer", "FlashMoove", 25.94, "2026-04-20", "abr/26", ""], ["456", "Mercado", "Mercado", "Básico", "FlashEats", 23.15, "2026-04-20", "abr/26", ""], ["457", "mercado", "Mercado", "Lazer", "FlashEats", 11.68, "2026-04-24", "abr/26", ""], ["458", "mercado", "Alimentação", "Básico", "Crédito Nubank", 6.0, "2026-04-27", "abr/26", ""], ["459", "Mercado", "Mercado", "Básico", "Crédito Nubank", 56.0, "2026-04-28", "abr/26", ""], ["460", "Uber prova", "Transporte", "Lazer", "Crédito Nubank", 16.31, "2026-04-28", "abr/26", ""], ["461", "Lanche job", "Alimentação", "Básico", "Crédito Nubank", 6.0, "2026-04-28", "abr/26", ""], ["462", "Sephora Store - Parcela 5/5", "Beleza", "Básico", "Crédito Nubank", 46.62, "2026-05-30", "mai/26", "5/5"], ["463", "Ingresse_br Ady*Ingres - Parcela 2/5", "Festa", "Lazer", "Crédito Nubank", 42.56, "2026-05-22", "mai/26", "2/5"], ["464", "Zig Tecnologia S.A. - 2/3", "Festa", "Lazer", "Crédito Nubank", 34.06, "2026-05-11", "mai/26", "2/3"], ["465", "QUARENTA GRAUS PRODUCOES ARTISTICAS LTDA - 1/3", "Lifestyle", "Básico", "Crédito Nubank", 61.94, "2026-05-11", "mai/26", "1/3"], ["466", "JOSE LUIZ VIEIRA LACERDA - 2/2", "Transporte", "Básico", "Crédito Nubank", 19.38, "2026-05-11", "mai/26", "2/2"], ["467", "MONICA LOURENCO DA SILVA ESTEVES", "Roupa", "Básico", "Crédito Nubank", 43.88, "2026-05-11", "mai/26", ""], ["468", "CSB DROGARIAS S/A", "Lifestyle", "Básico", "Crédito Nubank", 16.88, "2026-05-11", "mai/26", ""], ["470", "Zig Tecnologia S.A.", "Festa", "Lazer", "Crédito Nubank", 30.88, "2026-05-11", "mai/26", ""], ["471", "EXCLUSIVO COMERCIO DE ALIMENTO", "Mercado", "Básico", "Crédito Nubank", 41.26, "2026-05-11", "mai/26", ""], ["472", "99 TECNOLOGIA LTDA - 2/2", "Transporte", "Básico", "Crédito Nubank", 15.55, "2026-05-11", "mai/26", "2/2"], ["473", "EXCLUSIVO COMERCIO DE ALIMENTO - 2/2", "Mercado", "Básico", "Crédito Nubank", 29.44, "2026-05-11", "mai/26", "2/2"], ["474", "99 TECNOLOGIA LTDA - 2/2", "Transporte", "Básico", "Crédito Nubank", 14.31, "2026-05-11", "mai/26", "2/2"], ["475", "KATYJU PAPELARIA LTDA - 2/2", "Material", "Educação", "Crédito Nubank", 31.58, "2026-05-11", "mai/26", "2/2"], ["476", "IFOOD COM AGENCIA DE RESTAURANTES ONLINE S A - 2/2", "Alimentação", "Básico", "Crédito Nubank", 38.79, "2026-05-11", "mai/26", "2/2"], ["477", "Andrea Gomes Canella", "Imprevisto", "Básico", "Crédito Nubank", 16.59, "2026-05-11", "mai/26", ""], ["478", "CHA EVENTOS E FEIRAS DE ALIMENTOS LTDA - 1/2", "Alimentação", "Lazer", "Crédito Nubank", 44.24, "2026-05-11", "mai/26", "1/2"], ["479", "EXCLUSIVO COMERCIO DE ALIMENTO - 2/2", "Mercado", "Básico", "Crédito Nubank", 10.84, "2026-05-11", "mai/26", "2/2"], ["480", "EXCLUSIVO COMERCIO DE ALIMENTO", "Mercado", "Básico", "Crédito Nubank", 21.69, "2026-05-11", "mai/26", ""], ["481", "VANDA CARDOZO MENEZES - 2/2", "Transporte", "Básico", "Crédito Nubank", 61.22, "2026-05-11", "mai/26", "2/2"], ["482", "Zig Tecnologia S.A. - 1/3", "Festa", "Lazer", "Crédito Nubank", 29.33, "2026-05-11", "mai/26", "1/3"], ["483", "Mr. Cat Bps - Parcela 2/4", "Roupa", "Básico", "Crédito Nubank", 99.97, "2026-05-08", "mai/26", "2/4"], ["484", "Mercadolivre*Mercadol - Parcela 3/4", "Roupa", "Básico", "Crédito Nubank", 74.39, "2026-05-07", "mai/26", "3/4"], ["485", "Eventim *Eventim - Parcela 2/2", "Festa", "Lazer", "Crédito Nubank", 25.0, "2026-05-04", "mai/26", "2/2"], ["388", "Icloud", "Conta", "Dívida", "Crédito Nubank", 19.9, "2026-05-01", "mai/26", ""], ["389", "HBO MAX", "Conta", "Dívida", "Crédito Nubank", 30.0, "2026-05-01", "mai/26", ""], ["391", "To-do List", "Conta", "Dívida", "Crédito Nubank", 12.99, "2026-05-01", "mai/26", ""], ["392", "Vivo", "Conta", "Dívida", "Crédito Nubank", 85.41, "2026-05-01", "mai/26", ""], ["393", "Conta de água", "Conta", "Dívida", "Crédito Nubank", 146.0, "2026-05-01", "mai/26", ""], ["341", "Academia", "Saúde", "Dívida", "Crédito Nubank", 100.0, "2026-05-15", "mai/26", ""], ["394", "Apple music", "Lifestyle", "Básico", "Crédito Nubank", 24.0, "2026-05-31", "mai/26", ""], ["486", "Material Facu", "Material", "Educação", "Crédito Nubank", 52.0, "2026-05-05", "mai/26", ""], ["487", "Lanche", "Alimentação", "Básico", "Crédito Nubank", 10.0, "2026-05-05", "mai/26", ""], ["488", "Airplane SP (1/3)", "Transporte", "Dívida", "Crédito Nubank", 132.72, "2026-05-07", "mai/26", "1/3"], ["489", "BARCO", "Lifestyle", "Lazer", "Crédito Nubank", 26.17, "2026-05-11", "mai/26", ""], ["490", "Cantina facu", "Alimentação", "Básico", "Crédito Nubank", 8.0, "2026-05-11", "mai/26", ""], ["491", "Almoço que esqueci", "Alimentação", "Básico", "Crédito Nubank", 48.0, "2026-05-12", "mai/26", ""], ["492", "Salgado", "Alimentação", "Básico", "Crédito Nubank", 13.0, "2026-05-15", "mai/26", ""], ["493", "Mercado", "Mercado", "Básico", "Crédito Nubank", 15.0, "2026-05-15", "mai/26", ""], ["494", "Cantina", "Alimentação", "Básico", "Crédito Nubank", 9.0, "2026-05-13", "mai/26", ""], ["495", "Barrinha", "Alimentação", "Básico", "Crédito Nubank", 13.0, "2026-05-16", "mai/26", ""], ["496", "uber facu", "Transporte", "Lazer", "Crédito Nubank", 15.0, "2026-05-17", "mai/26", ""], ["497", "Papelaria + uber volta", "Transporte", "Básico", "Crédito Nubank", 30.0, "2026-05-15", "mai/26", ""], ["498", "Disney Plus", "Lifestyle", "Lazer", "Crédito Nubank", 27.99, "2026-05-15", "mai/26", ""], ["499", "Uber Sasa", "Transporte", "Lazer", "Crédito Nubank", 15.4, "2026-05-17", "mai/26", ""], ["500", "Pipoca cinema", "Alimentação", "Lazer", "Crédito Nubank", 35.5, "2026-05-16", "mai/26", ""], ["501", "Cookie Sasa", "Alimentação", "Lazer", "Crédito Nubank", 31.06, "2026-05-16", "mai/26", ""], ["502", "Claude AI", "Lifestyle", "Educação", "Crédito Nubank", 110.0, "2026-05-18", "mai/26", ""], ["503", "Comida pipoca", "Alimentação", "Básico", "Crédito Nubank", 60.0, "2026-05-21", "mai/26", ""], ["504", "Frango mercado 1/2", "Mercado", "Básico", "Crédito Nubank", 11.52, "2026-05-21", "mai/26", "1/2"], ["505", "Tinta cabelo 1/2", "Beleza", "Lazer", "Crédito Nubank", 26.09, "2026-05-21", "mai/26", "1/2"], ["506", "comida job", "Alimentação", "Básico", "Crédito Nubank", 24.5, "2026-05-21", "mai/26", ""], ["507", "Uber prova fisica", "Transporte", "Básico", "Crédito Nubank", 15.3, "2026-05-22", "mai/26", ""], ["508", "Barrinha", "Alimentação", "Lazer", "Crédito Nubank", 12.5, "2026-05-22", "mai/26", ""], ["509", "Uber barbeirp", "Transporte", "Lazer", "Crédito Nubank", 21.93, "2026-05-22", "mai/26", ""], ["510", "Cabelo 1/2", "Beleza", "Básico", "Crédito Nubank", 33.53, "2026-05-23", "mai/26", "1/2"], ["511", "Tequila eric e camis", "Bebida", "Lazer", "Crédito Nubank", 133.0, "2026-05-24", "mai/26", ""], ["512", "IFD*Le Dep Botafogo Botafogo BRA", "Alimentação", "Lazer", "FLASHEATS", 1.67, "2026-05-19", "mai/26", ""], ["513", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 31.69, "2026-05-14", "mai/26", ""], ["514", "IFD*Le Dep Botafogo Botafogo BRA", "Alimentação", "Lazer", "FLASHEATS", 1.68, "2026-05-14", "mai/26", ""], ["515", "CantinaPraia NITEROI BRA", "Alimentação", "Lazer", "FLASHEATS", 8.5, "2026-05-13", "mai/26", ""], ["516", "99* SAO PAULO BRA", "Transporte", "Básico", "FLASHMOOVE", 15.4, "2026-05-13", "mai/26", ""], ["517", "DL*UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 18.93, "2026-05-13", "mai/26", ""], ["518", "CASAS PEDRO RIO DE JANEIR BRA", "Mercado", "Básico", "FLASHEATS", 21.77, "2026-05-12", "mai/26", ""], ["519", "IFD*BR OSASCO BRA", "Alimentação", "Lazer", "FLASHEATS", 7.95, "2026-05-12", "mai/26", ""], ["520", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 28.82, "2026-05-11", "mai/26", ""], ["521", "99* SAO PAULO BRA", "Transporte", "Básico", "FLASHMOOVE", 15.4, "2026-05-09", "mai/26", ""], ["522", "DL*UberRides Sao Paulo BRA", "Transporte", "Lazer", "FLASHMOOVE", 31.95, "2026-05-09", "mai/26", ""], ["523", "DL *UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 16.94, "2026-05-09", "mai/26", ""], ["524", "SUP REAL ICARAI NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 32.53, "2026-05-09", "mai/26", ""], ["525", "NAO ME TORRA CAFE E BA NITEROI BRA", "Alimentação", "Lazer", "FLASHEATS", 39.2, "2026-05-08", "mai/26", ""], ["526", "99* SAO PAULO BRA", "Transporte", "Básico", "FLASHMOOVE", 15.4, "2026-05-08", "mai/26", ""], ["527", "99* SAO PAULO BRA", "Transporte", "Básico", "FLASHMOOVE", 11.9, "2026-05-08", "mai/26", ""], ["528", "99* SAO PAULO BRA", "Transporte", "Básico", "FLASHMOOVE", 13.2, "2026-05-08", "mai/26", ""], ["529", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 6.19, "2026-05-08", "mai/26", ""], ["530", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 3.57, "2026-05-06", "mai/26", ""], ["531", "CantinaPraia NITEROI BRA", "Alimentação", "Lazer", "FLASHEATS", 7.0, "2026-05-06", "mai/26", ""], ["532", "DL *UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 18.92, "2026-05-06", "mai/26", ""], ["533", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 25.8, "2026-05-05", "mai/26", ""], ["534", "Wizmart RIO DE JANEIR BRA", "Mercado", "Básico", "FLASHEATS", 3.79, "2026-05-05", "mai/26", ""], ["535", "MUNDO DO BISCOITO RIO DE JANEIR BRA", "Mercado", "Básico", "FLASHEATS", 3.29, "2026-05-05", "mai/26", ""], ["536", "CantinaPraia NITEROI BRA", "Alimentação", "Lazer", "FLASHEATS", 8.0, "2026-05-04", "mai/26", ""], ["537", "CantinaPraia NITEROI BRA", "Alimentação", "Lazer", "FLASHEATS", 8.0, "2026-05-04", "mai/26", ""], ["538", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 37.76, "2026-05-03", "mai/26", ""], ["539", "DL *UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 24.96, "2026-05-03", "mai/26", ""], ["540", "62731258Gabriel RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 5.3, "2026-05-03", "mai/26", ""], ["541", "62731258Gabriel RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 2.99, "2026-05-03", "mai/26", ""], ["542", "62731258Gabriel RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 3.7, "2026-05-03", "mai/26", ""], ["543", "99* SAO PAULO BRA", "Transporte", "Lazer", "FLASHMOOVE", 56.1, "2026-05-03", "mai/26", ""], ["544", "MEIA NOITE RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 24.0, "2026-05-03", "mai/26", ""], ["545", "ZIG*MACUNA RIO DE JANEIR BRA", "Bar", "Lazer", "FLASHEATS", 27.5, "2026-05-02", "mai/26", ""], ["546", "ZIG*MACUNA RIO DE JANEIR BRA", "Bar", "Lazer", "FLASHEATS", 27.5, "2026-05-02", "mai/26", ""], ["547", "ZIG*MACUNA RIO DE JANEIR BRA", "Bar", "Lazer", "FLASHEATS", 6.6, "2026-05-02", "mai/26", ""], ["548", "CHORA CAFE RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 59.4, "2026-05-02", "mai/26", ""], ["549", "ROSTIE BURGER RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 62.64, "2026-05-02", "mai/26", ""], ["550", "99* SAO PAULO BRA", "Transporte", "Lazer", "FLASHMOOVE", 56.1, "2026-05-02", "mai/26", ""], ["551", "EMPORIO DOM PAOLO NITEROI BRA", "Alimentação", "Lazer", "FLASHEATS", 5.5, "2026-05-02", "mai/26", ""], ["552", "DL *UberRides Sao Paulo BRA", "Transporte", "Lazer", "FLASHMOOVE", 96.94, "2026-05-02", "mai/26", ""], ["553", "DL *UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 22.95, "2026-05-01", "mai/26", ""], ["554", "99* SAO PAULO BRA", "Transporte", "Básico", "FLASHMOOVE", 17.17, "2026-05-01", "mai/26", ""], ["555", "Wizmart RIO DE JANEIR BRA", "Mercado", "Básico", "FLASHEATS", 2.9, "2026-05-30", "mai/26", ""], ["556", "ZONA SUL FL 42 RIO DE JANEIR BRA", "Mercado", "Básico", "FLASHEATS", 24.48, "2026-05-30", "mai/26", ""], ["557", "DL*UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 19.29, "2026-05-30", "mai/26", ""], ["558", "DL*UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 18.92, "2026-05-30", "mai/26", ""], ["559", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 96.1, "2026-05-29", "mai/26", ""], ["560", "MAIS1 CAFE RJ/RIO DE J RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 39.3, "2026-05-29", "mai/26", ""], ["561", "SUPERMARKET RIO DE JANEIR BRA", "Mercado", "Básico", "FLASHEATS", 4.13, "2026-05-29", "mai/26", ""], ["562", "DL *UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 13.95, "2026-05-29", "mai/26", ""], ["563", "BENDITO DOWNTOWN RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 15.29, "2026-05-29", "mai/26", ""], ["564", "GATO CAFE RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 48.4, "2026-05-29", "mai/26", ""], ["565", "GRAND MARCHE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 8.16, "2026-05-29", "mai/26", ""], ["566", "DL *UberRides Sao Paulo BRA", "Transporte", "Lazer", "FLASHMOOVE", 117.96, "2026-05-29", "mai/26", ""], ["567", "Lampada", "Imprevisto", "Básico", "Crédito Nubank", 10.0, "2026-05-25", "mai/26", ""], ["568", "Barrinha ", "Alimentação", "Básico", "Crédito Nubank", 14.0, "2026-05-29", "mai/26", ""], ["569", "Mercado", "Mercado", "Básico", "Crédito Nubank", 23.97, "2026-05-28", "mai/26", ""], ["570", "Barrinha", "Alimentação", "Básico", "Crédito Nubank", 13.0, "2026-05-29", "mai/26", ""], ["571", "Uber ida facu", "Transporte", "Básico", "Crédito Nubank", 18.4, "2026-05-29", "mai/26", ""], ["572", "Carregador cel", "Imprevisto", "Básico", "Crédito Nubank", 20.0, "2026-05-29", "mai/26", ""], ["573", "Ingresso festa ", "Festa", "Lazer", "Crédito Nubank", 56.25, "2026-05-30", "mai/26", ""], ["574", "Bebida na festa", "Bebida", "Básico", "Crédito Nubank", 15.0, "2026-05-30", "mai/26", ""]];
+const HIST_RECEITAS = [["1", "Pagamento Novembro", "Salário", 1845.0, "2025-11-01", "nov/25"], ["2", "Flash refeição", "FlashEats", 519.44, "2025-11-01", "nov/25"], ["3", "Flash Transporte", "FlashMoove", 77.27, "2025-11-01", "nov/25"], ["4", "Mesada", "Mesada", 500.0, "2025-11-01", "nov/25"], ["5", "Projeto Raissa", "Projeto", 100.0, "2025-11-17", "nov/25"], ["6", "Processo novo", "Projeto", 100.0, "2025-11-22", "nov/25"], ["7", "Slário", "Salário", 1845.0, "2025-12-01", "dez/25"], ["8", "Mesada", "Mesada", 250.0, "2025-12-15", "dez/25"], ["9", "VR", "FlashEats", 760.0, "2025-12-01", "dez/25"], ["10", "VT", "FlashMoove", 291.62, "2025-12-01", "dez/25"], ["11", "Projeto Novo", "Projeto", 100.0, "2025-12-06", "dez/25"], ["12", "Proj Luis", "Projeto", 100.0, "2025-12-10", "dez/25"], ["13", "Proj Bruno BYD", "Projeto", 80.0, "2025-12-10", "dez/25"], ["14", "Presente mãe", "Mesada", 300.0, "2025-12-30", "dez/25"], ["15", "Reembolso Itaú", "Projeto", 26.0, "2025-12-15", "dez/25"], ["16", "Salário Jan", "Salário", 1845.0, "2026-01-01", "jan/26"], ["17", "VR", "FlashEats", 740.0, "2026-01-01", "jan/26"], ["18", "VT", "FlashMoove", 368.1, "2026-01-01", "jan/26"], ["19", "Projeto Maria", "Projeto", 100.0, "2026-01-01", "jan/26"], ["20", "Projeto BYD", "Projeto", 100.0, "2025-12-31", "dez/25"], ["21", "Proejto Marly", "Projeto", 100.0, "2026-01-07", "jan/26"], ["22", "Projeto andrea", "Projeto", 100.0, "2026-01-07", "jan/26"], ["23", "Projeto Bruno", "Projeto", 250.0, "2026-01-08", "jan/26"], ["24", "Conversão uber ida ZS", "Mesada", 57.96, "2026-01-09", "jan/26"], ["25", "Valor conversão uber BF", "Mesada", 23.5, "2026-01-09", "jan/26"], ["26", "Projeto Light Bruno", "Projeto", 300.0, "2026-01-23", "jan/26"], ["27", "Projeto Pai", "Projeto", 100.0, "2026-01-22", "jan/26"], ["28", "Projeto METAMAR", "Projeto", 100.0, "2026-01-28", "jan/26"], ["29", "Salário", "Salário", 1840.0, "2026-02-01", "fev/26"], ["30", "VR", "FlashEats", 629.0, "2026-02-01", "fev/26"], ["31", "VT", "FlashMoove", 204.5, "2026-02-01", "fev/26"], ["32", "Projeto (prospecção)", "Projeto", 100.0, "2026-02-01", "fev/26"], ["33", "Mesada", "Mesada", 200.0, "2026-01-30", "jan/26"], ["34", "Mesada", "Mesada", 250.0, "2026-02-01", "fev/26"], ["35", "Salário março", "Salário", 1845.0, "2026-03-01", "mar/26"], ["36", "Mesada pt2", "Projeto", 250.0, "2026-03-05", "mar/26"], ["38", "Mesada pt 1", "Mesada", 250.0, "2026-03-15", "mar/26"], ["39", "VR", "FlashEats", 814.0, "2026-03-01", "mar/26"], ["40", "Dinheiro vó", "Mesada", 100.0, "2026-02-28", "fev/26"], ["41", "VT", "FlashMoove", 245.4, "2026-03-01", "mar/26"], ["42", "Projeto Bruno", "Projeto", 150.0, "2026-03-06", "mar/26"], ["43", "Projeto pai TH1", "Projeto", 500.0, "2026-03-15", "mar/26"], ["44", "Projeto Beatriz", "Projeto", 100.0, "2026-03-21", "mar/26"], ["45", "VR", "FlashEats", 703.0, "2026-04-01", "abr/26"], ["46", "VT", "FlashMoove", 327.2, "2026-04-01", "abr/26"], ["47", "Salário", "Salário", 1922.0, "2026-04-01", "abr/26"], ["48", "Mesada 1", "Mesada", 250.0, "2026-04-01", "abr/26"], ["49", "Proj Bruno pt2", "Projeto", 150.0, "2026-04-01", "abr/26"], ["51", "Mesada pt2", "Mesada", 250.0, "2026-03-31", "mar/26"], ["52", "Processo Amilton", "Projeto", 100.0, "2026-03-31", "mar/26"], ["53", "Mesada pt2", "Mesada", 250.0, "2026-04-05", "abr/26"], ["54", "Salario", "Salário", 1933.0, "2026-05-03", "mai/26"], ["55", "Mesada parte 1", "Mesada", 250.0, "2026-05-03", "mai/26"], ["56", "Mesada pt2", "Mesada", 250.0, "2026-05-03", "mai/26"], ["57", "VT", "FlashMoove", 368.1, "2026-05-01", "mai/26"], ["58", "VR", "FlashEats", 740.0, "2026-05-01", "mai/26"], ["59", "Porcesso Gabriela", "Projeto", 100.0, "2026-05-08", "mai/26"], ["60", "Proejto Ligação Nova", "Projeto", 400.0, "2026-05-15", "mai/26"], ["61", "Proj Renato", "Projeto", 100.0, "2026-05-11", "mai/26"], ["62", "Projeto solar Bruno", "Projeto", 300.0, "2026-05-21", "mai/26"]];
+const APPS_SCRIPT_TXT = `function doPost(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var data = JSON.parse(e.postData.contents);
+    var tipo = data.tipo;
+    var rows = data.rows;
+    if (tipo === 'ping') return ContentService.createTextOutput('OK');
+    var sheet = ss.getSheetByName(tipo === 'gasto' ? 'gastos' : 'receitas');
+    if (!sheet) return ContentService.createTextOutput('SHEET_NOT_FOUND');
+    for (var i = 0; i < rows.length; i++) { sheet.appendRow(rows[i]); }
+    return ContentService.createTextOutput('OK:' + rows.length);
+  } catch(err) {
+    return ContentService.createTextOutput('ERROR:' + err.toString());
+  }
+}
+function doGet(e) {
+  return ContentService.createTextOutput('FlashFinance API OK');
+}`;
+
+let tipo = 'gasto';
+let sessao = JSON.parse(sessionStorage.getItem('ff') || '[]');
+let scriptUrl = localStorage.getItem('ff_url') || '';
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+  if (scriptUrl) {
+    document.getElementById('script-url').value = scriptUrl;
+    setConnUI(true);
+  }
+  renderRec();
+});
+
+function showPage(id, el) {
+  if (id==='metas') setTimeout(calcMetas,50);
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  el.classList.add('active');
+  if (id === 'recentes') renderRec();
+}
+
+function setTipo(t) {
+  tipo = t;
+  const isG = t === 'gasto';
+  document.getElementById('tab-g').className = 'type-btn' + (isG ? ' active-g' : '');
+  document.getElementById('tab-r').className = 'type-btn' + (!isG ? ' active-r' : '');
+  ['fg-tipo','fg-classe','fg-metodo','fg-parcela'].forEach(id => document.getElementById(id).style.display = isG ? '' : 'none');
+  document.getElementById('fg-rec').style.display = isG ? 'none' : '';
+  document.getElementById('btn-save').textContent = isG ? 'SALVAR GASTO' : 'SALVAR RECEITA';
+  document.getElementById('btn-save').className = 'btn-submit ' + (isG ? 'g' : 'r');
+}
+
+async function salvar() {
+  const titulo = document.getElementById('f-titulo').value.trim();
+  const valor = parseFloat(document.getElementById('f-valor').value);
+  const data = document.getElementById('f-data').value;
+  if (!titulo || !valor || !data) { showToast('Preencha título, valor e data', 'err'); return; }
+  const isG = tipo === 'gasto';
+  const mes = getMes(data);
+  const row = isG
+    ? ['', titulo, document.getElementById('f-tipo').value, document.getElementById('f-classe').value, document.getElementById('f-metodo').value, valor, data, mes, document.getElementById('f-parcela').value || '1/1']
+    : ['', titulo, document.getElementById('f-tipo-rec').value, valor, data, mes];
+
+  sessao.unshift({tipo, titulo, valor, data, mes,
+    tipo_cat: isG ? document.getElementById('f-tipo').value : document.getElementById('f-tipo-rec').value,
+    classe: isG ? document.getElementById('f-classe').value : '',
+    metodo: isG ? document.getElementById('f-metodo').value : ''});
+  sessionStorage.setItem('ff', JSON.stringify(sessao));
+
+  if (scriptUrl) {
+    setSB('sb-form','sending','Salvando no Google Sheets...');
+    const ok = await enviar(isG ? 'gasto' : 'receita', [row]);
+    setSB('sb-form', ok ? 'ok' : 'err', ok ? '✓ Salvo no Google Sheets' : '✗ Erro ao salvar. Verifique a URL na aba Configurar.');
+    showToast(ok ? 'Salvo — R$ ' + valor.toFixed(2) : 'Erro ao salvar no Sheets', ok ? 'ok' : 'err');
+  } else {
+    setSB('sb-form','ok','✓ Salvo localmente — configure o Sheets na aba Configurar para sincronizar');
+    showToast('Salvo localmente', 'ok');
+  }
+  document.getElementById('f-titulo').value = '';
+  document.getElementById('f-valor').value = '';
+}
+
+async function enviarHistorico() {
+  if (!scriptUrl) { showToast('Configure a URL primeiro na aba Configurar', 'err'); return; }
+  const sb = document.getElementById('sb-hist');
+  sb.style.display = 'block';
+  setSB('sb-hist','sending','Enviando gastos históricos... (pode levar ~30s)');
+  let ok = true;
+  const B = 80;
+  for (let i = 0; i < HIST_GASTOS.length; i += B) {
+    sb.textContent = 'Gastos: ' + Math.min(i+B, HIST_GASTOS.length) + ' / ' + HIST_GASTOS.length + '...';
+    if (!await enviar('gasto', HIST_GASTOS.slice(i, i+B))) { ok = false; break; }
+    await sleep(600);
+  }
+  if (ok) {
+    setSB('sb-hist','sending','Enviando receitas...');
+    for (let i = 0; i < HIST_RECEITAS.length; i += B) {
+      if (!await enviar('receita', HIST_RECEITAS.slice(i, i+B))) { ok = false; break; }
+      await sleep(400);
+    }
+  }
+  setSB('sb-hist', ok ? 'ok' : 'err',
+    ok ? '✓ ' + HIST_GASTOS.length + ' gastos + ' + HIST_RECEITAS.length + ' receitas migrados com sucesso'
+       : '✗ Erro durante envio. Verifique a URL e tente novamente.');
+}
+
+async function enviar(tipo, rows) {
+  try {
+    const r = await fetch(scriptUrl, {method:'POST', body: JSON.stringify({tipo, rows})});
+    return (await r.text()).startsWith('OK');
+  } catch(e) { return false; }
+}
+
+function renderRec() {
+  const wrap = document.getElementById('rec-wrap');
+  if (!sessao.length) {
+    wrap.innerHTML = '<div class="empty">Nenhum registro nesta sessão ainda —<br><em>use a aba Registrar para começar</em></div>';
+    return;
+  }
+  const rows = sessao.slice(0,20).map(r => {
+    const isRec = r.tipo === 'receita';
+    const tagBg = tagColor(r.tipo_cat);
+    return '<tr>'
+      + '<td>' + r.titulo + '</td>'
+      + '<td><span class="tag" style="background:' + tagBg + '20;color:' + tagBg + '">' + (r.tipo_cat||'—') + '</span></td>'
+      + '<td class="td-muted">' + (r.classe||'—') + '</td>'
+      + '<td class="td-muted">' + r.data + '</td>'
+      + '<td class="' + (isRec?'val-c':'val-d') + '">' + (isRec?'+':'−') + 'R$ ' + r.valor.toFixed(2) + '</td>'
+      + '</tr>';
+  }).join('');
+  wrap.innerHTML = '<table class="ledger"><thead><tr><th>TÍTULO</th><th>TIPO</th><th>CLASSE</th><th>DATA</th><th>VALOR</th></tr></thead><tbody>' + rows + '</tbody></table>';
+}
+
+function salvarUrl() { scriptUrl = document.getElementById('script-url').value.trim(); localStorage.setItem('ff_url', scriptUrl); }
+async function testarConn() {
+  salvarUrl();
+  if (!scriptUrl) { showToast('Cole a URL primeiro', 'err'); return; }
+  document.getElementById('conn-chip').innerHTML = '<span style="font-family:var(--font-display);font-size:12px;letter-spacing:1px;color:var(--tobacco)">TESTANDO...</span>';
+  const ok = await enviar('ping', []);
+  setConnUI(ok);
+  showToast(ok ? '✓ Conectado ao Sheets!' : 'Falhou — verifique a URL', ok ? 'ok' : 'err');
+}
+function setConnUI(ok) {
+  const chip = document.getElementById('conn-chip');
+  if (chip) chip.innerHTML = '<span class="conn-badge ' + (ok?'ok':'no') + '">' + (ok?'● ONLINE':'● OFFLINE') + '</span>';
+  const dot = document.getElementById('nav-conn-dot');
+  if (dot) { dot.textContent = ok ? '● ONLINE' : '● OFFLINE'; dot.className = 'nav-conn' + (ok?' live':''); }
+  const sub = document.getElementById('conn-status-text');
+  if (sub) sub.textContent = ok ? 'Conectado ao Google Sheets — registros salvos automaticamente' : 'Não conectado ao Sheets — configure na aba Configurar';
+}
+function setSB(id, t, msg) { const e=document.getElementById(id); e.style.display='block'; e.className='status '+t; e.textContent=msg; }
+function getMes(d) { const dt=new Date(d+'T12:00:00'); const mm=String(dt.getMonth()+1).padStart(2,'0'); return dt.getFullYear()+'-'+mm; }
+function tagColor(t) { const c={'Alimentação':'#8B5E3C','Bar':'#880000','Bebida':'#A0522D','Beleza':'#C14B1E','Conta':'#3C3C3E','Festa':'#6B4C8F','Imprevisto':'#B8860B','Lifestyle':'#8B6914','Material':'#5C6B5A','Mercado':'#2D6A4F','Roupa':'#7B5E8B','Saúde':'#2E6DA4','Transporte':'#880000','Salário':'#2D6A4F','Mesada':'#3C7A5F','Projeto':'#4A3580','FlashEats':'#8B5E3C','FlashMoove':'#880000'}; return c[t]||'#5C5C5C'; }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+function showToast(msg, t) { const e=document.getElementById('toast'); e.textContent=msg; e.className='toast show '+t; setTimeout(()=>e.classList.remove('show'),3000); }
+function cop(txt, btn) { navigator.clipboard.writeText(txt); const prev=btn.textContent; btn.textContent='COPIADO'; setTimeout(()=>btn.textContent=prev,2000); }
+function copScript() { navigator.clipboard.writeText(APPS_SCRIPT_TXT); showToast('Script copiado', 'ok'); }
+
+// ===== DRAG AND DROP =====
+const dz = document.getElementById('drop-zone');
+if (dz) {
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag');
+    const file = e.dataTransfer.files[0];
+    if (file && file.name.endsWith('.csv')) lerCSV(file);
+    else showToast('Selecione um arquivo .csv', 'err');
+  });
+}
+
+let importRows = [];
+
+function lerCSV(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    importRows = parseNubankCSV(text);
+    if (!importRows.length) { showToast('Nenhum lançamento encontrado no CSV', 'err'); return; }
+    renderImportTable();
+    document.getElementById('import-preview').style.display = 'block';
+    document.getElementById('import-count').textContent = importRows.length + ' LANÇAMENTOS ENCONTRADOS';
+    showToast(importRows.length + ' lançamentos carregados', 'ok');
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseNubankCSV(text) {
+  // Nubank CSV formats:
+  // Format 1 (credit): date,title,amount  OR  Data,Descrição,Valor
+  // Format 2 (debit):  Data,Valor,Identificador,Descrição
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  if (lines.length < 2) return [];
+
+  const header = lines[0].toLowerCase().replace(/"/g,'');
+  const rows = [];
+
+  // Detect format
+  const isCredito = header.includes('title') || header.includes('descrição') || header.includes('descricao');
+  const cols = lines[0].split(',').map(c => c.trim().replace(/"/g,'').toLowerCase());
+
+  for (let i = 1; i < lines.length; i++) {
+    const parts = lines[i].split(',').map(c => c.trim().replace(/"/g,''));
+    if (parts.length < 3) continue;
+
+    let date, title, amount;
+
+    // Try to detect columns dynamically
+    const dateIdx = cols.findIndex(c => c.includes('date') || c.includes('data'));
+    const titleIdx = cols.findIndex(c => c.includes('title') || c.includes('descri'));
+    const amountIdx = cols.findIndex(c => c.includes('amount') || c.includes('valor'));
+
+    if (dateIdx >= 0 && titleIdx >= 0 && amountIdx >= 0) {
+      date = parts[dateIdx] || '';
+      title = parts[titleIdx] || '';
+      amount = parseFloat((parts[amountIdx] || '0').replace(',','.').replace(/[^0-9.-]/g,'')) || 0;
+    } else {
+      // Fallback: assume date, title, amount order
+      date = parts[0]; title = parts[1]; amount = parseFloat((parts[2]||'0').replace(',','.')) || 0;
+    }
+
+    if (!title || !amount) continue;
+
+    // Normalize date to YYYY-MM-DD
+    let normDate = date;
+    if (date.includes('/')) {
+      const p = date.split('/');
+      if (p.length === 3) {
+        normDate = p[2].length === 4 ? p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0')
+                                     : '20'+p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0');
+      }
+    }
+
+    rows.push({
+      date: normDate,
+      title: title,
+      amount: Math.abs(amount),
+      tipo: autoTipo(title),
+      classe: autoClasse(title),
+      metodo: 'Crédito Nubank',
+      sel: true
+    });
+  }
+  return rows;
+}
+
+// Auto-classify based on keywords
+function autoTipo(t) {
+  t = t.toLowerCase();
+  if (/uber|99 tec|taxi|ônibus|onibus|riocard|flashmoove|metro/.test(t)) return 'Transporte';
+  if (/ifood|mcdonalds|burger|pizza|sushi|restaurante|lanche|padaria|alimenta|cantina|almoço|jantar/.test(t)) return 'Alimentação';
+  if (/mercado|supermerc|supermercado|hortifruti|açougue|hiper|casas pedro/.test(t)) return 'Mercado';
+  if (/farmácia|farmacia|drogaria|droga|saúde|saude|medic|clinica|psico|dentist/.test(t)) return 'Saúde';
+  if (/academia|gym/.test(t)) return 'Saúde';
+  if (/netflix|spotify|hbo|apple|icloud|google|disney|prime|streaming/.test(t)) return 'Lifestyle';
+  if (/zig|ingresso|ticket|show|evento|festa|balada/.test(t)) return 'Festa';
+  if (/bar|beats|cachaça|cerveja|bebida|drinks|choperia/.test(t)) return 'Bar';
+  if (/beleza|sephora|salão|cabelo|drogari.*bel|nars/.test(t)) return 'Beleza';
+  if (/roupa|puma|nike|adidas|zara|renner|shein|shopee.*roupa|mr.cat/.test(t)) return 'Roupa';
+  if (/conta|água|luz|telefon|vivo|claro|tim|oi|internet/.test(t)) return 'Conta';
+  if (/livro|material|papelaria|caneta|caderno/.test(t)) return 'Material';
+  return 'Outros';
+}
+
+function autoClasse(t) {
+  t = t.toLowerCase();
+  if (/uber|99 tec|flashmoove/.test(t)) return 'Básico';
+  if (/ifood|lanche|padaria|cantina/.test(t)) return 'Básico';
+  if (/mercado|supermerc/.test(t)) return 'Básico';
+  if (/academia|psico|farmácia|farmacia|drogaria|medic/.test(t)) return 'Básico';
+  if (/netflix|spotify|hbo|apple|icloud|google|disney/.test(t)) return 'Básico';
+  if (/conta|água|luz|telefon|vivo/.test(t)) return 'Dívida';
+  if (/zig|ingresso|ticket|show|festa|bar|beats|cachaça|restaurante/.test(t)) return 'Lazer';
+  return '';
+}
+
+function renderImportTable() {
+  const tbody = document.getElementById('import-tbody');
+  tbody.innerHTML = importRows.map((r, i) => `
+    <tr id="irow-${i}" class="${r.sel ? 'row-sel' : ''}">
+      <td><input type="checkbox" ${r.sel?'checked':''} onchange="toggleRow(${i},this)" style="accent-color:var(--lonestar)"></td>
+      <td class="td-muted">${r.date}</td>
+      <td style="font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.title}">${r.title}</td>
+      <td class="val-d">R$ ${r.amount.toFixed(2)}</td>
+      <td>
+        <select class="imp-select" onchange="updateRow(${i},'tipo',this.value)">
+          <option value="">—</option>
+          ${['Alimentação','Bar','Bebida','Beleza','Conta','Festa','Imprevisto','Lifestyle','Material','Mercado','Roupa','Saúde','Transporte','Outros']
+            .map(t => `<option ${r.tipo===t?'selected':''}>${t}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <select class="imp-select" onchange="updateRow(${i},'classe',this.value)">
+          <option value="">—</option>
+          ${['Básico','Lazer','Dívida','Educação']
+            .map(c => `<option ${r.classe===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <select class="imp-select" onchange="updateRow(${i},'metodo',this.value)">
+          ${['Crédito Nubank','Pix C6','FlashEats','FlashMoove']
+            .map(m => `<option ${r.metodo===m?'selected':''}>${m}</option>`).join('')}
+        </select>
+      </td>
+    </tr>`).join('');
+}
+
+function updateRow(i, field, val) {
+  importRows[i][field] = val;
+}
+
+function toggleRow(i, chk) {
+  importRows[i].sel = chk.checked;
+  document.getElementById('irow-'+i).className = chk.checked ? 'row-sel' : '';
+}
+
+function toggleAll(chk) {
+  importRows.forEach((r,i) => {
+    r.sel = chk.checked;
+    const row = document.getElementById('irow-'+i);
+    if (row) row.className = chk.checked ? 'row-sel' : '';
+    const rowChk = row ? row.querySelector('input[type=checkbox]') : null;
+    if (rowChk) rowChk.checked = chk.checked;
+  });
+}
+
+function classificarTodos(field, val) {
+  importRows.forEach((r,i) => {
+    if (r.sel) {
+      r[field] = val;
+      const sel = document.querySelector('#irow-'+i+' select:nth-child(1)');
+      // update correct select
+      const row = document.getElementById('irow-'+i);
+      if (row) {
+        const selects = row.querySelectorAll('.imp-select');
+        // tipo=index1, classe=index2
+        if (field === 'tipo' && selects[0]) selects[0].value = val;
+        if (field === 'classe' && selects[1]) selects[1].value = val;
+      }
+    }
+  });
+}
+
+async function enviarImportados() {
+  if (!scriptUrl) { showToast('Configure a URL do Sheets primeiro', 'err'); return; }
+  const selecionados = importRows.filter(r => r.sel);
+  if (!selecionados.length) { showToast('Nenhum item selecionado', 'err'); return; }
+
+  setSB('sb-import','sending','Enviando ' + selecionados.length + ' lançamentos...');
+
+  const rows = selecionados.map(r => [
+    '', r.title, r.tipo, r.classe, r.metodo, r.amount, r.date, getMes(r.date), '1/1'
+  ]);
+
+  const B = 80;
+  let ok = true;
+  for (let i = 0; i < rows.length; i += B) {
+    if (!await enviar('gasto', rows.slice(i, i+B))) { ok = false; break; }
+    await sleep(500);
+  }
+
+  setSB('sb-import', ok ? 'ok' : 'err',
+    ok ? '✓ ' + selecionados.length + ' lançamentos enviados ao Google Sheets'
+       : '✗ Erro durante envio — verifique a URL e tente novamente');
+
+  if (ok) showToast(selecionados.length + ' lançamentos enviados!', 'ok');
+}
+
+
+// ===== DADOS HISTÓRICOS PARA METAS =====
+const HD_GASTOS = [["1", "Itaú", "Conta", "Dívida", "Crédito Nubank", 30.0, "2025-11-01", "nov/25", ""], ["2", "HBOMAX", "Lifestyle", "Básico", "Crédito Nubank", 30.0, "2025-11-01", "nov/25", ""], ["3", "Academia", "Lifestyle", "Básico", "Crédito Nubank", 90.0, "2025-11-01", "nov/25", ""], ["4", "IFOOD, LIGHTROOM,APLLE MUSIC", "Lifestyle", "Básico", "Crédito Nubank", 24.0, "2025-11-01", "nov/25", ""], ["5", "ICLOUD E GOOGLE ONE", "Lifestyle", "Básico", "Crédito Nubank", 34.0, "2025-11-01", "nov/25", ""], ["6", "ÁGUA", "Conta", "Dívida", "Crédito Nubank", 180.0, "2025-11-01", "nov/25", ""], ["7", "TESTE", "Conta", "Básico", "Pix C6", 1.0, "2025-11-01", "nov/25", ""], ["8", "TESTE", "Conta", "Lazer", "Pix C6", 1.0, "2025-11-01", "nov/25", ""], ["9", "TESTE", "Conta", "Lazer", "Crédito Nubank", 1.0, "2025-11-01", "nov/25", ""], ["11", "Psicologa", "Saúde", "Básico", "Pix C6", 210.0, "2025-11-01", "nov/25", ""], ["12", "Uber Volta eric", "Transporte", "Dívida", "Crédito Nubank", 18.0, "2025-11-16", "nov/25", ""], ["13", "TESTE", "Alimentação", "Básico", "FlashEats", 1.0, "2025-11-01", "nov/25", ""], ["14", "TESTE", "Alimentação", "Básico", "FlashMoove", 1.0, "2025-11-01", "nov/25", ""], ["15", "Creme cabelo eudora", "Beleza", "Básico", "Crédito Nubank", 43.0, "2025-11-01", "nov/25", ""], ["16", "hidratante ", "Beleza", "Básico", "Crédito Nubank", 66.89, "2025-11-01", "nov/25", ""], ["17", "Renan de Paiva Menezes 2/2", "Transporte", "Básico", "Crédito Nubank", 14.57, "2025-11-04", "nov/25", "2/2"], ["18", "Thalles Renan Gomes de Sá 2/2", "Transporte", "Básico", "Crédito Nubank", 12.46, "2025-11-04", "nov/25", "2/2"], ["19", "99 Tecnologia LTDA 2/2", "Transporte", "Básico", "Crédito Nubank", 17.14, "2025-11-04", "nov/25", "2/2"], ["20", "Davidson Martins Silva 2/2", "Transporte", "Lazer", "Crédito Nubank", 28.72, "2025-11-04", "nov/25", "2/2"], ["21", "MercadoPago *2produto 5/5", "Beleza", "Básico", "Crédito Nubank", 34.64, "2025-11-04", "nov/25", "5/5"], ["22", "Ingresso 3/4", "Festa", "Lazer", "Crédito Nubank", 27.63, "2025-11-04", "nov/25", "3/4"], ["23", "Shopee *Petpeixeaquars 2/3 - FANTASIA", "Roupa", "Lazer", "Crédito Nubank", 15.6, "2025-11-04", "nov/25", "2/3"], ["24", "Gusto Italiano Restaurante LTDA 2/2", "Alimentação", "Lazer", "Crédito Nubank", 62.38, "2025-11-04", "nov/25", "2/2"], ["25", "Assistencia Tec 3/4", "Imprevisto", "Dívida", "Crédito Nubank", 104.97, "2025-11-04", "nov/25", "3/4"], ["26", "V P F LTDA 1/2", "Lifestyle", "Lazer", "Crédito Nubank", 39.82, "2025-11-04", "nov/25", "1/2"], ["27", "Azul Linhas Wh14wy 4/4", "Lifestyle", "Lazer", "Crédito Nubank", 122.69, "2025-11-04", "nov/25", "4/4"], ["28", "Uber do Brasil Tecnologia LTDA 2/2", "Transporte", "Básico", "Crédito Nubank", 13.68, "2025-11-04", "nov/25", "2/2"], ["29", "MJP Plaza Niterói Restaurante LTDA 2/3", "Alimentação", "Lazer", "Crédito Nubank", 62.45, "2025-11-04", "nov/25", "2/3"], ["30", "Zig Tickets *Zig Ticke 3/4", "Festa", "Lazer", "Crédito Nubank", 17.61, "2025-11-04", "nov/25", "3/4"], ["31", "Puma Sports LTDA 7/10", "Roupa", "Básico", "Crédito Nubank", 79.99, "2025-11-04", "nov/25", "7/10"], ["32", "Raia Drogasil SA 2/2", "Beleza", "Básico", "Crédito Nubank", 70.72, "2025-11-04", "nov/25", "2/2"], ["33", "Farmácia Pague Menos 2/3", "Mercado", "Básico", "Crédito Nubank", 21.83, "2025-11-04", "nov/25", "2/3"], ["34", "99 Tecnologia LTDA", "Transporte", "Básico", "Crédito Nubank", 30.16, "2025-11-11", "nov/25", ""], ["35", "Mrc Rações LTDA 1/2", "Mercado", "Básico", "Crédito Nubank", 36.68, "2025-11-11", "nov/25", "1/2"], ["36", "McDonald's", "Alimentação", "Básico", "Crédito Nubank", 18.91, "2025-11-11", "nov/25", ""], ["37", "Uber do Brasil Tecnologia LTDA", "Transporte", "Lazer", "Crédito Nubank", 141.42, "2025-11-11", "nov/25", ""], ["38", "Telefônica BRAS", "Conta", "Dívida", "Crédito Nubank", 128.05, "2025-11-11", "nov/25", ""], ["39", "Ventania São Francisco Comércio de Alimentos LTDA", "Alimentação", "Básico", "Crédito Nubank", 14.02, "2025-11-11", "nov/25", ""], ["40", "Amauri Cunha Santana 1/2", "Transporte", "Básico", "Crédito Nubank", 17.82, "2025-11-11", "nov/25", "1/2"], ["41", "Uber do Brasil Tecnologia LTDA", "Transporte", "Lazer", "Crédito Nubank", 35.53, "2025-11-11", "nov/25", ""], ["42", "Shen Xiao", "Roupa", "Lazer", "Crédito Nubank", 47.0, "2025-11-11", "nov/25", ""], ["43", "A Princesa - fantasia", "Roupa", "Lazer", "Crédito Nubank", 28.72, "2025-11-11", "nov/25", ""], ["44", "Refil Caderno", "Material", "Educação", "Crédito Nubank", 17.6, "2025-11-06", "nov/25", ""], ["45", "Lanche facu", "Alimentação", "Básico", "FlashEats", 8.0, "2025-11-06", "nov/25", ""], ["46", "BARRINHAS", "Alimentação", "Básico", "FlashEats", 21.8, "2025-11-08", "nov/25", ""], ["47", "Onibus facul", "Transporte", "Básico", "FlashMoove", 30.0, "2025-11-08", "nov/25", ""], ["48", "Claraedor x(1/3)", "Saúde", "Básico", "Crédito Nubank", 30.25, "2025-11-09", "nov/25", "1/3"], ["49", "Uber para cachaça", "Transporte", "Lazer", "Crédito Nubank", 10.0, "2025-11-14", "nov/25", ""], ["50", "Uber Volta Lapa", "Transporte", "Lazer", "Crédito Nubank", 36.0, "2025-11-14", "nov/25", ""], ["51", "Cookie Bia 2X", "Alimentação", "Básico", "Crédito Nubank", 16.3, "2025-11-18", "nov/25", ""], ["52", "Doce GERAR", "Alimentação", "Básico", "FlashEats", 11.99, "2025-11-10", "nov/25", ""], ["53", "Doce GERAR", "Alimentação", "Básico", "FlashEats", 5.0, "2025-11-10", "nov/25", ""], ["54", "Alface", "Mercado", "Básico", "FlashEats", 5.0, "2025-11-10", "nov/25", ""], ["55", "Almoço Facu + Anna", "Alimentação", "Básico", "FlashEats", 48.0, "2025-11-11", "nov/25", ""], ["56", "Lanche Facu", "Alimentação", "Básico", "FlashEats", 14.0, "2025-11-11", "nov/25", ""], ["57", "Pão com queijo café", "Mercado", "Básico", "FlashEats", 6.14, "2025-11-12", "nov/25", ""], ["58", "Almoço geral GERAR", "Alimentação", "Básico", "FlashEats", 31.79, "2025-11-12", "nov/25", ""], ["59", "Sorvete havanna", "Alimentação", "Básico", "FlashEats", 18.0, "2025-11-12", "nov/25", ""], ["60", "Doce GERAR", "Alimentação", "Básico", "FlashEats", 7.5, "2025-11-12", "nov/25", ""], ["61", "RioCard Facu", "Transporte", "Básico", "FlashMoove", 20.0, "2025-11-12", "nov/25", ""], ["62", "Starbucks", "Alimentação", "Básico", "FlashEats", 24.9, "2025-11-12", "nov/25", ""], ["63", "Uber da Facu", "Transporte", "Básico", "FlashMoove", 26.95, "2025-11-13", "nov/25", ""], ["64", "Lanche Facu", "Alimentação", "Básico", "FlashEats", 34.47, "2025-11-13", "nov/25", ""], ["65", "Lanche Bar", "Alimentação", "Lazer", "FlashEats", 55.0, "2025-11-14", "nov/25", ""], ["66", "Bar Cachaça", "Alimentação", "Lazer", "FlashEats", 40.7, "2025-11-15", "nov/25", ""], ["67", "Pipoca+bis", "Alimentação", "Lazer", "FlashEats", 32.0, "2025-11-15", "nov/25", ""], ["68", "Almoço GERAR", "Alimentação", "Básico", "FlashEats", 24.91, "2025-11-17", "nov/25", ""], ["69", "Coookie", "Alimentação", "Básico", "FlashEats", 17.5, "2025-11-17", "nov/25", ""], ["70", "Rei do Mate", "Alimentação", "Básico", "FlashEats", 16.5, "2025-11-17", "nov/25", ""], ["71", "Doce GERAR", "Alimentação", "Básico", "FlashEats", 13.0, "2025-11-17", "nov/25", ""], ["72", "milkshake bobs", "Alimentação", "Lazer", "FlashEats", 10.0, "2025-11-22", "nov/25", ""], ["73", "Uber volta facu", "Transporte", "Básico", "Crédito Nubank", 28.8, "2025-11-18", "nov/25", ""], ["74", "Uber facu", "Transporte", "Básico", "Crédito Nubank", 17.91, "2025-11-19", "nov/25", ""], ["76", "Uber multicenter trip", "Transporte", "Lazer", "Crédito Nubank", 12.9, "2025-11-20", "nov/25", ""], ["77", "Uber volta facu", "Transporte", "Básico", "Crédito Nubank", 11.18, "2025-11-18", "nov/25", ""], ["78", "Bar JF", "Bebida", "Lazer", "Crédito Nubank", 35.9, "2025-11-20", "nov/25", ""], ["79", "Uber casa pós TRIP", "Transporte", "Lazer", "Crédito Nubank", 25.4, "2025-11-23", "nov/25", ""], ["80", "Facu geral - doce", "Alimentação", "Básico", "Pix C6", 37.0, "2025-11-24", "nov/25", ""], ["81", "Mcdonalds cine", "Alimentação", "Lazer", "Pix C6", 35.6, "2025-11-19", "nov/25", ""], ["82", "Uber Gávea", "Transporte", "Lazer", "Pix C6", 25.51, "2025-11-19", "nov/25", ""], ["83", "Almoços facu", "Alimentação", "Básico", "FlashEats", 68.0, "2025-11-28", "nov/25", ""], ["84", "Uber fábrica", "Transporte", "Básico", "Crédito Nubank", 23.63, "2025-11-26", "nov/25", ""], ["85", "Uber volta facu p2 C4", "Transporte", "Básico", "Crédito Nubank", 12.2, "2025-11-26", "nov/25", ""], ["86", "Assistencia Tec - Parcela 4/4", "Imprevisto", "Dívida", "Crédito Nubank", 104.97, "2025-12-28", "dez/25", "4/4"], ["87", "Shopee *Petpeixeaquars - Parcela 3/3", "Roupa", "Lazer", "Crédito Nubank", 15.6, "2025-12-23", "dez/25", "3/3"], ["88", "Zig Tickets *Zig Ticke - Parcela 4/4", "Festa", "Lazer", "Crédito Nubank", 17.61, "2025-12-16", "dez/25", "4/4"], ["89", "Puma Sports Ltda. - Parcela 8/10", "Roupa", "Básico", "Crédito Nubank", 79.99, "2025-12-14", "dez/25", "8/10"], ["90", "Ingresse - Parcela 4/4", "Festa", "Lazer", "Crédito Nubank", 27.63, "2025-12-13", "dez/25", "4/4"], ["91", "99 FOOD - 2/2", "Alimentação", "Lazer", "Crédito Nubank", 16.3, "2025-12-12", "dez/25", "2/2"], ["92", "FARMACIA PAGUE MENOS - 3/3", "Lifestyle", "Básico", "Crédito Nubank", 21.82, "2025-12-12", "dez/25", "3/3"], ["93", "UBER DO BRASIL TECNOLOGIA LTDA. - 2/2", "Transporte", "Básico", "Crédito Nubank", 15.07, "2025-12-12", "dez/25", "2/2"], ["94", "SUELEN SABINO LEITE", "Transporte", "Básico", "Crédito Nubank", 28.03, "2025-12-12", "dez/25", ""], ["95", "Mrc Racoes Ltda - 2/2", "Mercado", "Básico", "Crédito Nubank", 36.67, "2025-12-12", "dez/25", "2/2"], ["96", "Amauri Cunha Santana - 2/2", "Transporte", "Lazer", "Crédito Nubank", 17.82, "2025-12-12", "dez/25", "2/2"], ["97", "V P F LTDA - 2/2", "Lifestyle", "Lazer", "Crédito Nubank", 39.82, "2025-12-12", "dez/25", "2/2"], ["98", "MJP PLAZA NITEROI RESTAURANTE LTDA - 3/3", "Alimentação", "Lazer", "Crédito Nubank", 62.45, "2025-12-12", "dez/25", "3/3"], ["99", "DANIELLE MAGNOLIA MEDEIROS MANSO DUARTE", "Transporte", "Básico", "Crédito Nubank", 35.12, "2025-12-12", "dez/25", ""], ["100", "99 TECNOLOGIA LTDA - 1/2", "Transporte", "Básico", "Crédito Nubank", 25.29, "2025-12-12", "dez/25", "1/2"], ["101", "App *Dentalrm - Parcela 2/3", "Beleza", "Básico", "Crédito Nubank", 30.98, "2025-12-09", "dez/25", "2/3"], ["103", "HBOMAX", "Lifestyle", "Básico", "Crédito Nubank", 15.0, "2025-12-01", "dez/25", ""], ["104", "Academia", "Lifestyle", "Básico", "Crédito Nubank", 115.0, "2025-12-01", "dez/25", ""], ["105", "LIGHTROOM,APLLE MUSIC", "Lifestyle", "Básico", "Crédito Nubank", 24.0, "2025-12-01", "dez/25", ""], ["106", "ICLOUD E GOOGLE ONE", "Lifestyle", "Básico", "Crédito Nubank", 34.0, "2025-12-01", "dez/25", ""], ["107", "ÁGUA", "Conta", "Dívida", "Crédito Nubank", 131.0, "2025-12-01", "dez/25", ""], ["108", "Mercado ", "Mercado", "Básico", "FlashEats", 65.68, "2025-12-01", "dez/25", ""], ["109", "Almoço com Anna 1/2", "Alimentação", "Lazer", "Crédito Nubank", 50.43, "2025-12-04", "dez/25", "1/2"], ["110", "Ração pipoca 1/2", "Conta", "Básico", "Crédito Nubank", 33.81, "2025-12-05", "dez/25", "1/2"], ["111", "passagem", "Transporte", "Básico", "FlashMoove", 10.0, "2025-12-02", "dez/25", ""], ["112", "Barrinha", "Alimentação", "Básico", "FlashEats", 10.9, "2025-12-02", "dez/25", ""], ["113", "Salgado", "Alimentação", "Básico", "FlashEats", 8.0, "2025-12-02", "dez/25", ""], ["114", "Janta", "Alimentação", "Básico", "FlashEats", 46.0, "2025-12-02", "dez/25", ""], ["115", "passagem ", "Transporte", "Básico", "FlashMoove", 100.0, "2025-12-03", "dez/25", ""], ["116", "casquinha", "Alimentação", "Básico", "FlashEats", 8.0, "2025-12-03", "dez/25", ""], ["117", "doce", "Alimentação", "Básico", "FlashEats", 5.0, "2025-12-03", "dez/25", ""], ["118", "mercado, ovo", "Alimentação", "Básico", "FlashEats", 24.0, "2025-12-03", "dez/25", ""], ["119", "uber", "Transporte", "Básico", "FlashMoove", 18.9, "2025-12-04", "dez/25", ""], ["120", "doce", "Alimentação", "Lazer", "FlashEats", 9.0, "2025-12-04", "dez/25", ""], ["121", "uber facu", "Alimentação", "Básico", "FlashMoove", 18.0, "2025-12-05", "dez/25", ""], ["122", "barrinha", "Alimentação", "Básico", "FlashEats", 12.0, "2025-12-05", "dez/25", ""], ["123", "mercado ", "Alimentação", "Básico", "FlashEats", 31.16, "2025-12-05", "dez/25", ""], ["124", "frango+ ovo", "Alimentação", "Básico", "FlashEats", 45.33, "2025-12-06", "dez/25", ""], ["125", "oliva", "Alimentação", "Básico", "FlashEats", 50.25, "2025-12-01", "dez/25", ""], ["126", "pão", "Alimentação", "Básico", "FlashEats", 5.0, "2025-12-01", "dez/25", ""], ["127", "doce", "Alimentação", "Básico", "FlashEats", 6.0, "2025-12-01", "dez/25", ""], ["128", "Passagem", "Transporte", "Básico", "FlashMoove", 20.0, "2025-12-01", "dez/25", ""], ["129", "Rei do mate", "Alimentação", "Básico", "FlashEats", 12.0, "2025-12-01", "dez/25", ""], ["130", "doce", "Alimentação", "Básico", "FlashEats", 9.0, "2025-12-01", "dez/25", ""], ["131", "Psico", "Saúde", "Básico", "Crédito Nubank", 233.0, "2025-12-10", "dez/25", ""], ["132", "Show Rosalia 1/2", "Festa", "Lazer", "Crédito Nubank", 150.0, "2025-12-10", "dez/25", "1/2"], ["133", "uber prova", "Transporte", "Básico", "Crédito Nubank", 35.0, "2025-12-09", "dez/25", ""], ["134", "cookie", "Alimentação", "Lazer", "Crédito Nubank", 30.0, "2025-12-09", "dez/25", ""], ["135", "Uber sasa", "Transporte", "Lazer", "Crédito Nubank", 36.0, "2025-12-10", "dez/25", ""], ["136", "Carteirinha estudante", "Imprevisto", "Dívida", "Crédito Nubank", 30.0, "2025-12-10", "dez/25", ""], ["137", "Braco Camis", "Alimentação", "Lazer", "Pix C6", 33.7, "2025-12-08", "dez/25", ""], ["138", "Débito itau", "Conta", "Dívida", "Pix C6", 15.0, "2025-12-10", "dez/25", ""], ["139", "Cookie Facu", "Alimentação", "Básico", "Pix C6", 16.0, "2025-12-10", "dez/25", ""], ["140", "Almço", "Bebida", "Lazer", "FlashEats", 26.0, "2025-12-11", "dez/25", ""], ["141", "111 DiscBar", "Alimentação", "Lazer", "FlashEats", 138.48, "2025-12-12", "dez/25", ""], ["142", "Alface", "Alimentação", "Básico", "FlashEats", 9.0, "2025-12-12", "dez/25", ""], ["143", "Bis", "Alimentação", "Lazer", "FlashEats", 7.49, "2025-12-13", "dez/25", ""], ["144", "Firma", "Alimentação", "Lazer", "FlashEats", 72.5, "2025-12-14", "dez/25", ""], ["145", "doce", "Alimentação", "Básico", "FlashEats", 15.0, "2025-12-08", "dez/25", ""], ["146", "baccio", "Alimentação", "Básico", "FlashEats", 21.95, "2025-12-08", "dez/25", ""], ["147", "Mercado", "Alimentação", "Básico", "FlashEats", 24.0, "2025-12-10", "dez/25", ""], ["149", "Uber", "Transporte", "Básico", "FlashMoove", 25.96, "2025-12-06", "dez/25", ""], ["150", "Riocard", "Transporte", "Básico", "FlashMoove", 10.0, "2025-12-08", "dez/25", ""], ["151", "Uber", "Transporte", "Lazer", "FlashMoove", 32.05, "2025-12-09", "dez/25", ""], ["152", "Uber SaSa", "Transporte", "Lazer", "Crédito Nubank", 23.3, "2025-12-10", "dez/25", ""], ["153", "Farmácio", "Saúde", "Lazer", "Crédito Nubank", 16.57, "2025-12-11", "dez/25", ""], ["154", "Uber volta Sasa", "Transporte", "Lazer", "Crédito Nubank", 23.8, "2025-12-12", "dez/25", ""], ["155", "Livros", "Lifestyle", "Educação", "Crédito Nubank", 50.0, "2025-12-12", "dez/25", ""], ["156", "Uber Firma", "Transporte", "Lazer", "Crédito Nubank", 22.93, "2025-12-14", "dez/25", ""], ["157", "Amigo Oculto", "Lifestyle", "Lazer", "Crédito Nubank", 64.0, "2025-12-14", "dez/25", ""], ["158", "Sorvete", "Alimentação", "Lazer", "Crédito Nubank", 15.0, "2025-12-14", "dez/25", ""], ["159", "Farmácia", "Lifestyle", "Básico", "Crédito Nubank", 10.08, "2025-12-14", "dez/25", ""], ["160", "Uber", "Transporte", "Lazer", "Crédito Nubank", 15.94, "2025-12-14", "dez/25", ""], ["161", "Uber multi", "Lifestyle", "Básico", "Crédito Nubank", 30.33, "2025-12-16", "dez/25", ""], ["162", "CORTE CABELP", "Lifestyle", "Básico", "Crédito Nubank", 60.0, "2025-12-16", "dez/25", ""], ["163", "Uber volta cabelo", "Transporte", "Básico", "Crédito Nubank", 11.14, "2025-12-16", "dez/25", ""], ["164", "Uber Luiza", "Transporte", "Lazer", "Crédito Nubank", 14.0, "2025-12-17", "dez/25", ""], ["166", "Uber volta nobrega", "Transporte", "Lazer", "Crédito Nubank", 20.2, "2025-12-17", "dez/25", ""], ["167", "Uber casa karol", "Transporte", "Lazer", "Crédito Nubank", 24.4, "2025-12-22", "dez/25", ""], ["168", "Beats Botafogo", "Bebida", "Lazer", "Crédito Nubank", 15.0, "2025-12-21", "dez/25", ""], ["169", "Uber ida e volta aldeia", "Transporte", "Lazer", "Crédito Nubank", 68.0, "2025-12-21", "dez/25", ""], ["170", "Uber casa ias", "Transporte", "Lazer", "Crédito Nubank", 37.0, "2025-12-21", "dez/25", ""], ["171", "Riocard", "Transporte", "Lazer", "FlashMoove", 56.71, "2025-12-21", "dez/25", ""], ["172", "Tempero", "Alimentação", "Básico", "Crédito Nubank", 2.5, "2025-12-23", "dez/25", ""], ["173", "Uber Torta", "Transporte", "Lazer", "Crédito Nubank", 33.66, "2025-12-23", "dez/25", ""], ["174", "Zig Tickets *Zig Ticke - Parcela 2/2", "Festa", "Lazer", "Crédito Nubank", 59.42, "2026-01-18", "jan/26", "2/2"], ["175", "Puma Sports Ltda. - Parcela 9/10", "Roupa", "Básico", "Crédito Nubank", 79.99, "2026-01-14", "jan/26", "9/10"], ["176", "PET FUN - 2/2", "Conta", "Dívida", "Crédito Nubank", 33.81, "2026-01-11", "jan/26", "2/2"], ["177", "RAGAZZA DI PASTA - PASTIFICIO E ALIMENTOS LTDA - 2/2", "Alimentação", "Lazer", "Crédito Nubank", 50.43, "2026-01-11", "jan/26", "2/2"], ["178", "ACH EVENTOS E FEIRAS DE ALIMENTOS LTDA - 2/2", "Alimentação", "Lazer", "Crédito Nubank", 47.97, "2026-01-11", "jan/26", "2/2"], ["179", "OCEAN FARMA DE ITACOATIARA MEDICAMENTOS LTDA - 2/2", "Saúde", "Básico", "Crédito Nubank", 50.3, "2026-01-11", "jan/26", "2/2"], ["180", "99 TECNOLOGIA LTDA - 2/2", "Transporte", "Lazer", "Crédito Nubank", 25.29, "2026-01-11", "jan/26", "2/2"], ["181", "Ec *Ticketmaster - Parcela 2/2", "Festa", "Lazer", "Crédito Nubank", 143.0, "2026-01-10", "jan/26", "2/2"], ["182", "App *Dentalrm - Parcela 3/3", "Saúde", "Básico", "Crédito Nubank", 30.98, "2026-01-09", "jan/26", "3/3"], ["183", "Conta água ", "Conta", "Dívida", "Crédito Nubank", 270.0, "2026-01-01", "jan/26", ""], ["184", "HBOMAX", "Lifestyle", "Básico", "Crédito Nubank", 15.0, "2026-01-01", "jan/26", ""], ["185", "Academia", "Lifestyle", "Básico", "Crédito Nubank", 115.0, "2026-01-01", "jan/26", ""], ["186", "LIGHTROOM,APLLE MUSIC", "Lifestyle", "Básico", "Crédito Nubank", 24.0, "2026-01-01", "jan/26", ""], ["187", "ICLOUD E GOOGLE ONE", "Lifestyle", "Básico", "Crédito Nubank", 34.0, "2026-01-01", "jan/26", ""], ["188", "Não contabilizei mas mercado", "Alimentação", "Básico", "FlashEats", 98.26, "2025-12-25", "dez/25", ""], ["189", "Uber ano novo", "Transporte", "Lazer", "Crédito Nubank", 22.38, "2025-12-31", "dez/25", ""], ["190", "Uber casa ano novo", "Transporte", "Lazer", "Crédito Nubank", 16.79, "2025-12-31", "dez/25", ""], ["191", "Agenda nova (1/2)", "Lifestyle", "Lazer", "Crédito Nubank", 36.96, "2025-12-31", "dez/25", "1/2"], ["192", "Gilete e bala", "Lifestyle", "Básico", "Pix C6", 38.0, "2025-12-31", "dez/25", ""], ["193", "Agenda nova (2/2)", "Material", "Básico", "Crédito Nubank", 36.96, "2026-01-01", "jan/26", "2/2"], ["194", "Mercado", "Alimentação", "Básico", "FlashEats", 22.39, "2026-01-01", "jan/26", ""], ["195", "Lucca", "Bar", "Lazer", "FlashEats", 118.8, "2026-01-01", "jan/26", ""], ["196", "Comida", "Alimentação", "Básico", "FlashEats", 20.49, "2026-01-01", "jan/26", ""], ["197", "Torta Holandesa", "Alimentação", "Lazer", "FlashEats", 111.08, "2026-01-01", "jan/26", ""], ["198", "uber karol", "Transporte", "Lazer", "FlashMoove", 27.89, "2026-01-01", "jan/26", ""], ["199", "Padaria", "Alimentação", "Básico", "FlashEats", 15.4, "2026-01-01", "jan/26", ""], ["200", "Uber casa eric", "Transporte", "Lazer", "FlashMoove", 21.01, "2026-01-01", "jan/26", ""], ["201", "Uber volta ano novo", "Transporte", "Lazer", "FlashMoove", 25.53, "2026-01-02", "jan/26", ""], ["202", "Bolsa", "Roupa", "Básico", "Pix C6", 40.32, "2026-01-02", "jan/26", ""], ["203", "Vivo", "Conta", "Básico", "Pix C6", 85.41, "2026-01-02", "jan/26", ""], ["204", "Gilette sasa", "Imprevisto", "Básico", "Pix C6", 20.23, "2026-01-03", "jan/26", ""], ["205", "Beats", "Bebida", "Lazer", "Pix C6", 13.0, "2026-01-04", "jan/26", ""], ["206", "Uber", "Transporte", "Lazer", "Pix C6", 45.0, "2026-01-04", "jan/26", ""], ["207", "BATATA", "Alimentação", "Básico", "Pix C6", 10.9, "2026-01-04", "jan/26", ""], ["208", "Uber", "Transporte", "Lazer", "Pix C6", 39.0, "2026-01-08", "jan/26", ""], ["209", "Pipoca cinema", "Alimentação", "Lazer", "Crédito Nubank", 26.0, "2026-01-08", "jan/26", ""], ["210", "Mercado", "Mercado", "Básico", "FlashEats", 17.16, "2026-01-02", "jan/26", ""], ["211", "Almoço", "Alimentação", "Básico", "FlashEats", 40.0, "2026-01-03", "jan/26", ""], ["212", "Gilette Sasa", "Beleza", "Básico", "FlashEats", 21.99, "2026-01-03", "jan/26", ""], ["213", "Uber", "Transporte", "Lazer", "FlashMoove", 86.94, "2026-01-03", "jan/26", ""], ["214", "BEATS LEBLON", "Bebida", "Lazer", "FlashEats", 27.0, "2026-01-03", "jan/26", ""], ["215", "BEATS ZS", "Bebida", "Lazer", "FlashEats", 16.99, "2026-01-04", "jan/26", ""], ["216", "Uber", "Transporte", "Lazer", "FlashMoove", 46.98, "2026-01-04", "jan/26", ""], ["217", "BEATS ZS", "Bebida", "Lazer", "FlashEats", 11.9, "2026-01-04", "jan/26", ""], ["218", "uber", "Transporte", "Lazer", "FlashMoove", 29.95, "2026-01-04", "jan/26", ""], ["219", "Mercado", "Mercado", "Básico", "FlashEats", 27.39, "2026-01-05", "jan/26", ""], ["220", "Esfirra DOCE PQP", "Alimentação", "Lazer", "FlashEats", 29.41, "2026-01-06", "jan/26", ""], ["221", "Mercado", "Mercado", "Básico", "FlashEats", 31.89, "2026-01-07", "jan/26", ""], ["222", "Uber", "Transporte", "Lazer", "FlashMoove", 28.95, "2026-01-08", "jan/26", ""], ["223", "Goldko", "Alimentação", "Lazer", "FlashEats", 66.3, "2026-01-08", "jan/26", ""], ["224", "uber", "Transporte", "Lazer", "FlashMoove", 38.92, "2026-01-02", "jan/26", ""], ["225", "Whey (1/3)", "Saúde", "Básico", "Crédito Nubank", 48.96, "2026-01-09", "jan/26", "1/3"], ["226", "Uber ipanema ", "Transporte", "Lazer", "Pix C6", 43.24, "2026-01-10", "jan/26", ""], ["227", "Nadas", "Alimentação", "Lazer", "Pix C6", 10.0, "2026-01-10", "jan/26", ""], ["228", "Quiosque (1/2)", "Alimentação", "Lazer", "Crédito Nubank", 103.84, "2026-01-10", "jan/26", "1/2"], ["229", "Belmonte", "Bar", "Lazer", "Crédito Nubank", 105.9, "2026-01-10", "jan/26", ""], ["230", "Uber volta leblon", "Transporte", "Lazer", "Crédito Nubank", 67.0, "2026-01-10", "jan/26", ""], ["231", "Mercado", "Alimentação", "Básico", "FlashEats", 29.0, "2026-01-09", "jan/26", ""], ["232", "Mercado", "Alimentação", "Básico", "FlashEats", 8.0, "2026-01-10", "jan/26", ""], ["233", "Sorvete Baccio", "Alimentação", "Lazer", "FlashEats", 26.0, "2026-01-10", "jan/26", ""], ["234", "Batata ruffles", "Alimentação", "Lazer", "FlashEats", 9.0, "2026-01-10", "jan/26", ""], ["235", "Uber Vilela", "Transporte", "Lazer", "Crédito Nubank", 45.0, "2026-01-12", "jan/26", ""], ["236", "Parque bar", "Festa", "Lazer", "Crédito Nubank", 65.67, "2026-01-15", "jan/26", ""], ["237", "Uber volta Parque", "Transporte", "Lazer", "Crédito Nubank", 45.27, "2026-01-15", "jan/26", ""], ["238", "Uber Sasa", "Transporte", "Lazer", "FlashMoove", 61.93, "2026-01-17", "jan/26", ""], ["239", "Beats", "Bebida", "Lazer", "Pix C6", 10.0, "2026-01-15", "jan/26", ""], ["240", "Mercado", "Alimentação", "Básico", "Crédito Nubank", 10.9, "2026-01-12", "jan/26", ""], ["241", "Comidas Praia", "Alimentação", "Lazer", "Crédito Nubank", 38.0, "2026-01-17", "jan/26", ""], ["242", "Uber Praia (1/2)", "Transporte", "Lazer", "Crédito Nubank", 10.0, "2026-01-17", "jan/26", "1/2"], ["243", "Nobrega", "Alimentação", "Lazer", "Crédito Nubank", 87.8, "2026-01-18", "jan/26", ""], ["244", "Comida Praia", "Alimentação", "Lazer", "Crédito Nubank", 28.7, "2026-01-18", "jan/26", ""], ["245", "Uber volta Karol", "Transporte", "Lazer", "Crédito Nubank", 17.0, "2026-01-18", "jan/26", ""], ["246", "BrawlStars", "Lifestyle", "Lazer", "Crédito Nubank", 30.0, "2026-01-22", "jan/26", ""], ["247", "Barrinha", "Alimentação", "Lazer", "Crédito Nubank", 12.0, "2026-01-22", "jan/26", ""], ["248", "Broto Cezareth", "Bar", "Lazer", "Crédito Nubank", 43.0, "2026-01-23", "jan/26", ""], ["249", "Uber Broto", "Transporte", "Lazer", "Crédito Nubank", 45.0, "2026-01-23", "jan/26", ""], ["250", "Frango+Ovo", "Mercado", "Básico", "Crédito Nubank", 43.0, "2026-01-24", "jan/26", ""], ["251", "Restatne VR", "Alimentação", "Básico", "FlashEats", 89.0, "2026-01-23", "jan/26", ""], ["252", "Uber ida sasa", "Transporte", "Lazer", "Crédito Nubank", 12.0, "2026-01-24", "jan/26", ""], ["253", "Uber volta Sasa", "Transporte", "Lazer", "Crédito Nubank", 23.0, "2026-01-25", "jan/26", ""], ["254", "alface+milho", "Mercado", "Básico", "Crédito Nubank", 15.0, "2026-01-26", "jan/26", ""], ["255", "Puma Sports Ltda. - Parcela 10/10", "Roupa", "Básico", "Crédito Nubank", 79.99, "2026-02-14", "fev/26", "10/10"], ["256", "Zig Tickets *Zig Ticke - Parcela 2/3", "Festa", "Lazer", "Crédito Nubank", 65.67, "2026-02-14", "fev/26", "2/3"], ["257", "IVAN MACEDO DE SA", "Transporte", "Lazer", "Crédito Nubank", 35.83, "2026-02-11", "fev/26", ""], ["258", "PET FUN - 1/2", "Mercado", "Básico", "Crédito Nubank", 35.37, "2026-02-11", "fev/26", "1/2"], ["259", "UBER DO BRASIL TECNOLOGIA LTDA. - 2/2", "Transporte", "Lazer", "Crédito Nubank", 45.27, "2026-02-11", "fev/26", "2/2"], ["260", "Fabiano de Marins Santos - 2/2", "Transporte", "Básico", "Crédito Nubank", 10.02, "2026-02-11", "fev/26", "2/2"], ["261", "SUPERMERCADO REAL DE NITEROI LTDA", "Mercado", "Lazer", "Crédito Nubank", 34.52, "2026-02-11", "fev/26", ""], ["262", "DROGARIA ITAMARATY LIMITADA - 1/2", "Beleza", "Básico", "Crédito Nubank", 79.27, "2026-02-11", "fev/26", "1/2"], ["263", "ACH EVENTOS E FEIRAS DE ALIMENTOS LTDA - 2/2", "Alimentação", "Lazer", "Crédito Nubank", 87.8, "2026-02-11", "fev/26", "2/2"], ["264", "Julia Salgueiro Cassel", "Alimentação", "Lazer", "Crédito Nubank", 49.69, "2026-02-11", "fev/26", ""], ["265", "LA CARIOCA - 2/2", "Alimentação", "Lazer", "Crédito Nubank", 103.84, "2026-02-11", "fev/26", "2/2"], ["266", "Mp *Growthsupplements - Parcela 2/3", "Lifestyle", "Básico", "Crédito Nubank", 48.96, "2026-02-09", "fev/26", "2/3"], ["267", "Icloud", "Conta", "Básico", "Crédito Nubank", 19.9, "2026-02-10", "fev/26", ""], ["268", "HBO MAX", "Conta", "Básico", "Crédito Nubank", 30.0, "2026-02-20", "fev/26", ""], ["269", "Apple music", "Conta", "Básico", "Crédito Nubank", 21.9, "2026-02-20", "fev/26", ""], ["270", "To-do List", "Conta", "Básico", "Crédito Nubank", 12.99, "2026-02-12", "fev/26", ""], ["271", "Vivo", "Conta", "Dívida", "Crédito Nubank", 85.41, "2026-02-01", "fev/26", ""], ["272", "Conta de água", "Conta", "Dívida", "Crédito Nubank", 288.0, "2026-02-01", "fev/26", ""], ["273", "Roupa Carnaval", "Roupa", "Lazer", "Crédito Nubank", 25.69, "2026-01-30", "jan/26", ""], ["274", "Barrinha", "Alimentação", "Lazer", "Crédito Nubank", 12.5, "2026-01-27", "jan/26", ""], ["275", "Barrinha", "Alimentação", "Lazer", "Crédito Nubank", 17.0, "2026-01-28", "jan/26", ""], ["276", "NarsCorretivo 1/5", "Beleza", "Lazer", "Crédito Nubank", 46.62, "2026-01-30", "jan/26", "1/5"], ["277", "Contorno  1/2", "Beleza", "Lazer", "Crédito Nubank", 78.7, "2026-01-30", "jan/26", "1/2"], ["278", "Livro", "Material", "Básico", "Crédito Nubank", 42.1, "2026-02-01", "fev/26", ""], ["279", "Cabelo", "Beleza", "Básico", "Crédito Nubank", 68.96, "2026-02-01", "fev/26", ""], ["280", "Corretivo NARS 2/5", "Beleza", "Lazer", "Crédito Nubank", 46.62, "2026-02-01", "fev/26", "2/5"], ["281", "Contorno 2/2", "Beleza", "Lazer", "Crédito Nubank", 78.7, "2026-02-01", "fev/26", "2/2"], ["282", "Matcha", "Alimentação", "Lazer", "FlashEats", 23.52, "2026-02-01", "fev/26", ""], ["283", "Uber icarai-casa", "Transporte", "Básico", "FlashMoove", 15.9, "2026-02-01", "fev/26", ""], ["284", "Mercado dieta", "Mercado", "Básico", "FlashEats", 62.34, "2026-02-01", "fev/26", ""], ["285", "alface", "Mercado", "Básico", "FlashEats", 4.0, "2026-02-01", "fev/26", ""], ["286", "Uber Multicenter", "Transporte", "Básico", "FlashMoove", 10.0, "2026-02-01", "fev/26", ""], ["287", "Uber volta multi", "Transporte", "Básico", "FlashMoove", 20.93, "2026-02-01", "fev/26", ""], ["288", "Ida e Volta MARICÁ", "Transporte", "Lazer", "Crédito Nubank", 84.0, "2026-02-03", "fev/26", ""], ["289", "Alface", "Mercado", "Básico", "FlashEats", 4.0, "2026-02-01", "fev/26", ""], ["290", "Uber", "Transporte", "Básico", "FlashMoove", 30.0, "2026-02-01", "fev/26", ""], ["291", "Botfogo saída", "Bar", "Lazer", "FlashEats", 84.0, "2026-02-01", "fev/26", ""], ["292", "Uber botafogo-casa", "Transporte", "Lazer", "FlashMoove", 25.0, "2026-02-01", "fev/26", ""], ["293", "barrinha", "Alimentação", "Lazer", "FlashEats", 12.0, "2026-02-02", "fev/26", ""], ["294", "Padaria", "Transporte", "Lazer", "FlashMoove", 14.0, "2026-02-03", "fev/26", ""], ["295", "Mercado", "Alimentação", "Básico", "FlashEats", 20.34, "2026-02-03", "fev/26", ""], ["296", "Barrinha", "Mercado", "Lazer", "FlashEats", 16.23, "2026-02-04", "fev/26", ""], ["297", "Casas pedro", "Mercado", "Lazer", "FlashEats", 9.0, "2026-02-05", "fev/26", ""], ["298", "Bala", "Mercado", "Lazer", "FlashEats", 15.0, "2026-02-06", "fev/26", ""], ["299", "Cookie", "Alimentação", "Básico", "Crédito Nubank", 16.0, "2026-02-08", "fev/26", ""], ["300", "Barrinha carnaval", "Alimentação", "Lazer", "Crédito Nubank", 50.11, "2026-02-09", "fev/26", ""], ["301", "Fantasias", "Transporte", "Lazer", "Crédito Nubank", 55.5, "2026-02-10", "fev/26", ""], ["302", "Uber volta centro (1/2)", "Transporte", "Lazer", "Crédito Nubank", 19.86, "2026-02-10", "fev/26", "1/2"], ["303", "Uber trabalho", "Transporte", "Básico", "Crédito Nubank", 14.7, "2026-02-11", "fev/26", ""], ["304", "Uber maricá", "Transporte", "Básico", "Crédito Nubank", 45.9, "2026-02-12", "fev/26", ""], ["305", "Uber volta MARICA (1/2)", "Transporte", "Básico", "Crédito Nubank", 27.73, "2026-02-12", "fev/26", "1/2"], ["306", "Uber Carna", "Transporte", "Lazer", "Crédito Nubank", 49.95, "2026-02-13", "fev/26", ""], ["307", "Uber centro>aterro", "Transporte", "Lazer", "Crédito Nubank", 27.0, "2026-02-13", "fev/26", ""], ["308", "Caipirinha bloco", "Bebida", "Lazer", "Crédito Nubank", 18.9, "2026-02-13", "fev/26", ""], ["309", "Bebida bloco", "Bebida", "Lazer", "Crédito Nubank", 18.5, "2026-02-15", "fev/26", ""], ["310", "Uber até boitolo", "Transporte", "Lazer", "Crédito Nubank", 80.0, "2026-02-15", "fev/26", ""], ["311", "Uber casa gabriel", "Transporte", "Lazer", "Crédito Nubank", 11.0, "2026-02-16", "fev/26", ""], ["312", "Caipirinha vene (1/2", "Bebida", "Lazer", "Crédito Nubank", 14.26, "2026-02-16", "fev/26", "1/2"], ["313", "Uber pós bota", "Transporte", "Lazer", "Crédito Nubank", 22.99, "2026-02-16", "fev/26", ""], ["314", "Uber bloco", "Transporte", "Lazer", "Crédito Nubank", 30.82, "2026-02-17", "fev/26", ""], ["315", "Beats", "Bebida", "Lazer", "Crédito Nubank", 21.0, "2026-02-17", "fev/26", ""], ["316", "Casquinha", "Alimentação", "Lazer", "Crédito Nubank", 13.4, "2026-02-17", "fev/26", ""], ["317", "Água", "Bebida", "Básico", "Crédito Nubank", 5.0, "2026-02-17", "fev/26", ""], ["318", "Uber volta casa", "Transporte", "Lazer", "Crédito Nubank", 11.7, "2026-02-17", "fev/26", ""], ["319", "Mercado", "Mercado", "Básico", "Crédito Nubank", 7.0, "2026-02-17", "fev/26", ""], ["320", "Uber volta barco (1/2)", "Transporte", "Lazer", "Crédito Nubank", 13.42, "2026-02-21", "fev/26", "1/2"], ["321", "Mercado e bebida", "Alimentação", "Lazer", "FlashEats", 378.57, "2026-02-22", "fev/26", ""], ["322", "Uber", "Transporte", "Lazer", "FlashMoove", 87.0, "2026-02-22", "fev/26", ""], ["267", "Icloud", "Conta", "Básico", "Crédito Nubank", 19.9, "2026-03-10", "mar/26", ""], ["268", "HBO MAX", "Conta", "Básico", "Crédito Nubank", 30.0, "2026-03-20", "mar/26", ""], ["269", "Spotify", "Conta", "Básico", "Crédito Nubank", 24.0, "2026-03-20", "mar/26", ""], ["270", "To-do List", "Conta", "Básico", "Crédito Nubank", 12.99, "2026-03-12", "mar/26", ""], ["271", "Vivo", "Conta", "Dívida", "Crédito Nubank", 85.41, "2026-03-01", "mar/26", ""], ["272", "Conta de água", "Conta", "Dívida", "Crédito Nubank", 122.86, "2026-03-01", "mar/26", ""], ["273", "Sephora Store - Parcela 3/5", "Beleza", "Básico", "Crédito Nubank", 46.62, "2026-03-30", "mar/26", "3/5"], ["274", "Zig Tickets *Zig Ticke - Parcela 3/3", "Festa", "Lazer", "Crédito Nubank", 65.67, "2026-03-14", "mar/26", "3/3"], ["275", "DIEGO BARBOSA DE SOUZA - 2/2", "Transporte", "Lazer", "Crédito Nubank", 27.73, "2026-03-13", "mar/26", "2/2"], ["276", "LANCHONETE FERREIRINHA DO MACHADO LTDA - 1/2", "Alimentação", "Básico", "Crédito Nubank", 31.38, "2026-03-13", "mar/26", "1/2"], ["277", "MATHEUS VIEIRA COSTA DE AZEREDO - 2/2", "Transporte", "Lazer", "Crédito Nubank", 13.42, "2026-03-13", "mar/26", "2/2"], ["278", "Vania De Oliveira Fernandes Da Silva - 1/2", "Alimentação", "Lazer", "Crédito Nubank", 18.87, "2026-03-13", "mar/26", "1/2"], ["279", "99 TECNOLOGIA LTDA - 2/2", "Transporte", "Lazer", "Crédito Nubank", 19.86, "2026-03-13", "mar/26", "2/2"], ["280", "PET FUN - 2/2", "Mercado", "Básico", "Crédito Nubank", 35.37, "2026-03-13", "mar/26", "2/2"], ["281", "Vania De Oliveira Fernandes Da Silva - 2/2", "Transporte", "Básico", "Crédito Nubank", 14.26, "2026-03-13", "mar/26", "2/2"], ["282", "DROGARIA ITAMARATY LIMITADA - 2/2", "Beleza", "Básico", "Crédito Nubank", 79.27, "2026-03-13", "mar/26", "2/2"], ["283", "99 TECNOLOGIA LTDA", "Transporte", "Lazer", "Crédito Nubank", 29.07, "2026-03-13", "mar/26", ""], ["284", "Mp *Growthsupplements - Parcela 3/3", "Saúde", "Básico", "Crédito Nubank", 48.96, "2026-03-09", "mar/26", "3/3"], ["323", "Mercado", "Mercado", "Básico", "Crédito Nubank", 16.0, "2026-02-16", "fev/26", ""], ["324", "comidinha pop", "Imprevisto", "Básico", "Crédito Nubank", 3.5, "2026-02-16", "fev/26", ""], ["325", "Uber devendo", "Transporte", "Básico", "Crédito Nubank", 30.18, "2026-02-22", "fev/26", ""], ["326", "Cinema", "Lifestyle", "Lazer", "Crédito Nubank", 22.0, "2026-02-25", "fev/26", ""], ["327", "PET FUN", "Mercado", "Dívida", "Crédito Nubank", 62.4, "2026-03-13", "mar/26", ""], ["328", "JUAN GOMES FERNANDES DE OLIVEIRA", "Mercado", "Lazer", "Crédito Nubank", 31.72, "2026-03-13", "mar/26", ""], ["329", "UBER DO BRASIL TECNOLOGIA LTDA. - 1/2", "Transporte", "Básico", "Crédito Nubank", 24.07, "2026-03-13", "mar/26", "1/2"], ["330", "59.899.817 GIUSEPPE ACHILLE DE SOUZA MARTIRE", "Transporte", "Lazer", "Crédito Nubank", 28.57, "2026-03-13", "mar/26", ""], ["331", "Almoço Salmão", "Alimentação", "Lazer", "FlashEats", 62.55, "2026-03-01", "mar/26", ""], ["332", "Whey", "Saúde", "Básico", "FlashEats", 168.33, "2026-03-01", "mar/26", ""], ["333", "Salgadinho", "Alimentação", "Lazer", "FlashEats", 8.99, "2026-03-01", "mar/26", ""], ["334", "Matcha", "Alimentação", "Lazer", "FlashEats", 23.52, "2026-03-01", "mar/26", ""], ["335", "Mercado fit", "Mercado", "Básico", "FlashEats", 37.35, "2026-03-01", "mar/26", ""], ["336", "Mercado cookies", "Alimentação", "Lazer", "FlashEats", 90.63, "2026-03-01", "mar/26", ""], ["337", "uber karol", "Transporte", "Básico", "FlashMoove", 25.93, "2026-03-01", "mar/26", ""], ["338", "Frontera+shopping", "Alimentação", "Lazer", "FlashEats", 96.67, "2026-03-01", "mar/26", ""], ["339", "Uber casa karol + casa pós", "Transporte", "Lazer", "FlashMoove", 43.94, "2026-03-01", "mar/26", ""], ["340", "Brawlstars", "Lifestyle", "Lazer", "Crédito Nubank", 42.4, "2026-03-04", "mar/26", ""], ["341", "Academia", "Saúde", "Básico", "Crédito Nubank", 120.0, "2026-03-15", "mar/26", ""], ["342", "Fone imprevisto (1/2)", "Imprevisto", "Básico", "Crédito Nubank", 27.38, "2026-03-05", "mar/26", "1/2"], ["343", "Fone JBL novo (1/4)", "Imprevisto", "Básico", "Crédito Nubank", 74.4, "2026-03-06", "mar/26", "1/4"], ["344", "Presilha cabelo", "Roupa", "Básico", "Crédito Nubank", 12.23, "2026-03-08", "mar/26", ""], ["345", "Material facul", "Material", "Educação", "Crédito Nubank", 52.8, "2026-03-09", "mar/26", ""], ["346", "Barrinha goldko", "Alimentação", "Lazer", "Crédito Nubank", 18.9, "2026-03-09", "mar/26", ""], ["347", "Salgado trabalho", "Alimentação", "Básico", "Crédito Nubank", 8.0, "2026-03-10", "mar/26", ""], ["348", "Uber facu", "Transporte", "Básico", "Crédito Nubank", 14.0, "2026-03-11", "mar/26", ""], ["349", "DOCE FACU", "Alimentação", "Básico", "Pix C6", 9.0, "2026-03-11", "mar/26", ""], ["350", "Doação", "Imprevisto", "Lazer", "Pix C6", 15.0, "2026-03-13", "mar/26", ""], ["351", "DOCE FACU", "Alimentação", "Lazer", "Pix C6", 4.0, "2026-03-13", "mar/26", ""], ["352", "Mercado Urgente (1/2)", "Mercado", "Básico", "Crédito Nubank", 40.21, "2026-03-14", "mar/26", "1/2"], ["353", "Alface", "Mercado", "Básico", "Crédito Nubank", 3.68, "2026-03-14", "mar/26", ""], ["354", "Disney Plus", "Lifestyle", "Básico", "Crédito Nubank", 9.0, "2026-03-14", "mar/26", ""], ["355", "Chave casa nova ", "Imprevisto", "Dívida", "Crédito Nubank", 53.74, "2026-03-15", "mar/26", ""], ["356", "Comida Presencial", "Alimentação", "Básico", "Crédito Nubank", 30.0, "2026-03-16", "mar/26", ""], ["357", "Salgado", "Alimentação", "Básico", "Crédito Nubank", 9.0, "2026-03-19", "mar/26", ""], ["358", "Ingresso AnivKarol", "Festa", "Lazer", "Crédito Nubank", 46.25, "2026-03-19", "mar/26", ""], ["359", "Mercado (1/2)", "Mercado", "Básico", "Crédito Nubank", 7.16, "2026-03-16", "mar/26", "1/2"], ["360", "Almoço Vó", "Alimentação", "Básico", "Crédito Nubank", 67.0, "2026-03-21", "mar/26", ""], ["361", "Bar da cachaça", "Bar", "Lazer", "Crédito Nubank", 52.0, "2026-03-21", "mar/26", ""], ["362", "Barrinha", "Alimentação", "Lazer", "Crédito Nubank", 25.0, "2026-03-21", "mar/26", ""], ["363", "Frango mercado", "Alimentação", "Básico", "Crédito Nubank", 27.0, "2026-03-23", "mar/26", ""], ["364", "barrinha", "Alimentação", "Lazer", "Crédito Nubank", 11.9, "2026-03-21", "mar/26", ""], ["365", "Milho praia", "Alimentação", "Lazer", "Crédito Nubank", 16.0, "2026-03-21", "mar/26", ""], ["366", "Cookie", "Alimentação", "Lazer", "Crédito Nubank", 22.13, "2026-03-22", "mar/26", ""], ["367", "MERCADO MAIORIA", "Alimentação", "Básico", "FlashEats", 325.0, "2026-03-23", "mar/26", ""], ["368", "UBER", "Transporte", "Lazer", "FlashMoove", 175.53, "2026-03-23", "mar/26", ""], ["369", "frango", "Mercado", "Básico", "Crédito Nubank", 25.92, "2026-03-27", "mar/26", ""], ["370", "uber facu", "Transporte", "Lazer", "Crédito Nubank", 15.0, "2026-03-28", "mar/26", ""], ["371", "lanche estág", "Alimentação", "Lazer", "Crédito Nubank", 23.5, "2026-03-28", "mar/26", ""], ["372", "farmácia", "Alimentação", "Básico", "Crédito Nubank", 12.0, "2026-03-29", "mar/26", ""], ["373", "Sephora Store - Parcela 4/5", "Beleza", "Básico", "Crédito Nubank", 46.62, "2026-04-30", "abr/26", "4/5"], ["374", "EXCLUSIVO COMERCIO DE ALIMENTOS LTDA", "Alimentação", "Básico", "Crédito Nubank", 32.6, "2026-04-11", "abr/26", ""], ["375", "LANCHONETE FERREIRINHA DO MACHADO LTDA - 2/2", "Alimentação", "Básico", "Crédito Nubank", 31.38, "2026-04-11", "abr/26", "2/2"], ["376", "EXCLUSIVO COMERCIO DE ALIMENTO - 2/2", "Mercado", "Básico", "Crédito Nubank", 7.16, "2026-04-11", "abr/26", "2/2"], ["377", "EXCLUSIVO COMERCIO DE ALIMENTO", "Mercado", "Básico", "Crédito Nubank", 17.22, "2026-04-11", "abr/26", ""], ["378", "Vania De Oliveira Fernandes Da Silva - 2/2", "Transporte", "Lazer", "Crédito Nubank", 18.87, "2026-04-11", "abr/26", "2/2"], ["379", "BIO MUNDO", "Mercado", "Básico", "Crédito Nubank", 21.76, "2026-04-11", "abr/26", ""], ["380", "EXCLUSIVO COMERCIO DE ALIMENTO - 1/2", "Mercado", "Básico", "Crédito Nubank", 29.44, "2026-04-11", "abr/26", "1/2"], ["381", "EXCLUSIVO COMERCIO DE ALIMENTOS LTDA", "Mercado", "Básico", "Crédito Nubank", 36.87, "2026-04-11", "abr/26", ""], ["382", "UBER DO BRASIL TECNOLOGIA LTDA. - 2/2", "Transporte", "Básico", "Crédito Nubank", 24.07, "2026-04-11", "abr/26", "2/2"], ["383", "IFOOD COM AGENCIA DE RESTAURANTES ONLINE S A - 2/2", "Alimentação", "Lazer", "Crédito Nubank", 40.2, "2026-04-11", "abr/26", "2/2"], ["384", "99 FOOD - 2/2", "Transporte", "Lazer", "Crédito Nubank", 22.14, "2026-04-11", "abr/26", "2/2"], ["385", "IBB ARTIGOS ELETRONICOS LTDA - 2/2", "Imprevisto", "Básico", "Crédito Nubank", 27.38, "2026-04-11", "abr/26", "2/2"], ["386", "EXCLUSIVO COMERCIO DE ALIMENTO - 1/2", "Material", "Lazer", "Crédito Nubank", 10.84, "2026-04-11", "abr/26", "1/2"], ["387", "Mercadolivre*Mercadol - Parcela 2/4", "Imprevisto", "Básico", "Crédito Nubank", 74.39, "2026-04-07", "abr/26", "2/4"], ["388", "Icloud", "Conta", "Dívida", "Crédito Nubank", 19.9, "2026-04-01", "abr/26", ""], ["389", "HBO MAX", "Conta", "Dívida", "Crédito Nubank", 30.0, "2026-04-01", "abr/26", ""], ["390", "Spotify", "Conta", "Dívida", "Crédito Nubank", 12.99, "2026-04-01", "abr/26", ""], ["391", "To-do List", "Conta", "Dívida", "Crédito Nubank", 12.99, "2026-04-01", "abr/26", ""], ["392", "Vivo", "Conta", "Dívida", "Crédito Nubank", 85.41, "2026-04-01", "abr/26", ""], ["393", "Conta de água", "Conta", "Dívida", "Crédito Nubank", 118.0, "2026-04-01", "abr/26", ""], ["341", "Academia", "Saúde", "Dívida", "Crédito Nubank", 120.0, "2026-04-15", "abr/26", ""], ["394", "Apple music", "Lifestyle", "Básico", "Crédito Nubank", 24.0, "2026-03-31", "mar/26", ""], ["395", "Blusa nova", "Roupa", "Lazer", "Pix C6", 85.67, "2026-03-31", "mar/26", ""], ["396", "Uber volta sabrina", "Transporte", "Lazer", "Crédito Nubank", 24.44, "2026-03-31", "mar/26", ""], ["397", "Cabelo+ creme (1/2)", "Beleza", "Básico", "Crédito Nubank", 61.22, "2026-04-04", "abr/26", "1/2"], ["398", "Escova de dente", "Saúde", "Básico", "Crédito Nubank", 29.0, "2026-04-04", "abr/26", ""], ["399", "RioFW (1/2)", "Lifestyle", "Lazer", "Crédito Nubank", 25.0, "2026-04-04", "abr/26", "1/2"], ["400", "Alface +barrinha", "Mercado", "Básico", "FlashEats", 18.17, "2026-04-01", "abr/26", ""], ["401", "Uber facu", "Transporte", "Básico", "FlashMoove", 15.91, "2026-04-01", "abr/26", ""], ["402", "Mercado dieta", "Mercado", "Básico", "FlashEats", 81.24, "2026-04-01", "abr/26", ""], ["403", "Mercado DIETA", "Mercado", "Básico", "FlashEats", 76.39, "2026-04-01", "abr/26", ""], ["404", "Uber Facu", "Transporte", "Básico", "FlashMoove", 18.92, "2026-04-02", "abr/26", ""], ["405", "Almoço empresa", "Alimentação", "Básico", "FlashEats", 32.89, "2026-04-02", "abr/26", ""], ["406", "DOCE EMPRESA", "Mercado", "Básico", "FlashEats", 4.9, "2026-04-02", "abr/26", ""], ["407", "Salada Sasa", "Alimentação", "Lazer", "FlashEats", 42.89, "2026-04-03", "abr/26", ""], ["408", "Uber cabelo", "Transporte", "Básico", "FlashMoove", 31.0, "2026-04-04", "abr/26", ""], ["409", "Barra Páscoa Mãe", "Mercado", "Lazer", "FlashEats", 18.0, "2026-04-04", "abr/26", ""], ["410", "Amazon livro+ skin acre", "Lifestyle", "Básico", "Crédito Nubank", 96.86, "2026-04-05", "abr/26", ""], ["411", "WheyDUX", "Saúde", "Básico", "Crédito Nubank", 164.07, "2026-04-05", "abr/26", ""], ["412", "Boné", "Roupa", "Lazer", "Crédito Nubank", 28.4, "2026-04-05", "abr/26", ""], ["413", "Comida pip", "Mercado", "Dívida", "Crédito Nubank", 65.0, "2026-04-05", "abr/26", ""], ["414", "Uber facu", "Transporte", "Básico", "Crédito Nubank", 12.27, "2026-04-06", "abr/26", ""], ["415", "Sapato MrCat (1/4)", "Roupa", "Lazer", "Crédito Nubank", 100.0, "2026-04-07", "abr/26", "1/4"], ["416", "Uber Facu", "Transporte", "Lazer", "Crédito Nubank", 33.0, "2026-04-08", "abr/26", ""], ["417", "Fumo", "Bebida", "Lazer", "Crédito Nubank", 19.38, "2026-04-08", "abr/26", ""], ["418", "Pix Ma~e, vai voltar em Maio", "Imprevisto", "Dívida", "Crédito Nubank", 100.0, "2026-04-09", "abr/26", ""], ["419", "Lanche facu", "Alimentação", "Básico", "FlashEats", 8.0, "2026-04-06", "abr/26", ""], ["420", "Uber volta Facu", "Transporte", "Básico", "FlashMoove", 15.91, "2026-04-06", "abr/26", ""], ["421", "Mercado", "Mercado", "Básico", "FlashEats", 25.93, "2026-04-06", "abr/26", ""], ["422", "Mercado", "Mercado", "Básico", "FlashEats", 107.4, "2026-04-07", "abr/26", ""], ["423", "Barrinha", "Mercado", "Básico", "FlashEats", 14.0, "2026-04-07", "abr/26", ""], ["424", "Lanche facu", "Alimentação", "Básico", "FlashEats", 8.0, "2026-04-07", "abr/26", ""], ["425", "Mercado", "Mercado", "Básico", "FlashEats", 43.8, "2026-04-09", "abr/26", ""], ["426", "RioFw", "Bebida", "Lazer", "Crédito Nubank", 75.0, "2026-04-19", "abr/26", ""], ["427", "Pizza (1/2)", "Alimentação", "Lazer", "Crédito Nubank", 36.0, "2026-04-19", "abr/26", "1/2"], ["428", "calculadora", "Material", "Educação", "Crédito Nubank", 44.0, "2026-04-08", "abr/26", ""], ["429", "uber facu", "Transporte", "Básico", "Crédito Nubank", 14.0, "2026-04-11", "abr/26", ""], ["430", "hidratante", "Beleza", "Básico", "Crédito Nubank", 63.0, "2026-04-12", "abr/26", ""], ["431", "mercado trabalho", "Alimentação", "Básico", "Crédito Nubank", 30.0, "2026-04-16", "abr/26", ""], ["432", "Deja Vu", "Bar", "Lazer", "Crédito Nubank", 92.0, "2026-04-18", "abr/26", ""], ["433", "Uber sasa", "Transporte", "Básico", "Crédito Nubank", 20.8, "2026-04-21", "abr/26", ""], ["434", "Bosque Ias (1/5)", "Festa", "Lazer", "Crédito Nubank", 42.56, "2026-04-22", "abr/26", "1/5"], ["435", "Uber sasa (1/2)", "Transporte", "Lazer", "Crédito Nubank", 14.31, "2026-04-24", "abr/26", "1/2"], ["436", "Combo 1 bosque (1/3)", "Bebida", "Lazer", "Crédito Nubank", 34.06, "2026-04-24", "abr/26", "1/3"], ["437", "Uber aniv PRI (1/2)", "Transporte", "Lazer", "Crédito Nubank", 15.55, "2026-04-25", "abr/26", "1/2"], ["438", "Uber facu", "Transporte", "Básico", "FlashMoove", 43.0, "2026-04-11", "abr/26", ""], ["439", "Uber facu", "Transporte", "Básico", "FlashMoove", 28.0, "2026-04-13", "abr/26", ""], ["440", "Facul lanche", "Alimentação", "Básico", "FlashEats", 29.0, "2026-04-13", "abr/26", ""], ["441", "Pós facu anna", "Alimentação", "Lazer", "FlashEats", 32.0, "2026-04-13", "abr/26", ""], ["442", "Uber casa pós facu", "Transporte", "Básico", "FlashEats", 15.0, "2026-04-13", "abr/26", ""], ["443", "Mercado", "Mercado", "Básico", "FlashEats", 41.02, "2026-04-13", "abr/26", ""], ["444", "Mercado", "Mercado", "Básico", "FlashEats", 68.41, "2026-04-14", "abr/26", ""], ["445", "Uber facu", "Transporte", "Básico", "FlashMoove", 17.0, "2026-04-15", "abr/26", ""], ["446", "lanche facu", "Alimentação", "Lazer", "FlashEats", 16.0, "2026-04-15", "abr/26", ""], ["447", "UBER VOLTA FACU", "Transporte", "Básico", "FlashMoove", 13.0, "2026-04-15", "abr/26", ""], ["448", "Mercado", "Mercado", "Básico", "FlashEats", 8.77, "2026-04-15", "abr/26", ""], ["449", "Uber facu", "Transporte", "Básico", "FlashMoove", 23.0, "2026-04-16", "abr/26", ""], ["450", "Casa pedro", "Alimentação", "Básico", "FlashEats", 12.0, "2026-04-16", "abr/26", ""], ["451", "Mercado", "Transporte", "Básico", "FlashMoove", 5.15, "2026-04-17", "abr/26", ""], ["452", "Mercade", "Transporte", "Básico", "FlashMoove", 3.49, "2026-04-18", "abr/26", ""], ["453", "Uber facu", "Transporte", "Básico", "FlashMoove", 47.07, "2026-04-18", "abr/26", ""], ["454", "Uber volta karol", "Transporte", "Básico", "FlashMoove", 30.0, "2026-04-19", "abr/26", ""], ["455", "Uber volta nobrega ", "Transporte", "Lazer", "FlashMoove", 25.94, "2026-04-20", "abr/26", ""], ["456", "Mercado", "Mercado", "Básico", "FlashEats", 23.15, "2026-04-20", "abr/26", ""], ["457", "mercado", "Mercado", "Lazer", "FlashEats", 11.68, "2026-04-24", "abr/26", ""], ["458", "mercado", "Alimentação", "Básico", "Crédito Nubank", 6.0, "2026-04-27", "abr/26", ""], ["459", "Mercado", "Mercado", "Básico", "Crédito Nubank", 56.0, "2026-04-28", "abr/26", ""], ["460", "Uber prova", "Transporte", "Lazer", "Crédito Nubank", 16.31, "2026-04-28", "abr/26", ""], ["461", "Lanche job", "Alimentação", "Básico", "Crédito Nubank", 6.0, "2026-04-28", "abr/26", ""], ["462", "Sephora Store - Parcela 5/5", "Beleza", "Básico", "Crédito Nubank", 46.62, "2026-05-30", "mai/26", "5/5"], ["463", "Ingresse_br Ady*Ingres - Parcela 2/5", "Festa", "Lazer", "Crédito Nubank", 42.56, "2026-05-22", "mai/26", "2/5"], ["464", "Zig Tecnologia S.A. - 2/3", "Festa", "Lazer", "Crédito Nubank", 34.06, "2026-05-11", "mai/26", "2/3"], ["465", "QUARENTA GRAUS PRODUCOES ARTISTICAS LTDA - 1/3", "Lifestyle", "Básico", "Crédito Nubank", 61.94, "2026-05-11", "mai/26", "1/3"], ["466", "JOSE LUIZ VIEIRA LACERDA - 2/2", "Transporte", "Básico", "Crédito Nubank", 19.38, "2026-05-11", "mai/26", "2/2"], ["467", "MONICA LOURENCO DA SILVA ESTEVES", "Roupa", "Básico", "Crédito Nubank", 43.88, "2026-05-11", "mai/26", ""], ["468", "CSB DROGARIAS S/A", "Lifestyle", "Básico", "Crédito Nubank", 16.88, "2026-05-11", "mai/26", ""], ["470", "Zig Tecnologia S.A.", "Festa", "Lazer", "Crédito Nubank", 30.88, "2026-05-11", "mai/26", ""], ["471", "EXCLUSIVO COMERCIO DE ALIMENTO", "Mercado", "Básico", "Crédito Nubank", 41.26, "2026-05-11", "mai/26", ""], ["472", "99 TECNOLOGIA LTDA - 2/2", "Transporte", "Básico", "Crédito Nubank", 15.55, "2026-05-11", "mai/26", "2/2"], ["473", "EXCLUSIVO COMERCIO DE ALIMENTO - 2/2", "Mercado", "Básico", "Crédito Nubank", 29.44, "2026-05-11", "mai/26", "2/2"], ["474", "99 TECNOLOGIA LTDA - 2/2", "Transporte", "Básico", "Crédito Nubank", 14.31, "2026-05-11", "mai/26", "2/2"], ["475", "KATYJU PAPELARIA LTDA - 2/2", "Material", "Educação", "Crédito Nubank", 31.58, "2026-05-11", "mai/26", "2/2"], ["476", "IFOOD COM AGENCIA DE RESTAURANTES ONLINE S A - 2/2", "Alimentação", "Básico", "Crédito Nubank", 38.79, "2026-05-11", "mai/26", "2/2"], ["477", "Andrea Gomes Canella", "Imprevisto", "Básico", "Crédito Nubank", 16.59, "2026-05-11", "mai/26", ""], ["478", "CHA EVENTOS E FEIRAS DE ALIMENTOS LTDA - 1/2", "Alimentação", "Lazer", "Crédito Nubank", 44.24, "2026-05-11", "mai/26", "1/2"], ["479", "EXCLUSIVO COMERCIO DE ALIMENTO - 2/2", "Mercado", "Básico", "Crédito Nubank", 10.84, "2026-05-11", "mai/26", "2/2"], ["480", "EXCLUSIVO COMERCIO DE ALIMENTO", "Mercado", "Básico", "Crédito Nubank", 21.69, "2026-05-11", "mai/26", ""], ["481", "VANDA CARDOZO MENEZES - 2/2", "Transporte", "Básico", "Crédito Nubank", 61.22, "2026-05-11", "mai/26", "2/2"], ["482", "Zig Tecnologia S.A. - 1/3", "Festa", "Lazer", "Crédito Nubank", 29.33, "2026-05-11", "mai/26", "1/3"], ["483", "Mr. Cat Bps - Parcela 2/4", "Roupa", "Básico", "Crédito Nubank", 99.97, "2026-05-08", "mai/26", "2/4"], ["484", "Mercadolivre*Mercadol - Parcela 3/4", "Roupa", "Básico", "Crédito Nubank", 74.39, "2026-05-07", "mai/26", "3/4"], ["485", "Eventim *Eventim - Parcela 2/2", "Festa", "Lazer", "Crédito Nubank", 25.0, "2026-05-04", "mai/26", "2/2"], ["388", "Icloud", "Conta", "Dívida", "Crédito Nubank", 19.9, "2026-05-01", "mai/26", ""], ["389", "HBO MAX", "Conta", "Dívida", "Crédito Nubank", 30.0, "2026-05-01", "mai/26", ""], ["391", "To-do List", "Conta", "Dívida", "Crédito Nubank", 12.99, "2026-05-01", "mai/26", ""], ["392", "Vivo", "Conta", "Dívida", "Crédito Nubank", 85.41, "2026-05-01", "mai/26", ""], ["393", "Conta de água", "Conta", "Dívida", "Crédito Nubank", 146.0, "2026-05-01", "mai/26", ""], ["341", "Academia", "Saúde", "Dívida", "Crédito Nubank", 100.0, "2026-05-15", "mai/26", ""], ["394", "Apple music", "Lifestyle", "Básico", "Crédito Nubank", 24.0, "2026-05-31", "mai/26", ""], ["486", "Material Facu", "Material", "Educação", "Crédito Nubank", 52.0, "2026-05-05", "mai/26", ""], ["487", "Lanche", "Alimentação", "Básico", "Crédito Nubank", 10.0, "2026-05-05", "mai/26", ""], ["488", "Airplane SP (1/3)", "Transporte", "Dívida", "Crédito Nubank", 132.72, "2026-05-07", "mai/26", "1/3"], ["489", "BARCO", "Lifestyle", "Lazer", "Crédito Nubank", 26.17, "2026-05-11", "mai/26", ""], ["490", "Cantina facu", "Alimentação", "Básico", "Crédito Nubank", 8.0, "2026-05-11", "mai/26", ""], ["491", "Almoço que esqueci", "Alimentação", "Básico", "Crédito Nubank", 48.0, "2026-05-12", "mai/26", ""], ["492", "Salgado", "Alimentação", "Básico", "Crédito Nubank", 13.0, "2026-05-15", "mai/26", ""], ["493", "Mercado", "Mercado", "Básico", "Crédito Nubank", 15.0, "2026-05-15", "mai/26", ""], ["494", "Cantina", "Alimentação", "Básico", "Crédito Nubank", 9.0, "2026-05-13", "mai/26", ""], ["495", "Barrinha", "Alimentação", "Básico", "Crédito Nubank", 13.0, "2026-05-16", "mai/26", ""], ["496", "uber facu", "Transporte", "Lazer", "Crédito Nubank", 15.0, "2026-05-17", "mai/26", ""], ["497", "Papelaria + uber volta", "Transporte", "Básico", "Crédito Nubank", 30.0, "2026-05-15", "mai/26", ""], ["498", "Disney Plus", "Lifestyle", "Lazer", "Crédito Nubank", 27.99, "2026-05-15", "mai/26", ""], ["499", "Uber Sasa", "Transporte", "Lazer", "Crédito Nubank", 15.4, "2026-05-17", "mai/26", ""], ["500", "Pipoca cinema", "Alimentação", "Lazer", "Crédito Nubank", 35.5, "2026-05-16", "mai/26", ""], ["501", "Cookie Sasa", "Alimentação", "Lazer", "Crédito Nubank", 31.06, "2026-05-16", "mai/26", ""], ["502", "Claude AI", "Lifestyle", "Educação", "Crédito Nubank", 110.0, "2026-05-18", "mai/26", ""], ["503", "Comida pipoca", "Alimentação", "Básico", "Crédito Nubank", 60.0, "2026-05-21", "mai/26", ""], ["504", "Frango mercado 1/2", "Mercado", "Básico", "Crédito Nubank", 11.52, "2026-05-21", "mai/26", "1/2"], ["505", "Tinta cabelo 1/2", "Beleza", "Lazer", "Crédito Nubank", 26.09, "2026-05-21", "mai/26", "1/2"], ["506", "comida job", "Alimentação", "Básico", "Crédito Nubank", 24.5, "2026-05-21", "mai/26", ""], ["507", "Uber prova fisica", "Transporte", "Básico", "Crédito Nubank", 15.3, "2026-05-22", "mai/26", ""], ["508", "Barrinha", "Alimentação", "Lazer", "Crédito Nubank", 12.5, "2026-05-22", "mai/26", ""], ["509", "Uber barbeirp", "Transporte", "Lazer", "Crédito Nubank", 21.93, "2026-05-22", "mai/26", ""], ["510", "Cabelo 1/2", "Beleza", "Básico", "Crédito Nubank", 33.53, "2026-05-23", "mai/26", "1/2"], ["511", "Tequila eric e camis", "Bebida", "Lazer", "Crédito Nubank", 133.0, "2026-05-24", "mai/26", ""], ["512", "IFD*Le Dep Botafogo Botafogo BRA", "Alimentação", "Lazer", "FLASHEATS", 1.67, "2026-05-19", "mai/26", ""], ["513", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 31.69, "2026-05-14", "mai/26", ""], ["514", "IFD*Le Dep Botafogo Botafogo BRA", "Alimentação", "Lazer", "FLASHEATS", 1.68, "2026-05-14", "mai/26", ""], ["515", "CantinaPraia NITEROI BRA", "Alimentação", "Lazer", "FLASHEATS", 8.5, "2026-05-13", "mai/26", ""], ["516", "99* SAO PAULO BRA", "Transporte", "Básico", "FLASHMOOVE", 15.4, "2026-05-13", "mai/26", ""], ["517", "DL*UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 18.93, "2026-05-13", "mai/26", ""], ["518", "CASAS PEDRO RIO DE JANEIR BRA", "Mercado", "Básico", "FLASHEATS", 21.77, "2026-05-12", "mai/26", ""], ["519", "IFD*BR OSASCO BRA", "Alimentação", "Lazer", "FLASHEATS", 7.95, "2026-05-12", "mai/26", ""], ["520", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 28.82, "2026-05-11", "mai/26", ""], ["521", "99* SAO PAULO BRA", "Transporte", "Básico", "FLASHMOOVE", 15.4, "2026-05-09", "mai/26", ""], ["522", "DL*UberRides Sao Paulo BRA", "Transporte", "Lazer", "FLASHMOOVE", 31.95, "2026-05-09", "mai/26", ""], ["523", "DL *UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 16.94, "2026-05-09", "mai/26", ""], ["524", "SUP REAL ICARAI NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 32.53, "2026-05-09", "mai/26", ""], ["525", "NAO ME TORRA CAFE E BA NITEROI BRA", "Alimentação", "Lazer", "FLASHEATS", 39.2, "2026-05-08", "mai/26", ""], ["526", "99* SAO PAULO BRA", "Transporte", "Básico", "FLASHMOOVE", 15.4, "2026-05-08", "mai/26", ""], ["527", "99* SAO PAULO BRA", "Transporte", "Básico", "FLASHMOOVE", 11.9, "2026-05-08", "mai/26", ""], ["528", "99* SAO PAULO BRA", "Transporte", "Básico", "FLASHMOOVE", 13.2, "2026-05-08", "mai/26", ""], ["529", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 6.19, "2026-05-08", "mai/26", ""], ["530", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 3.57, "2026-05-06", "mai/26", ""], ["531", "CantinaPraia NITEROI BRA", "Alimentação", "Lazer", "FLASHEATS", 7.0, "2026-05-06", "mai/26", ""], ["532", "DL *UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 18.92, "2026-05-06", "mai/26", ""], ["533", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 25.8, "2026-05-05", "mai/26", ""], ["534", "Wizmart RIO DE JANEIR BRA", "Mercado", "Básico", "FLASHEATS", 3.79, "2026-05-05", "mai/26", ""], ["535", "MUNDO DO BISCOITO RIO DE JANEIR BRA", "Mercado", "Básico", "FLASHEATS", 3.29, "2026-05-05", "mai/26", ""], ["536", "CantinaPraia NITEROI BRA", "Alimentação", "Lazer", "FLASHEATS", 8.0, "2026-05-04", "mai/26", ""], ["537", "CantinaPraia NITEROI BRA", "Alimentação", "Lazer", "FLASHEATS", 8.0, "2026-05-04", "mai/26", ""], ["538", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 37.76, "2026-05-03", "mai/26", ""], ["539", "DL *UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 24.96, "2026-05-03", "mai/26", ""], ["540", "62731258Gabriel RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 5.3, "2026-05-03", "mai/26", ""], ["541", "62731258Gabriel RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 2.99, "2026-05-03", "mai/26", ""], ["542", "62731258Gabriel RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 3.7, "2026-05-03", "mai/26", ""], ["543", "99* SAO PAULO BRA", "Transporte", "Lazer", "FLASHMOOVE", 56.1, "2026-05-03", "mai/26", ""], ["544", "MEIA NOITE RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 24.0, "2026-05-03", "mai/26", ""], ["545", "ZIG*MACUNA RIO DE JANEIR BRA", "Bar", "Lazer", "FLASHEATS", 27.5, "2026-05-02", "mai/26", ""], ["546", "ZIG*MACUNA RIO DE JANEIR BRA", "Bar", "Lazer", "FLASHEATS", 27.5, "2026-05-02", "mai/26", ""], ["547", "ZIG*MACUNA RIO DE JANEIR BRA", "Bar", "Lazer", "FLASHEATS", 6.6, "2026-05-02", "mai/26", ""], ["548", "CHORA CAFE RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 59.4, "2026-05-02", "mai/26", ""], ["549", "ROSTIE BURGER RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 62.64, "2026-05-02", "mai/26", ""], ["550", "99* SAO PAULO BRA", "Transporte", "Lazer", "FLASHMOOVE", 56.1, "2026-05-02", "mai/26", ""], ["551", "EMPORIO DOM PAOLO NITEROI BRA", "Alimentação", "Lazer", "FLASHEATS", 5.5, "2026-05-02", "mai/26", ""], ["552", "DL *UberRides Sao Paulo BRA", "Transporte", "Lazer", "FLASHMOOVE", 96.94, "2026-05-02", "mai/26", ""], ["553", "DL *UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 22.95, "2026-05-01", "mai/26", ""], ["554", "99* SAO PAULO BRA", "Transporte", "Básico", "FLASHMOOVE", 17.17, "2026-05-01", "mai/26", ""], ["555", "Wizmart RIO DE JANEIR BRA", "Mercado", "Básico", "FLASHEATS", 2.9, "2026-05-30", "mai/26", ""], ["556", "ZONA SUL FL 42 RIO DE JANEIR BRA", "Mercado", "Básico", "FLASHEATS", 24.48, "2026-05-30", "mai/26", ""], ["557", "DL*UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 19.29, "2026-05-30", "mai/26", ""], ["558", "DL*UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 18.92, "2026-05-30", "mai/26", ""], ["559", "EXCLUSIVO COMERCIO DE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 96.1, "2026-05-29", "mai/26", ""], ["560", "MAIS1 CAFE RJ/RIO DE J RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 39.3, "2026-05-29", "mai/26", ""], ["561", "SUPERMARKET RIO DE JANEIR BRA", "Mercado", "Básico", "FLASHEATS", 4.13, "2026-05-29", "mai/26", ""], ["562", "DL *UberRides Sao Paulo BRA", "Transporte", "Básico", "FLASHMOOVE", 13.95, "2026-05-29", "mai/26", ""], ["563", "BENDITO DOWNTOWN RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 15.29, "2026-05-29", "mai/26", ""], ["564", "GATO CAFE RIO DE JANEIR BRA", "Alimentação", "Lazer", "FLASHEATS", 48.4, "2026-05-29", "mai/26", ""], ["565", "GRAND MARCHE NITEROI BRA", "Mercado", "Básico", "FLASHEATS", 8.16, "2026-05-29", "mai/26", ""], ["566", "DL *UberRides Sao Paulo BRA", "Transporte", "Lazer", "FLASHMOOVE", 117.96, "2026-05-29", "mai/26", ""], ["567", "Lampada", "Imprevisto", "Básico", "Crédito Nubank", 10.0, "2026-05-25", "mai/26", ""], ["568", "Barrinha ", "Alimentação", "Básico", "Crédito Nubank", 14.0, "2026-05-29", "mai/26", ""], ["569", "Mercado", "Mercado", "Básico", "Crédito Nubank", 23.97, "2026-05-28", "mai/26", ""], ["570", "Barrinha", "Alimentação", "Básico", "Crédito Nubank", 13.0, "2026-05-29", "mai/26", ""], ["571", "Uber ida facu", "Transporte", "Básico", "Crédito Nubank", 18.4, "2026-05-29", "mai/26", ""], ["572", "Carregador cel", "Imprevisto", "Básico", "Crédito Nubank", 20.0, "2026-05-29", "mai/26", ""], ["573", "Ingresso festa ", "Festa", "Lazer", "Crédito Nubank", 56.25, "2026-05-30", "mai/26", ""], ["574", "Bebida na festa", "Bebida", "Básico", "Crédito Nubank", 15.0, "2026-05-30", "mai/26", ""]];
+const HD_RECEITAS = [["1", "Pagamento Novembro", "Salário", 1845.0, "2025-11-01", "nov/25"], ["2", "Flash refeição", "FlashEats", 519.44, "2025-11-01", "nov/25"], ["3", "Flash Transporte", "FlashMoove", 77.27, "2025-11-01", "nov/25"], ["4", "Mesada", "Mesada", 500.0, "2025-11-01", "nov/25"], ["5", "Projeto Raissa", "Projeto", 100.0, "2025-11-17", "nov/25"], ["6", "Processo novo", "Projeto", 100.0, "2025-11-22", "nov/25"], ["7", "Slário", "Salário", 1845.0, "2025-12-01", "dez/25"], ["8", "Mesada", "Mesada", 250.0, "2025-12-15", "dez/25"], ["9", "VR", "FlashEats", 760.0, "2025-12-01", "dez/25"], ["10", "VT", "FlashMoove", 291.62, "2025-12-01", "dez/25"], ["11", "Projeto Novo", "Projeto", 100.0, "2025-12-06", "dez/25"], ["12", "Proj Luis", "Projeto", 100.0, "2025-12-10", "dez/25"], ["13", "Proj Bruno BYD", "Projeto", 80.0, "2025-12-10", "dez/25"], ["14", "Presente mãe", "Mesada", 300.0, "2025-12-30", "dez/25"], ["15", "Reembolso Itaú", "Projeto", 26.0, "2025-12-15", "dez/25"], ["16", "Salário Jan", "Salário", 1845.0, "2026-01-01", "jan/26"], ["17", "VR", "FlashEats", 740.0, "2026-01-01", "jan/26"], ["18", "VT", "FlashMoove", 368.1, "2026-01-01", "jan/26"], ["19", "Projeto Maria", "Projeto", 100.0, "2026-01-01", "jan/26"], ["20", "Projeto BYD", "Projeto", 100.0, "2025-12-31", "dez/25"], ["21", "Proejto Marly", "Projeto", 100.0, "2026-01-07", "jan/26"], ["22", "Projeto andrea", "Projeto", 100.0, "2026-01-07", "jan/26"], ["23", "Projeto Bruno", "Projeto", 250.0, "2026-01-08", "jan/26"], ["24", "Conversão uber ida ZS", "Mesada", 57.96, "2026-01-09", "jan/26"], ["25", "Valor conversão uber BF", "Mesada", 23.5, "2026-01-09", "jan/26"], ["26", "Projeto Light Bruno", "Projeto", 300.0, "2026-01-23", "jan/26"], ["27", "Projeto Pai", "Projeto", 100.0, "2026-01-22", "jan/26"], ["28", "Projeto METAMAR", "Projeto", 100.0, "2026-01-28", "jan/26"], ["29", "Salário", "Salário", 1840.0, "2026-02-01", "fev/26"], ["30", "VR", "FlashEats", 629.0, "2026-02-01", "fev/26"], ["31", "VT", "FlashMoove", 204.5, "2026-02-01", "fev/26"], ["32", "Projeto (prospecção)", "Projeto", 100.0, "2026-02-01", "fev/26"], ["33", "Mesada", "Mesada", 200.0, "2026-01-30", "jan/26"], ["34", "Mesada", "Mesada", 250.0, "2026-02-01", "fev/26"], ["35", "Salário março", "Salário", 1845.0, "2026-03-01", "mar/26"], ["36", "Mesada pt2", "Projeto", 250.0, "2026-03-05", "mar/26"], ["38", "Mesada pt 1", "Mesada", 250.0, "2026-03-15", "mar/26"], ["39", "VR", "FlashEats", 814.0, "2026-03-01", "mar/26"], ["40", "Dinheiro vó", "Mesada", 100.0, "2026-02-28", "fev/26"], ["41", "VT", "FlashMoove", 245.4, "2026-03-01", "mar/26"], ["42", "Projeto Bruno", "Projeto", 150.0, "2026-03-06", "mar/26"], ["43", "Projeto pai TH1", "Projeto", 500.0, "2026-03-15", "mar/26"], ["44", "Projeto Beatriz", "Projeto", 100.0, "2026-03-21", "mar/26"], ["45", "VR", "FlashEats", 703.0, "2026-04-01", "abr/26"], ["46", "VT", "FlashMoove", 327.2, "2026-04-01", "abr/26"], ["47", "Salário", "Salário", 1922.0, "2026-04-01", "abr/26"], ["48", "Mesada 1", "Mesada", 250.0, "2026-04-01", "abr/26"], ["49", "Proj Bruno pt2", "Projeto", 150.0, "2026-04-01", "abr/26"], ["51", "Mesada pt2", "Mesada", 250.0, "2026-03-31", "mar/26"], ["52", "Processo Amilton", "Projeto", 100.0, "2026-03-31", "mar/26"], ["53", "Mesada pt2", "Mesada", 250.0, "2026-04-05", "abr/26"], ["54", "Salario", "Salário", 1933.0, "2026-05-03", "mai/26"], ["55", "Mesada parte 1", "Mesada", 250.0, "2026-05-03", "mai/26"], ["56", "Mesada pt2", "Mesada", 250.0, "2026-05-03", "mai/26"], ["57", "VT", "FlashMoove", 368.1, "2026-05-01", "mai/26"], ["58", "VR", "FlashEats", 740.0, "2026-05-01", "mai/26"], ["59", "Porcesso Gabriela", "Projeto", 100.0, "2026-05-08", "mai/26"], ["60", "Proejto Ligação Nova", "Projeto", 400.0, "2026-05-15", "mai/26"], ["61", "Proj Renato", "Projeto", 100.0, "2026-05-11", "mai/26"], ["62", "Projeto solar Bruno", "Projeto", 300.0, "2026-05-21", "mai/26"]];
+
+
+function getGMes(mes) {
+  const base = dadosCarregados ? DADOS_GASTOS : HD_GASTOS;
+  const h = base.filter(r => r[7] === mes);
+  const s = sessao.filter(r => r.tipo==='gasto' && r.mes===mes)
+    .map(r => ['',r.titulo,r.tipo_cat,r.classe,r.metodo,r.valor,r.data,r.mes,'']);
+  return [...h,...s];
+}
+function getRMes(mes) {
+  const base = dadosCarregados ? DADOS_RECEITAS : HD_RECEITAS;
+  const h = base.filter(r => r[5] === mes);
+  const s = sessao.filter(r => r.tipo==='receita' && r.mes===mes)
+    .map(r => ['',r.titulo,r.tipo_cat,r.valor,r.data,r.mes]);
+  return [...h,...s];
+}
+
+function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
+function fmt(v){ return 'R$ '+Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function calcMetas() {
+  const mes = document.getElementById('meta-mes').value;
+  const GM = getGMes(mes);
+  const RM = getRMes(mes);
+
+  const recTotal = RM.reduce((a,r)=>a+parseFloat(r[3]||0),0);
+  const recVR = RM.filter(r=>norm(r[2]).includes('flasheats')).reduce((a,r)=>a+parseFloat(r[3]||0),0);
+  const recVT = RM.filter(r=>norm(r[2]).includes('flashmoove')).reduce((a,r)=>a+parseFloat(r[3]||0),0);
+  const recLiq = recTotal - recVR - recVT;
+
+  document.getElementById('rec-total').textContent = fmt(recTotal);
+  document.getElementById('rec-vr').textContent = fmt(recVR);
+  document.getElementById('rec-vt').textContent = fmt(recVT);
+  document.getElementById('rec-liq').textContent = fmt(recLiq);
+
+  // Gastos excluindo flash
+  const GF = GM.filter(r => !norm(r[4]).includes('flashmoove') && !norm(r[4]).includes('flasheats'));
+  const cl = {basico:0,lazer:0,divida:0,educacao:0};
+  GF.forEach(r => {
+    const c = norm(r[3]);
+    if (c==='basico') cl.basico+=parseFloat(r[5]||0);
+    else if (c==='lazer') cl.lazer+=parseFloat(r[5]||0);
+    else if (c==='divida'||c==='divida') cl.divida+=parseFloat(r[5]||0);
+    else if (c==='educacao'||c==='educacao') cl.educacao+=parseFloat(r[5]||0);
+  });
+
+  const pcts = {
+    basico: parseFloat(document.getElementById('pct-basico').value)||0,
+    lazer:  parseFloat(document.getElementById('pct-lazer').value)||0,
+    divida: parseFloat(document.getElementById('pct-divida').value)||0,
+    educacao: parseFloat(document.getElementById('pct-educacao').value)||0,
+  };
+  const totalPct = pcts.basico+pcts.lazer+pcts.divida+pcts.educacao;
+  const invPct = Math.max(0,100-totalPct);
+
+  ['basico','lazer','divida','educacao'].forEach(c => {
+    const bud = recLiq*(pcts[c]/100);
+    const spent = cl[c];
+    const left = bud - spent;
+    const pctU = bud>0 ? Math.min((spent/bud)*100,100) : 0;
+    const st = left<0?'over':left<bud*0.1?'warn':'ok';
+    document.getElementById('bud-'+c).textContent = fmt(bud);
+    document.getElementById('spent-'+c).textContent = fmt(spent);
+    document.getElementById('left-'+c).textContent = (left<0?'-':'')+fmt(left);
+    document.getElementById('left-'+c).className = 'dist-val-num '+st;
+    document.getElementById('bar-'+c).style.width = pctU+'%';
+    document.getElementById('bar-'+c).className = 'dist-bar-fill '+st;
+  });
+
+  document.getElementById('inv-pct').textContent = invPct.toFixed(0)+'%';
+  document.getElementById('inv-val').textContent = fmt(recLiq*invPct/100);
+
+  localStorage.setItem('ff_pcts', JSON.stringify(pcts));
+  salvarPrefs();
+  calcFlash(mes, recVR, recVT, GM);
+}
+
+function calcFlash(mes, vrR, vtR, GM) {
+  if (!mes) mes = document.getElementById('meta-mes').value;
+  if (vrR===undefined) {
+    const RM = getRMes(mes);
+    vrR = RM.filter(r=>norm(r[2]).includes('flasheats')).reduce((a,r)=>a+parseFloat(r[3]||0),0);
+    vtR = RM.filter(r=>norm(r[2]).includes('flashmoove')).reduce((a,r)=>a+parseFloat(r[3]||0),0);
+    GM = getGMes(mes);
+  }
+  const vrG = GM.filter(r=>norm(r[4]).includes('flasheats'));
+  const vtG = GM.filter(r=>norm(r[4]).includes('flashmoove'));
+  const vrB = vrG.filter(r=>norm(r[3])==='basico').reduce((a,r)=>a+parseFloat(r[5]||0),0);
+  const vrL = vrG.filter(r=>norm(r[3])==='lazer').reduce((a,r)=>a+parseFloat(r[5]||0),0);
+  const vtB = vtG.filter(r=>norm(r[3])==='basico').reduce((a,r)=>a+parseFloat(r[5]||0),0);
+  const vtL = vtG.filter(r=>norm(r[3])==='lazer').reduce((a,r)=>a+parseFloat(r[5]||0),0);
+
+  const pb = parseFloat(document.getElementById('fpct-vr-b').value)||0;
+  const pl = parseFloat(document.getElementById('fpct-vr-l').value)||0;
+  const pb2 = parseFloat(document.getElementById('fpct-vt-b').value)||0;
+  const pl2 = parseFloat(document.getElementById('fpct-vt-l').value)||0;
+
+  document.getElementById('flash-vr-sub').textContent = 'Recebido: '+fmt(vrR);
+  document.getElementById('flash-vt-sub').textContent = 'Recebido: '+fmt(vtR);
+  document.getElementById('fval-vr-b').textContent = fmt(vrR*pb/100);
+  document.getElementById('fval-vr-l').textContent = fmt(vrR*pl/100);
+  document.getElementById('fval-vt-b').textContent = fmt(vtR*pb2/100);
+  document.getElementById('fval-vt-l').textContent = fmt(vtR*pl2/100);
+  document.getElementById('fg-vr-b').textContent = fmt(vrB);
+  document.getElementById('fg-vr-l').textContent = fmt(vrL);
+  document.getElementById('fg-vt-b').textContent = fmt(vtB);
+  document.getElementById('fg-vt-l').textContent = fmt(vtL);
+
+  const sVR = vrR-vrB-vrL;
+  const sVT = vtR-vtB-vtL;
+  const eVR = document.getElementById('fs-vr');
+  const eVT = document.getElementById('fs-vt');
+  eVR.textContent = fmt(sVR); eVR.style.color = sVR>=0?'#2D6A4F':'var(--lonestar)';
+  eVT.textContent = fmt(sVT); eVT.style.color = sVT>=0?'#2D6A4F':'var(--lonestar)';
+}
+
+// Init metas — carrega dados e prefs do Sheets
+document.addEventListener('DOMContentLoaded', async () => {
+  // Fallback: carrega prefs locais primeiro (instantâneo)
+  const saved = JSON.parse(localStorage.getItem('ff_pcts')||'null');
+  if (saved) {
+    ['basico','lazer','divida','educacao'].forEach(c => {
+      if (saved[c] !== undefined) { const el=document.getElementById('pct-'+c); if(el) el.value=saved[c]; }
+    });
+    if (saved.fpct_vr_b) document.getElementById('fpct-vr-b').value = saved.fpct_vr_b;
+    if (saved.fpct_vr_l) document.getElementById('fpct-vr-l').value = saved.fpct_vr_l;
+    if (saved.fpct_vt_b) document.getElementById('fpct-vt-b').value = saved.fpct_vt_b;
+    if (saved.fpct_vt_l) document.getElementById('fpct-vt-l').value = saved.fpct_vt_l;
+  }
+
+  // Carrega dados e prefs do Sheets em paralelo
+  const url = localStorage.getItem('ff_url');
+  if (url) {
+    const statusEl = document.getElementById('conn-status');
+    if (statusEl) statusEl.textContent = '⏳ Carregando dados do Sheets...';
+    const [dadosOk] = await Promise.all([carregarDados(), carregarPrefs()]);
+    if (dadosOk) {
+      if (statusEl) statusEl.textContent = '🟢 Conectado ao Google Sheets';
+      calcMetas();
+    } else {
+      if (statusEl) statusEl.textContent = '🟡 Usando dados locais — Sheets indisponível';
+    }
+  }
+});
+
+
+// ===== CARREGA DADOS DO SHEETS DINAMICAMENTE =====
+let DADOS_GASTOS = [];
+let DADOS_RECEITAS = [];
+let dadosCarregados = false;
+
+async function carregarDados() {
+  const url = localStorage.getItem('ff_url');
+  if (!url) return false;
+  try {
+    const resp = await fetch(url + '?acao=dados');
+    const data = await resp.json();
+    if (data.gastos) {
+      DADOS_GASTOS = data.gastos.map(r => [
+        r.ID||'', r.Titulo||'', r.Tipo||'', r.Classe||'',
+        r.Metodo||'', parseFloat(r.Valor)||0, r.Data||'', r.Mes||'', r.Parcela||''
+      ]);
+      DADOS_RECEITAS = data.receitas.map(r => [
+        r.ID||'', r.Titulo||'', r.Tipo||'',
+        parseFloat(r.Valor)||0, r.Data||'', r.Mes||''
+      ]);
+      dadosCarregados = true;
+
+      // Atualiza seletor de meses com meses disponíveis
+      const meses = [...new Set(DADOS_GASTOS.map(r=>r[7]).filter(Boolean))].sort();
+      const sel = document.getElementById('meta-mes');
+      if (sel && meses.length) {
+        sel.innerHTML = meses.map(m => 
+          `<option value="${m}" ${m===meses[meses.length-1]?'selected':''}>${m}</option>`
+        ).join('');
+      }
+      return true;
+    }
+  } catch(e) { console.log('Erro ao carregar dados:', e); }
+  return false;
+}
+
+async function carregarPrefs() {
+  const url = localStorage.getItem('ff_url');
+  if (!url) return;
+  try {
+    const resp = await fetch(url + '?acao=prefs');
+    const prefs = await resp.json();
+    if (prefs && Object.keys(prefs).length) {
+      ['basico','lazer','divida','educacao'].forEach(c => {
+        if (prefs[c] !== undefined) {
+          const el = document.getElementById('pct-'+c);
+          if (el) el.value = prefs[c];
+        }
+      });
+      if (prefs.fpct_vr_b) document.getElementById('fpct-vr-b').value = prefs.fpct_vr_b;
+      if (prefs.fpct_vr_l) document.getElementById('fpct-vr-l').value = prefs.fpct_vr_l;
+      if (prefs.fpct_vt_b) document.getElementById('fpct-vt-b').value = prefs.fpct_vt_b;
+      if (prefs.fpct_vt_l) document.getElementById('fpct-vt-l').value = prefs.fpct_vt_l;
+    }
+  } catch(e) {}
+}
+
+async function salvarPrefs() {
+  const url = localStorage.getItem('ff_url');
+  if (!url) return;
+  const prefs = {
+    basico: document.getElementById('pct-basico').value,
+    lazer: document.getElementById('pct-lazer').value,
+    divida: document.getElementById('pct-divida').value,
+    educacao: document.getElementById('pct-educacao').value,
+    fpct_vr_b: document.getElementById('fpct-vr-b').value,
+    fpct_vr_l: document.getElementById('fpct-vr-l').value,
+    fpct_vt_b: document.getElementById('fpct-vt-b').value,
+    fpct_vt_l: document.getElementById('fpct-vt-l').value,
+  };
+  // Salva local também como fallback
+  localStorage.setItem('ff_pcts', JSON.stringify(prefs));
+  // Salva no Sheets
+  try {
+    await fetch(url, { method: 'POST', body: JSON.stringify({ tipo: 'prefs', prefs }) });
+  } catch(e) {}
+}
+
+</script>
+</body>
+</html>
