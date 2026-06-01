@@ -296,15 +296,74 @@ code {
 .toast.err { background: var(--cream); color: var(--lonestar); border-color: var(--lonestar); border: 1.5px solid var(--lonestar); }
 
 @media(max-width: 700px) {
-  .page-header { padding: 28px 20px 20px; }
-  .page-hed { font-size: 36px; }
-  .content { padding: 24px 20px; }
-  .form-section { grid-template-columns: 1fr; }
-  .field:nth-child(even):not(.full) { border-right: none; }
-  .step { flex-direction: column; }
-  .step-num-col { width: 100%; padding: 16px 24px; align-items: center; }
-  .migration-box { flex-direction: column; }
+  /* NAV */
+  nav { padding: 0; height: auto; flex-wrap: wrap; }
+  .nav-logo { padding: 12px 16px; font-size: 15px; width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .nav-tabs { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab { padding: 10px 14px; font-size: 12px; white-space: nowrap; flex: none; }
+  .nav-conn { display: none; }
+
+  /* HEADER */
+  .page-header { padding: 20px 16px 16px; flex-direction: column; gap: 8px; }
+  .page-hed { font-size: 28px; }
   .page-header-right { display: none; }
+
+  /* CONTENT */
+  .content { padding: 16px; }
+
+  /* FORM */
+  .form-section { grid-template-columns: 1fr; max-width: 100%; }
+  .field { border-right: none !important; }
+  .btn-submit { max-width: 100%; }
+  .form-wrap { max-width: 100%; }
+  .type-switch { max-width: 100%; }
+
+  /* STEPS */
+  .step { flex-direction: column; }
+  .step-num-col { width: 100%; padding: 12px 20px; flex-direction: row; gap: 12px; }
+  .step-content { padding: 16px 20px; }
+  .code-block { font-size: 10px; padding: 12px; }
+
+  /* MIGRATION */
+  .migration-box { flex-direction: column; gap: 16px; }
+
+  /* METAS */
+  .dist-grid { grid-template-columns: 1fr; }
+  .flash-grid { grid-template-columns: 1fr; }
+  .receita-banner { gap: 16px; padding: 14px 16px; }
+  .inv-card { flex-direction: column; gap: 12px; }
+  .metas-header { flex-direction: column; align-items: flex-start; }
+
+  /* FIXOS — colapsa em layout vertical */
+  .fixos-header-row { display: none; }
+  .fixo-row { 
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 8px;
+    padding: 14px 16px;
+  }
+  .fixo-row-title { grid-column: 1 / -1; font-size: 15px; }
+  .fixo-row-val { font-size: 16px; }
+  .fixo-toggle { justify-content: flex-end; }
+  .fixos-mes-wrap { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .btn-lancar-fixos { width: 100%; text-align: center; padding: 14px; }
+
+  /* TABELAS */
+  .t-head, .t-row { grid-template-columns: 2fr 1fr 90px; }
+  .t-hcol:nth-child(3), .t-hcol:nth-child(4),
+  .t-row>div:nth-child(3), .t-row>div:nth-child(4) { display: none; }
+
+  /* IMPORT */
+  .drop-zone { padding: 32px 16px; }
+  .drop-title { font-size: 16px; }
+  .import-table-wrap { font-size: 12px; }
+
+  /* LEDGER */
+  .ledger thead th, .ledger tbody td { padding: 8px 10px; font-size: 12px; }
+
+  /* GUIA */
+  .url-field { font-size: 12px; }
 }
 
 /* ===== IMPORT CSV ===== */
