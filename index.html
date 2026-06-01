@@ -714,7 +714,7 @@ function doGet(e) {
         <div class="dist-card-header">
           <div class="dist-card-title">BÁSICO</div>
           <div style="display:flex;align-items:baseline;gap:4px">
-            <input class="dist-pct-input" id="pct-basico" type="number" min="0" max="100" value="35" oninput="calcMetas()">
+            <input class="dist-pct-input" id="pct-basico" type="text" inputmode="decimal" value="35" oninput="calcMetas()">
             <span class="dist-pct-sym">%</span>
           </div>
         </div>
@@ -729,7 +729,7 @@ function doGet(e) {
         <div class="dist-card-header">
           <div class="dist-card-title">LAZER</div>
           <div style="display:flex;align-items:baseline;gap:4px">
-            <input class="dist-pct-input" id="pct-lazer" type="number" min="0" max="100" value="20" oninput="calcMetas()">
+            <input class="dist-pct-input" id="pct-lazer" type="text" inputmode="decimal" value="20" oninput="calcMetas()">
             <span class="dist-pct-sym">%</span>
           </div>
         </div>
@@ -744,7 +744,7 @@ function doGet(e) {
         <div class="dist-card-header">
           <div class="dist-card-title">DÍVIDA</div>
           <div style="display:flex;align-items:baseline;gap:4px">
-            <input class="dist-pct-input" id="pct-divida" type="number" min="0" max="100" value="15" oninput="calcMetas()">
+            <input class="dist-pct-input" id="pct-divida" type="text" inputmode="decimal" value="15" oninput="calcMetas()">
             <span class="dist-pct-sym">%</span>
           </div>
         </div>
@@ -759,7 +759,7 @@ function doGet(e) {
         <div class="dist-card-header">
           <div class="dist-card-title">EDUCAÇÃO</div>
           <div style="display:flex;align-items:baseline;gap:4px">
-            <input class="dist-pct-input" id="pct-educacao" type="number" min="0" max="100" value="5" oninput="calcMetas()">
+            <input class="dist-pct-input" id="pct-educacao" type="text" inputmode="decimal" value="5" oninput="calcMetas()">
             <span class="dist-pct-sym">%</span>
           </div>
         </div>
@@ -793,7 +793,7 @@ function doGet(e) {
         <div class="flash-row">
           <div class="flash-row-lbl">BÁSICO %</div>
           <div class="flash-inputs">
-            <input class="flash-pct" id="fpct-vr-b" type="number" min="0" max="100" value="70" oninput="calcFlash()">
+            <input class="flash-pct" id="fpct-vr-b" type="text" inputmode="decimal" value="70" oninput="calcFlash()">
             <span class="flash-sym">%</span>
             <div class="flash-val" id="fval-vr-b">—</div>
           </div>
@@ -801,7 +801,7 @@ function doGet(e) {
         <div class="flash-row">
           <div class="flash-row-lbl">LAZER %</div>
           <div class="flash-inputs">
-            <input class="flash-pct" id="fpct-vr-l" type="number" min="0" max="100" value="30" oninput="calcFlash()">
+            <input class="flash-pct" id="fpct-vr-l" type="text" inputmode="decimal" value="30" oninput="calcFlash()">
             <span class="flash-sym">%</span>
             <div class="flash-val" id="fval-vr-l">—</div>
           </div>
@@ -816,7 +816,7 @@ function doGet(e) {
         <div class="flash-row">
           <div class="flash-row-lbl">BÁSICO %</div>
           <div class="flash-inputs">
-            <input class="flash-pct" id="fpct-vt-b" type="number" min="0" max="100" value="80" oninput="calcFlash()">
+            <input class="flash-pct" id="fpct-vt-b" type="text" inputmode="decimal" value="80" oninput="calcFlash()">
             <span class="flash-sym">%</span>
             <div class="flash-val" id="fval-vt-b">—</div>
           </div>
@@ -824,7 +824,7 @@ function doGet(e) {
         <div class="flash-row">
           <div class="flash-row-lbl">LAZER %</div>
           <div class="flash-inputs">
-            <input class="flash-pct" id="fpct-vt-l" type="number" min="0" max="100" value="20" oninput="calcFlash()">
+            <input class="flash-pct" id="fpct-vt-l" type="text" inputmode="decimal" value="20" oninput="calcFlash()">
             <span class="flash-sym">%</span>
             <div class="flash-val" id="fval-vt-l">—</div>
           </div>
@@ -1232,6 +1232,7 @@ function getRMes(mes) {
 }
 
 function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
+function parsePct(id){ var v = (document.getElementById(id).value||'0').replace(',','.'); return parseFloat(v)||0; }
 function fmt(v){ return 'R$ '+Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
 function calcMetas() {
@@ -1261,10 +1262,10 @@ function calcMetas() {
   });
 
   const pcts = {
-    basico: parseFloat(document.getElementById('pct-basico').value)||0,
-    lazer:  parseFloat(document.getElementById('pct-lazer').value)||0,
-    divida: parseFloat(document.getElementById('pct-divida').value)||0,
-    educacao: parseFloat(document.getElementById('pct-educacao').value)||0,
+    basico:   parsePct('pct-basico'),
+    lazer:    parsePct('pct-lazer'),
+    divida:   parsePct('pct-divida'),
+    educacao: parsePct('pct-educacao'),
   };
   const totalPct = pcts.basico+pcts.lazer+pcts.divida+pcts.educacao;
   const invPct = Math.max(0,100-totalPct);
@@ -1306,10 +1307,10 @@ function calcFlash(mes, vrR, vtR, GM) {
   const vtB = vtG.filter(r=>norm(r[3])==='basico').reduce((a,r)=>a+parseFloat(r[5]||0),0);
   const vtL = vtG.filter(r=>norm(r[3])==='lazer').reduce((a,r)=>a+parseFloat(r[5]||0),0);
 
-  const pb = parseFloat(document.getElementById('fpct-vr-b').value)||0;
-  const pl = parseFloat(document.getElementById('fpct-vr-l').value)||0;
-  const pb2 = parseFloat(document.getElementById('fpct-vt-b').value)||0;
-  const pl2 = parseFloat(document.getElementById('fpct-vt-l').value)||0;
+  const pb  = parsePct('fpct-vr-b');
+  const pl  = parsePct('fpct-vr-l');
+  const pb2 = parsePct('fpct-vt-b');
+  const pl2 = parsePct('fpct-vt-l');
 
   document.getElementById('flash-vr-sub').textContent = 'Recebido: '+fmt(vrR);
   document.getElementById('flash-vt-sub').textContent = 'Recebido: '+fmt(vtR);
