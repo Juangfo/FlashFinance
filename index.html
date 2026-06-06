@@ -1394,8 +1394,8 @@ function calcMetas() {
   const RM = getRMes(mes);
 
   const recTotal = RM.reduce((a,r)=>a+parseFloat(r[3]||0),0);
-  const recVR = RM.filter(r=>norm(r[2]).includes('flasheats')).reduce((a,r)=>a+parseFloat(r[3]||0),0);
-  const recVT = RM.filter(r=>norm(r[2]).includes('flashmoove')).reduce((a,r)=>a+parseFloat(r[3]||0),0);
+  const recVR = RM.filter(r=>norm(r[2]||'').includes('flasheats')).reduce((a,r)=>a+parseFloat(r[3]||0),0);
+  const recVT = RM.filter(r=>norm(r[2]||'').includes('flashmoove')).reduce((a,r)=>a+parseFloat(r[3]||0),0);
   const recLiq = recTotal - recVR - recVT;
 
   document.getElementById('rec-total').textContent = fmt(recTotal);
@@ -1404,7 +1404,7 @@ function calcMetas() {
   document.getElementById('rec-liq').textContent = fmt(recLiq);
 
   // Gastos excluindo flash
-  const GF = GM.filter(r => !norm(r[4]).includes('flashmoove') && !norm(r[4]).includes('flasheats'));
+  const GF = GM.filter(r => { const m=norm(r[4]||''); return !m.includes('flashmoove') && !m.includes('flasheats') && !m.includes('flashmove') && !m.includes('flasheat'); });
   const cl = {basico:0,lazer:0,divida:0,educacao:0};
   GF.forEach(r => {
     const c = norm(r[3]);
@@ -1453,8 +1453,8 @@ function calcFlash(mes, vrR, vtR, GM) {
     vtR = RM.filter(r=>norm(r[2]).includes('flashmoove')).reduce((a,r)=>a+parseFloat(r[3]||0),0);
     GM = getGMes(mes);
   }
-  const vrG = GM.filter(r=>norm(r[4]).includes('flasheats'));
-  const vtG = GM.filter(r=>norm(r[4]).includes('flashmoove'));
+  const vrG = GM.filter(r=>{const m=norm(r[4]||''); return m.includes('flasheats')||m.includes('flasheat');});
+  const vtG = GM.filter(r=>{const m=norm(r[4]||''); return m.includes('flashmoove')||m.includes('flashmove');});
   const vrB = vrG.filter(r=>norm(r[3])==='basico').reduce((a,r)=>a+parseFloat(r[5]||0),0);
   const vrL = vrG.filter(r=>norm(r[3])==='lazer').reduce((a,r)=>a+parseFloat(r[5]||0),0);
   const vtB = vtG.filter(r=>norm(r[3])==='basico').reduce((a,r)=>a+parseFloat(r[5]||0),0);
@@ -1515,6 +1515,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 // ===== CARREGA DADOS DO SHEETS DINAMICAMENTE =====
+function normMes(m) { return (m||'').toString().replace(/^'*/, '').trim(); }
 let DADOS_GASTOS = [];
 let DADOS_RECEITAS = [];
 let dadosCarregados = false;
@@ -1526,14 +1527,26 @@ async function carregarDados() {
     const resp = await fetch(url + '?acao=dados');
     const data = await resp.json();
     if (data.gastos) {
-      DADOS_GASTOS = data.gastos.map(r => [
-        r.ID||'', r.Titulo||'', r.Tipo||'', r.Classe||'',
-        r.Metodo||'', parseFloat(r.Valor)||0, r.Data||'', r.Mes||'', r.Parcela||''
-      ]);
-      DADOS_RECEITAS = data.receitas.map(r => [
-        r.ID||'', r.Titulo||'', r.Tipo||'',
-        parseFloat(r.Valor)||0, r.Data||'', r.Mes||''
-      ]);
+      DADOS_GASTOS = data.gastos.map(r => {
+        // Garante que Mes é string no formato yyyy-MM
+        let mes = String(r.Mes||'').replace(/^'+/,'').trim();
+        // Se vier como data completa tipo 2026-06-01, pega só yyyy-MM
+        if (mes.length > 7) mes = mes.substring(0,7);
+        return [
+          r.ID||'', r.Titulo||'', r.Tipo||'', r.Classe||'',
+          r.Metodo||'', parseFloat(String(r.Valor||0).replace(',','.').replace(/[^0-9.-]/g,''))||0,
+          r.Data||'', mes, r.Parcela||''
+        ];
+      });
+      DADOS_RECEITAS = data.receitas.map(r => {
+        let mes = String(r.Mes||'').replace(/^'+/,'').trim();
+        if (mes.length > 7) mes = mes.substring(0,7);
+        return [
+          r.ID||'', r.Titulo||'', r.Tipo||'',
+          parseFloat(String(r.Valor||0).replace(',','.').replace(/[^0-9.-]/g,''))||0,
+          r.Data||'', mes
+        ];
+      });
       dadosCarregados = true;
 
       // Atualiza seletor de meses com meses disponíveis
