@@ -1404,7 +1404,7 @@ function calcMetas() {
   document.getElementById('rec-liq').textContent = fmt(recLiq);
 
   // Gastos excluindo flash
-  const GF = GM.filter(r => { const m=norm(r[4]||''); return !m.includes('flashmoove') && !m.includes('flasheats') && !m.includes('flashmove') && !m.includes('flasheat'); });
+  const GF = GM.filter(r => !norm(r[4]||'').includes('flash'));
   const cl = {basico:0,lazer:0,divida:0,educacao:0};
   GF.forEach(r => {
     const c = norm(r[3]);
@@ -1427,10 +1427,12 @@ function calcMetas() {
     const bud = recLiq*(pcts[c]/100);
     const spent = cl[c];
     const left = bud - spent;
-    const pctU = bud>0 ? Math.min((spent/bud)*100,100) : 0;
+    const pctRaw = bud>0 ? (spent/bud)*100 : 0;     // % real (pode passar de 100)
+    const pctU = Math.min(pctRaw,100);              // largura da barra (limitada ao trilho)
     const st = left<0?'over':left<bud*0.1?'warn':'ok';
     document.getElementById('bud-'+c).textContent = fmt(bud);
-    document.getElementById('spent-'+c).textContent = fmt(spent);
+    // gasto agora mostra o % do orçamento já consumido — distingue "passou pouco" de "passou muito"
+    document.getElementById('spent-'+c).textContent = fmt(spent) + (bud>0 ? ' · '+pctRaw.toFixed(0)+'%' : '');
     document.getElementById('left-'+c).textContent = (left<0?'-':'')+fmt(left);
     document.getElementById('left-'+c).className = 'dist-val-num '+st;
     document.getElementById('bar-'+c).style.width = pctU+'%';
