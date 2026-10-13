@@ -6,7 +6,7 @@
 <title>FLASHFINANCE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   /* papel */
@@ -352,6 +352,162 @@ code{font-family:ui-monospace,'Consolas',monospace;font-size:12.5px;background:v
   .rec-item{min-width:50%;border-right:none;border-bottom:1px solid rgba(250,246,239,.12);padding:16px 18px}
   .fluxo-row{grid-template-columns:minmax(120px,1fr) 100px 60px 44px}
   .fluxo-row .hide-m{display:none}
+}
+
+/* =====================================================================
+   TEMA BANCO (out/2026) — paleta azul-marinho. Sobrescreve o tema editorial.
+   Paleta: 0466c8 · 0353a4 · 023e7d · 002855 · 001845 · 001233 · 33415c · 5c677d · 7d8597 · 979dac · 050d1e
+   Status (verde/âmbar/vermelho) ficam fora da paleta de marca de propósito: são sinais, não decoração.
+   ===================================================================== */
+:root{
+  --paper:#F2F4F8; --paper-2:#E8ECF3; --card:#FFFFFF;
+  --ink:#050D1E; --ink-2:#33415C; --ink-3:#5C677D; --ink-4:#979DAC;
+  --line:rgba(5,13,30,.08); --line-2:rgba(5,13,30,.14);
+  --primary:#0466C8; --primary-2:#0353A4; --deep:#023E7D; --navy:#002855; --navy-2:#001845; --night:#001233;
+  --oxblood:#D64545; --clay:#0353A4; --gold:#0466C8; --sand:#E8ECF3; --sage:#12916A; --amber:#C98200; --slate:#023E7D;
+  --good:var(--sage); --warn:var(--amber); --crit:var(--oxblood); --ink-25:var(--ink-4);
+  --serif:'Plus Jakarta Sans','Inter',system-ui,sans-serif;
+  --lift-1:0 1px 2px rgba(5,13,30,.05),0 4px 14px rgba(5,13,30,.05);
+  --lift-2:0 2px 6px rgba(5,13,30,.08),0 14px 30px rgba(5,13,30,.10);
+  --r:14px;
+}
+body{background:var(--paper)}
+body::before{display:none}
+::selection{background:#CFE3F8}
+
+/* cabeçalho */
+.masthead{background:linear-gradient(135deg,var(--night) 0%,var(--navy-2) 55%,var(--navy) 100%);border-bottom:0;box-shadow:0 6px 24px rgba(0,18,51,.22)}
+.mast-top{border-bottom:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.55)}
+.mast-top .ed{font-family:var(--ui);font-style:normal;font-size:12px;color:rgba(255,255,255,.62)}
+.conn{color:rgba(255,255,255,.55)} .conn i{background:#7D8597}
+.conn.on{color:#5BD6A3} .conn.on i{background:#5BD6A3}
+.conn.sync{color:#FFC75A} .conn.sync i{background:#FFC75A}
+.mast-mid{justify-content:flex-start;padding:18px 40px 12px}
+.mast-rule{display:none}
+.wordmark{font-family:var(--serif);font-weight:800;font-size:26px;letter-spacing:-.6px;color:#fff;text-shadow:none}
+.wordmark em{font-style:normal;font-weight:800;color:#5AA9F6}
+.mast-nav{justify-content:flex-start;gap:6px;padding:0 34px 14px;border:0}
+.mast-nav button{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;padding:9px 16px;border-radius:999px;
+  color:rgba(255,255,255,.66);transition:background .2s,color .2s}
+.mast-nav button::after{display:none}
+.mast-nav button:hover{color:#fff;background:rgba(255,255,255,.08)}
+.mast-nav button.active{color:#fff;background:var(--primary);box-shadow:0 4px 14px rgba(4,102,200,.45)}
+
+/* títulos */
+main{padding-top:40px}
+.page-head{border-bottom:0;margin-bottom:26px;padding-bottom:0}
+.kicker{font-size:11px;letter-spacing:1.4px;color:var(--primary);margin-bottom:8px}
+.kicker::after{display:none}
+h1{font-family:var(--serif);font-weight:800;font-size:34px;letter-spacing:-.9px}
+h1 em{font-style:normal;font-weight:800;color:var(--primary)}
+.dek{font-family:var(--ui);font-style:normal;font-size:15px;color:var(--ink-3);line-height:1.55}
+
+/* cartões */
+.card,.meta-card,.mo-card,.step,.fluxo-list,.drop,.sem-cfg,.ys-item,.invest{border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--lift-1)}
+.meta-card:hover,.mo-card:hover,.ys-item:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}
+.card-title{font-size:12px;letter-spacing:.6px;color:var(--ink-2)}
+.card-sub{font-family:var(--ui);font-style:normal;font-size:13px;color:var(--ink-3)}
+.mo-title,.ys-score,.mo-sobra-v,.rec-v,.wk-lbl,.step-t,.drop-t{font-family:var(--serif);font-weight:800;letter-spacing:-.4px}
+.meta-name,.meter-name,.flabel{letter-spacing:.8px}
+
+/* formulários */
+.finput,.fselect{border-bottom-color:var(--line-2)}
+.finput:focus,.fselect:focus{border-color:var(--primary)}
+.switch{border:1px solid var(--line-2);border-radius:999px;overflow:hidden;box-shadow:none;background:var(--paper-2);padding:3px}
+.switch button{border-radius:999px;background:transparent;letter-spacing:.6px;padding:10px 26px}
+.switch button+button{border-left:0}
+.switch button.on-g{background:var(--primary);color:#fff} .switch button.on-r{background:var(--sage);color:#fff}
+.mes-sel{border:1px solid var(--line-2);border-radius:10px;box-shadow:none}
+.isel:hover,.isel:focus,.parc-in:hover,.parc-in:focus,.fx-in:focus,.fx-sel:focus{border-color:var(--primary)}
+.chk{accent-color:var(--primary)}
+
+/* botões */
+.btn{border:0;border-radius:12px;letter-spacing:.2px;text-transform:none;font-size:13.5px;font-weight:600;padding:12px 22px;
+  background:var(--paper-2);color:var(--ink);box-shadow:none;transition:background .15s,transform .1s,box-shadow .15s}
+.btn:hover{transform:none;box-shadow:none;background:#DCE2EC}
+.btn:active{transform:scale(.98);box-shadow:none}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 6px 16px rgba(4,102,200,.26)}
+.btn-primary:hover{background:var(--primary-2);box-shadow:0 8px 20px rgba(4,102,200,.32)}
+.btn-good{background:var(--sage);color:#fff} .btn-good:hover{background:#0E7A59}
+.btn-ink{background:var(--navy);color:#fff} .btn-ink:hover{background:var(--navy-2)}
+.status-line{font-family:var(--ui);font-style:normal;font-size:14px;border-left-width:3px;border-radius:0 10px 10px 0}
+.status-line.ok{border-color:var(--sage);background:rgba(18,145,106,.07);color:#0E7A59}
+.status-line.err{border-color:var(--oxblood);background:rgba(214,69,69,.07);color:#B83232}
+.status-line.sending{border-color:var(--primary);background:rgba(4,102,200,.07);color:var(--ink-2)}
+
+/* tabelas e etiquetas */
+.tbl thead th{background:var(--paper-2);color:var(--ink-3);letter-spacing:.8px}
+.tbl tbody tr:hover{background:#F6F8FB}
+.tag{border-radius:999px;letter-spacing:.3px}
+.st{border-radius:999px;letter-spacing:.3px;text-transform:none;font-size:11.5px;padding:4px 10px}
+.st.good{color:#0E7A59;border-color:rgba(18,145,106,.28);background:rgba(18,145,106,.08)}
+.st.warn{color:#9A6400;border-color:rgba(201,130,0,.32);background:rgba(201,130,0,.09)}
+.st.crit{color:#B83232;border-color:rgba(214,69,69,.30);background:rgba(214,69,69,.07)}
+.st.na{color:var(--ink-3);border-color:var(--line-2);background:var(--paper-2)}
+.empty{font-family:var(--ui);font-style:normal;font-size:15px;border-radius:var(--r);background:var(--card);border-color:var(--line-2)}
+.drop-s{font-family:var(--ui);font-style:normal}
+.drop-ico{border-radius:14px;color:var(--primary);background:#EAF2FC;border-color:transparent}
+.drop:hover,.drop.drag{border-color:var(--primary)}
+tr.falta{background:rgba(201,130,0,.08)!important;box-shadow:inset 3px 0 0 var(--amber)}
+.row-sel{background:rgba(4,102,200,.04)}
+
+/* cartão-saldo (faixa escura) */
+.rec-banner{background:linear-gradient(135deg,var(--night) 0%,var(--navy) 62%,var(--deep) 100%);border-radius:18px;
+  box-shadow:0 14px 34px rgba(0,18,51,.26);overflow:hidden}
+.rec-item{border-right:1px solid rgba(255,255,255,.08)}
+.rec-v{color:#fff}
+.rec-l{color:rgba(255,255,255,.58);text-transform:none;letter-spacing:.2px;font-size:12px}
+.rec-banner [style*="var(--gold)"]{color:#6CB4FF!important}
+.rec-banner [style*="var(--sage)"]{color:#5BD6A3!important}
+.rec-banner [style*="var(--oxblood)"]{color:#FF8A8A!important}
+
+/* metas e acompanhamento */
+.pct-in{font-family:var(--serif);font-weight:800;color:var(--primary)}
+.pct-in:focus{border-color:var(--primary)}
+.invest{border-left:4px solid var(--primary);background:#EAF2FC}
+.invest-eq,.dirty-note{font-family:var(--ui);font-style:normal}
+.invest-pct{font-family:var(--serif);font-weight:800;color:var(--primary)}
+.invest.over{border-left-color:var(--oxblood);background:rgba(214,69,69,.06)}
+.meter-track{height:8px;border:0;border-radius:99px;background:var(--paper-2)}
+.meter-fill{border-radius:99px}
+.flash-chips{border-top-color:var(--line)}
+.fluxo-row.head{background:var(--paper-2);color:var(--ink-3)}
+.fluxo-row:hover{background:#F6F8FB}
+.fluxo-total{background:var(--paper-2)}
+.fluxo-total b{font-family:var(--serif);color:var(--primary)}
+.fx-in.num{color:var(--primary)}
+.fx-rm:hover{color:var(--oxblood)}
+
+/* configurar */
+.step-n{background:var(--primary);color:#fff;border-radius:12px;box-shadow:none;font-family:var(--serif)}
+.callout{border-left:3px solid var(--primary);background:#EAF2FC;border-radius:0 10px 10px 0}
+code{color:var(--primary-2);border-radius:6px;background:#EAF2FC;border-color:transparent}
+.codeblock{background:var(--night);border-left:3px solid var(--primary);color:#BFD6F2;border-radius:10px}
+.copy-btn:hover{color:#6CB4FF;border-color:#6CB4FF}
+.url-in{border-radius:10px}
+.url-in:focus{border-color:var(--primary)}
+.toast{border-radius:12px}
+.toast.ok{background:var(--night);border-color:var(--primary)}
+.toast.err{color:#B83232;border-color:var(--oxblood)}
+.skel{border-radius:var(--r);background:linear-gradient(100deg,var(--card) 40%,var(--paper-2) 50%,var(--card) 60%);background-size:200% 100%}
+
+/* semana */
+.sem-day{color:var(--ink-3)}
+.sem-day .col{background:var(--primary);border-radius:6px 6px 2px 2px}
+.sem-day.fds .col{background:var(--navy)}
+.sem-day.hoje>span:last-child{border-bottom-color:var(--primary)}
+.sem-hist .col{background:var(--primary);border-radius:6px 6px 2px 2px}
+.sem-hist .col.over{background:var(--oxblood)}
+.sem-hist .env{background:var(--night)}
+.sem-seg{border:0;border-radius:99px;overflow:hidden;background:var(--paper-2)}
+.sem-cfg summary{color:var(--ink-2);letter-spacing:.8px}
+
+@media(max-width:880px){
+  .mast-mid{padding:14px 16px 10px}
+  .mast-nav{padding:0 12px 12px;gap:4px}
+  .mast-nav button{padding:8px 13px}
+  h1{font-size:28px}
+  .rec-item{border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}
 }
 </style>
 </head>
@@ -738,7 +894,7 @@ function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function showToast(msg,t){ const e=document.getElementById('toast'); e.textContent=msg; e.className='toast show '+t; clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove('show'),3200); }
 function setSB(id,t,msg){ const e=document.getElementById(id); e.className='status-line '+t; e.textContent=msg; }
-function tagColor(t){ const c={'Alimentação':'#8B5E3C','Assinatura':'#2E3A54','Beleza':'#B8542C','Conta':'#4A423A','Educação':'#4A3580','Mercado':'#4C6B54','Outros':'#8A7F72','Roupa':'#7B5E8B','Saúde':'#2E6DA4','Social':'#6B4C8F','Transporte':'#A0522D','Viagem':'#1F6E63','Salário':'#4C6B54','Mesada':'#3C7A5F','Projeto':'#4A3580','FlashEats':'#8B5E3C','FlashMoove':'#8E2B22'}; return c[t]||'#8A7F72'; }
+function tagColor(t){ const c={'Alimentação':'#0466C8','Assinatura':'#023E7D','Beleza':'#C2417A','Conta':'#33415C','Educação':'#6B4FD8','Mercado':'#12916A','Outros':'#7D8597','Roupa':'#8E5BD0','Saúde':'#0E8FB0','Social':'#D64545','Transporte':'#B87400','Viagem':'#0F9488','Salário':'#12916A','Mesada':'#1FA37A','Projeto':'#6B4FD8','FlashEats':'#0353A4','FlashMoove':'#002855'}; return c[String(t||'').trim()]||'#7D8597'; }
 function countUp(el, alvo, neg){
   const fim=(neg?'-':'')+fmt(alvo);
   el.textContent=fim; // valor final garantido mesmo sem rAF
@@ -1306,16 +1462,17 @@ async function lancarFluxos(){
 const SEM_KEY='ff_semana';
 const SEM_DEF={salario:2950, fixos:625, teto_padrao:1850, envelope:0,
   tetos:{'2026-10':2300,'2026-11':1850,'2026-12':2000},
+  semanal:{'2026-10':105,'2026-11':235,'2026-12':225},   // meta da semana (plano): verba do dia a dia ÷ semanas do mês
   lim:{comprinhas:5, fds:120, uber:200, comer:200, pix:0, parcNova:0},
-  meta:{alvo:10000, atual:7255, data:'12/10/2026'}};
-const SEM_MARCOS=[['2026-11-01','1/nov',7935],['2026-12-01','1/dez',9075],['2026-12-31','31/dez',10000]];
+  meta:{alvo:10000, atual:7255, data:'12/10/2026'}, inicio:'2026-10-12'};
+const SEM_MARCOS=[['2026-11-01','1/nov',7935],['2026-12-01','1/dez',9085],['2027-01-04','4/jan',10100]];
 const DIAS_S=['seg','ter','qua','qui','sex','sáb','dom'];
 const MESES_S=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 let SEM=semLoad(), semWeek=semMonday(new Date()), semCfgOpen=false;
 function semLoad(){
   const d=JSON.parse(JSON.stringify(SEM_DEF));
   try{ const s=JSON.parse(localStorage.getItem(SEM_KEY)||'null'); if(!s) return d;
-    return {...d,...s,tetos:{...d.tetos,...(s.tetos||{})},lim:{...d.lim,...(s.lim||{})},meta:{...d.meta,...(s.meta||{})}};
+    return {...d,...s,tetos:{...d.tetos,...(s.tetos||{})},semanal:{...d.semanal,...(s.semanal||{})},lim:{...d.lim,...(s.lim||{})},meta:{...d.meta,...(s.meta||{})}};
   }catch(e){ return d; }
 }
 function semSave(){ try{ localStorage.setItem(SEM_KEY,JSON.stringify(SEM)); }catch(e){} }
@@ -1366,7 +1523,9 @@ function semEnv(its,ws){
   const mes=ymd(addD(ws,3)).slice(0,7);
   const ini0=Object.keys(SEM.tetos).sort()[0];
   if(ini0 && mes<ini0 && !SEM.tetos[mes]) return null;   // antes do plano: sem teto definido
+  if(ymd(ws)<ymd(semMonday(diaDe(SEM.inicio||'2026-10-12')))) return null;   // semanas anteriores ao plano
   if(SEM.envelope>0) return SEM.envelope;
+  if(SEM.semanal&&SEM.semanal[mes]>0) return SEM.semanal[mes];   // meta fixa do plano
   const mc=semMes(its,mes), p=mes.split('-').map(Number);
   const m0=new Date(p[0],p[1]-1,1), ini=ws<m0?m0:ws;
   const antes=mc.it.filter(o=>o.variavel&&o.dia<ymd(ini)).reduce((a,o)=>a+o.v,0);
@@ -1435,19 +1594,19 @@ function renderSemana(){
   // lista
   const lista=wi.filter(o=>!o.fixo).sort((a,b)=>b.dia.localeCompare(a.dia)||b.v-a.v);
   const tg=(txt,c)=>`<span class="tag" style="background:${c}1f;color:${c};margin:3px 4px 0 0">${txt}</span>`;
-  const tags=o=>(o.lote?tg('importado','#8A7F72'):'')+(o.parcAntiga?tg('parcela '+o.n+'/'+o.m,'#B8542C'):'')+(o.parcNova?tg('parcelou '+o.m+'x','#8E2B22'):'')
-    +(o.pix?tg('Pix crédito','#8E2B22'):'')+(o.comprinha?tg('comprinha','#A97B1F'):'')+(o.uber?tg('Uber/99','#2E3A54'):'');
+  const tags=o=>(o.lote?tg('importado','#5C677D'):'')+(o.parcAntiga?tg('parcela '+o.n+'/'+o.m,'#0353A4'):'')+(o.parcNova?tg('parcelou '+o.m+'x','#D64545'):'')
+    +(o.pix?tg('Pix crédito','#D64545'):'')+(o.comprinha?tg('comprinha','#B87400'):'')+(o.uber?tg('Uber/99','#023E7D'):'');
 
   body.innerHTML=`
   <div class="rec-banner">
     <div class="rec-item"><div class="rec-v mono">${semTeto?'—':fmt0(env)}</div><div class="rec-l">envelope da semana</div></div>
     <div class="rec-item"><div class="rec-v mono">${fmt0(gasto)}</div><div class="rec-l">gasto variável</div></div>
-    <div class="rec-item"><div class="rec-v mono" style="color:${resta>=0?'var(--gold)':'#E07E55'}">${semTeto?'—':fmt0(Math.abs(resta))}</div><div class="rec-l">${semTeto?'sem teto':resta>=0?'ainda pode':'passou do envelope'}</div></div>
+    <div class="rec-item"><div class="rec-v mono" style="color:${resta>=0?'var(--gold)':'#FF8A8A'}">${semTeto?'—':fmt0(Math.abs(resta))}</div><div class="rec-l">${semTeto?'sem teto':resta>=0?'ainda pode':'passou do envelope'}</div></div>
     <div class="rec-item"><div class="rec-v mono">${atual&&resta>0?fmt0(resta/diasR):'—'}</div><div class="rec-l">por dia até domingo</div></div>
   </div>
   <div class="mo-grid">
     <div class="mo-card">
-      <div class="mo-head"><div><div class="card-title">Envelope da semana</div><div class="card-sub" style="margin-bottom:0">${semTeto?'semana anterior ao plano: sem teto definido':'o que resta de variável em '+mNome+' ÷ semanas que faltam'}</div></div><span class="st ${st}">${ic(st)} ${stTxt}</span></div>
+      <div class="mo-head"><div><div class="card-title">Envelope da semana</div><div class="card-sub" style="margin-bottom:0">${semTeto?'semana anterior ao plano: sem teto definido':(SEM.semanal&&SEM.semanal[mes]>0?'meta do plano para '+mNome+': só o dia a dia (fixos e parcelas já descontados)':'o que resta de variável em '+mNome+' ÷ semanas que faltam')}</div></div><span class="st ${st}">${ic(st)} ${stTxt}</span></div>
       <div class="meter-track" style="height:10px;margin-top:18px"><div class="meter-fill" data-w="${Math.min(100,pct*100).toFixed(1)}" style="background:${cor(st)}"></div></div>
       <div class="sem-days">${pd.map((x,i)=>`<div class="sem-day ${i>=4?'fds':''} ${x.s===hs?'hoje':''}" title="${x.d} ${x.s.slice(8)}/${x.s.slice(5,7)}: ${fmt0(x.v)} em ${x.n} compra(s)"><span class="v mono">${x.v?Math.round(x.v):''}</span><div class="col" style="height:${(x.v/maxD*80).toFixed(1)}%"></div><span>${x.d}</span></div>`).join('')}</div>
       ${wl.length?`<div class="callout" style="font-size:13px">${wl.length} item(ns) importado(s) da fatura nesta semana (${fmt0(soma(wl))}) ficaram fora do envelope: a data é a da importação, não a da compra. Eles contam na fatura ao lado. Para a semana ficar fiel, registre a compra no dia, na aba Registrar.</div>`:''}
@@ -1468,11 +1627,11 @@ function renderSemana(){
   <div class="mo-grid" style="margin-top:22px">
     <div class="mo-card"><div class="card-title">Limites de atenção</div><div class="card-sub">verde até 80% · âmbar até 100% · vermelho passou</div>${limHtml}</div>
     <div class="mo-card">
-      <div class="card-title">Últimas 8 semanas</div><div class="card-sub" style="margin-bottom:8px">gasto variável × envelope (traço dourado)</div>
+      <div class="card-title">Últimas 8 semanas</div><div class="card-sub" style="margin-bottom:8px">gasto variável × envelope (traço)</div>
       <div class="sem-hist">${hist.map((h,i)=>`<div class="b ${i===7?'cur':''}" title="semana de ${h.w0.getDate()}/${h.w0.getMonth()+1}: gasto ${fmt0(h.v)} · ${h.env==null?'sem teto':'envelope '+fmt0(h.env)}"><div class="area"><div class="col ${h.env!=null&&h.v>h.env?'over':''}" style="height:${(h.v/maxH*100).toFixed(1)}%;${h.env==null?'opacity:.35':''}"></div>${h.env==null?'':'<div class="env" style="bottom:'+(h.env/maxH*100).toFixed(1)+'%"></div>'}</div><span>${h.w0.getDate()}/${h.w0.getMonth()+1}</span></div>`).join('')}</div>
       <div class="muted" style="margin-top:10px">${histCom.length?histCom.filter(h=>h.v<=h.env).length+' de '+histCom.length+' semanas com teto ficaram dentro do envelope':'o histórico começa a contar a partir de out/26'}</div>
       <div style="border-top:1px solid var(--line);margin-top:20px;padding-top:18px">
-        <div class="card-title">Meta 2026 · ${fmt0(M.alvo)}</div>
+        <div class="card-title">Meta · ${fmt0(M.alvo)} até o aporte de 4/jan</div>
         <div class="meter-head" style="margin-top:12px"><span class="meter-vals"><b>${fmt0(M.atual)}</b> de ${fmt0(M.alvo)}</span><span class="meter-vals">faltam <b>${fmt0(Math.max(0,M.alvo-M.atual))}</b></span></div>
         <div class="meter-track" style="height:10px"><div class="meter-fill" data-w="${mp.toFixed(1)}" style="background:var(--gold)"></div></div>
         <div class="muted" style="margin-top:8px">próximo marco: <b>${prox[1]}</b> → ${fmt0(prox[2])} ${M.atual>=prox[2]?'<span class="st good">✓ já bateu</span>':''}</div>
@@ -1509,6 +1668,7 @@ function semCfgHtml(){
     ${f('envelope','Envelope semanal fixo (0 = automático)',SEM.envelope)}
     ${f('teto_padrao','Teto padrão da fatura (R$)',SEM.teto_padrao)}
     ${ms.map(x=>f('t_'+x,'Teto da fatura · '+nomeMes(x),SEM.tetos[x]||SEM.teto_padrao)).join('')}
+    ${ms.map(x=>f('s_'+x,'Meta semanal · '+nomeMes(x)+' (0 = automática)',(SEM.semanal&&SEM.semanal[x])||0)).join('')}
     ${f('l_comprinhas','Comprinhas < R$ 40 por semana',SEM.lim.comprinhas)}
     ${f('l_fds','Fim de semana por semana (R$)',SEM.lim.fds)}
     ${f('l_uber','Uber/99 por mês (R$)',SEM.lim.uber)}
@@ -1520,7 +1680,7 @@ function semCfgHtml(){
 function semSalvarCfg(){
   document.querySelectorAll('[id^="sc-"]').forEach(i=>{
     const k=i.id.slice(3), v=Math.max(0,parseFloat(i.value)||0);
-    if(k.startsWith('t_')) SEM.tetos[k.slice(2)]=v; else if(k.startsWith('l_')) SEM.lim[k.slice(2)]=v; else SEM[k]=v;
+    if(k.startsWith('t_')) SEM.tetos[k.slice(2)]=v; else if(k.startsWith('s_')) (SEM.semanal=SEM.semanal||{})[k.slice(2)]=v; else if(k.startsWith('l_')) SEM.lim[k.slice(2)]=v; else SEM[k]=v;
   });
   semSave(); renderSemana(); showToast('Limites salvos','ok');
 }
