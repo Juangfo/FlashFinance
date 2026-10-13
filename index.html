@@ -303,6 +303,36 @@ code{font-family:ui-monospace,'Consolas',monospace;font-size:12.5px;background:v
   animation:shimmer 1.3s infinite}
 @keyframes shimmer{to{background-position:-200% 0}}
 
+/* ================= SEMANA ================= */
+.wk-nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wk-nav .btn{padding:10px 14px}
+.wk-lbl{font-family:var(--serif);font-weight:700;font-size:19px;min-width:150px;text-align:center}
+.sem-days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:130px;margin-top:20px}
+.sem-day{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:10px;
+  color:var(--ink-3);font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:default}
+.sem-day .col{width:62%;max-width:30px;background:var(--slate);min-height:2px;transition:height .8s cubic-bezier(.22,.9,.3,1)}
+.sem-day.fds .col{background:var(--oxblood)}
+.sem-day.hoje>span:last-child{color:var(--ink);border-bottom:1.5px solid var(--oxblood)}
+.sem-day .v{font-size:10.5px;color:var(--ink-2);letter-spacing:0;font-weight:500;margin-bottom:3px}
+.sem-nums{display:flex;gap:26px;flex-wrap:wrap;margin:18px 0 6px}
+.sem-nums .rec-v{color:var(--ink)} .sem-nums .rec-l{color:var(--ink-3)}
+.sem-seg{display:flex;height:10px;gap:2px;background:var(--paper-2);border:1px solid var(--line);margin-top:12px}
+.sem-seg span{display:block;height:100%}
+.sem-hist{display:flex;align-items:flex-end;gap:8px;height:140px;margin-top:6px}
+.sem-hist .b{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;font-size:10px;color:var(--ink-3);cursor:default}
+.sem-hist .area{position:relative;flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center}
+.sem-hist .col{width:64%;max-width:30px;background:var(--slate);min-height:2px}
+.sem-hist .col.over{background:var(--oxblood)}
+.sem-hist .env{position:absolute;left:10%;right:10%;height:2px;background:var(--gold)}
+.sem-hist .b.cur>span{color:var(--ink);font-weight:700}
+.sem-cfg{margin-top:22px;border:1px solid var(--line-2);background:var(--card);padding:18px 22px;box-shadow:var(--lift-1)}
+.sem-cfg summary{cursor:pointer;font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-2)}
+.sem-cfg[open] summary{margin-bottom:20px}
+.sem-cfg .fgrid{max-width:none;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.rap-grid{display:grid;grid-template-columns:2fr 1fr 1.2fr 1.2fr auto;gap:18px;align-items:end}
+.rap-grid .btn{padding:13px 24px}
+@media(max-width:880px){.rap-grid{grid-template-columns:1fr 1fr}.rap-grid .field:first-child{grid-column:1/-1}.rap-grid .btn{grid-column:1/-1}}
+
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
 /* ================= RESPONSIVO ================= */
@@ -338,7 +368,8 @@ code{font-family:ui-monospace,'Consolas',monospace;font-size:12.5px;background:v
     <span class="mast-rule"></span>
   </div>
   <nav class="mast-nav">
-    <button class="active" data-page="registro" onclick="showPage('registro',this)">Registrar</button>
+    <button class="active" data-page="semana" onclick="showPage('semana',this)">Semana</button>
+    <button data-page="registro" onclick="showPage('registro',this)">Registrar</button>
     <button data-page="recentes" onclick="showPage('recentes',this)">Recentes</button>
     <button data-page="importar" onclick="showPage('importar',this)">Importar CSV</button>
     <button data-page="metas" onclick="showPage('metas',this)">Metas</button>
@@ -351,7 +382,7 @@ code{font-family:ui-monospace,'Consolas',monospace;font-size:12.5px;background:v
 <main>
 
 <!-- ============ REGISTRAR ============ -->
-<section class="page active" id="page-registro">
+<section class="page" id="page-registro">
   <div class="page-head">
     <div class="kicker">Nº 001 — Lançamento</div>
     <h1>Novo <em>registro</em></h1>
@@ -416,6 +447,37 @@ code{font-family:ui-monospace,'Consolas',monospace;font-size:12.5px;background:v
     <button class="btn btn-primary btn-block" id="btn-save" onclick="salvar()">Salvar gasto</button>
     <div class="status-line" id="sb-form"></div>
   </div>
+</section>
+
+<!-- ============ SEMANA ============ -->
+<section class="page active" id="page-semana">
+  <div class="page-head">
+    <div class="kicker">Nº 000 — Envelope</div>
+    <h1>Esta <em>semana</em></h1>
+    <div class="dek">Quanto ainda dá para gastar, os limites que pedem atenção e a fatura que vira o aporte do mês seguinte.</div>
+  </div>
+  <div class="card" style="margin-bottom:26px;padding:24px 26px">
+    <div class="card-title">Registro rápido</div>
+    <div class="card-sub" style="margin-bottom:16px">Gastou? Lance na hora: data de hoje, categoria sugerida pelo nome, classe automática.</div>
+    <div class="rap-grid">
+      <div class="field"><label class="flabel" for="r-titulo">O quê</label><input class="finput" id="r-titulo" placeholder="Ex.: Uber facul, cookie, mercado" oninput="rapidoSugere()" autocomplete="off"></div>
+      <div class="field"><label class="flabel" for="r-valor">Valor (R$)</label><input class="finput mono" id="r-valor" type="number" step="0.01" min="0" inputmode="decimal" placeholder="0,00" onkeydown="if(event.key==='Enter')rapidoSalvar()"></div>
+      <div class="field"><label class="flabel" for="r-tipo">Categoria</label><select class="fselect" id="r-tipo" onchange="this.dataset.manual=this.value?'1':''"><option value="">automática</option><option>Alimentação</option><option>Assinatura</option><option>Beleza</option><option>Conta</option><option>Educação</option><option>Mercado</option><option>Outros</option><option>Roupa</option><option>Saúde</option><option>Social</option><option>Transporte</option><option>Viagem</option></select></div>
+      <div class="field"><label class="flabel" for="r-metodo">Pagamento</label><select class="fselect" id="r-metodo"><option>Crédito Nubank</option><option>Pix C6</option><option>FlashEats</option><option>FlashMoove</option></select></div>
+      <button class="btn btn-primary" onclick="rapidoSalvar()">Lançar</button>
+    </div>
+    <div class="status-line" id="sb-rapido" style="max-width:none"></div>
+  </div>
+  <div class="toolbar">
+    <div class="wk-nav">
+      <button class="btn" onclick="semNav(-1)" aria-label="Semana anterior">◀</button>
+      <span class="wk-lbl" id="sem-label">—</span>
+      <button class="btn" onclick="semNav(1)" aria-label="Próxima semana">▶</button>
+      <button class="btn btn-ink" onclick="semNav(0)">Hoje</button>
+      <button class="btn" onclick="sync()">Atualizar</button>
+    </div>
+  </div>
+  <div id="semana-body"><div class="skel"></div></div>
 </section>
 
 <!-- ============ RECENTES ============ -->
@@ -625,6 +687,27 @@ code{font-family:ui-monospace,'Consolas',monospace;font-size:12.5px;background:v
       </div>
     </div>
   </div>
+  <div class="step">
+    <div class="step-n">6</div>
+    <div style="flex:1;min-width:0">
+      <div class="step-t">Registro automático no iPhone (Atalhos + Carteira)</div>
+      <div class="step-b">
+        O mais perto de "o Nubank lança sozinho": toda compra por aproximação com o Nubank na <strong>Carteira</strong> dispara um atalho
+        que pergunta a categoria (1 toque) e grava o gasto na planilha.<br>
+        <strong>1.</strong> Copie o script do passo 1 de novo e <strong>reimplante</strong> (passo 3). A versão nova aceita <code>?acao=rapido</code>.<br>
+        <strong>2.</strong> Teste o seu link abaixo no navegador trocando os MAIÚSCULOS (ex.: <code>titulo=Teste&amp;valor=1,00&amp;tipo=Outros</code>). Deve responder <code>OK:1</code>. Depois apague a linha de teste na planilha.<br>
+        <strong>3.</strong> No app <strong>Atalhos</strong>: Automação → Nova automação → <strong>Transação</strong> → escolha o cartão Nubank → Executar imediatamente.<br>
+        <strong>4.</strong> Ações: <strong>Escolher do Menu</strong> (Alimentação, Transporte, Mercado, Social, Saúde, Outros) → <strong>Codificar URL</strong> no Comerciante →
+        <strong>URL</strong> com o link abaixo, trocando TITULO pelo Comerciante, VALOR pela Quantia e CATEGORIA pelo item escolhido → <strong>Obter conteúdo do URL</strong>.<br>
+        Os nomes das ações e variáveis podem variar um pouco conforme a versão do iOS (a automação "Transação" existe a partir do iOS 17).
+      </div>
+      <div class="codeblock" id="atalho-url" style="white-space:pre-wrap;word-break:break-all;max-height:none"><button class="copy-btn" onclick="copAtalho()">Copiar</button></div>
+      <div class="callout">
+        <strong>O que fica de fora:</strong> Pix no crédito, compras online e cartão físico não passam pela Carteira, então não disparam o atalho.
+        Esses continuam entrando pelo <strong>Importar CSV</strong> da fatura. No Android, dá para fazer o mesmo com MacroDroid ou Tasker lendo a notificação do Nubank e chamando este link.
+      </div>
+    </div>
+  </div>
 </section>
 
 </main>
@@ -676,6 +759,7 @@ function showPage(id, el){
   if(id==='metas') renderMetas();
   if(id==='acomp') renderAcomp();
   if(id==='fluxos') renderFluxos();
+  if(id==='semana') renderSemana();
 }
 
 /* ================== CONEXÃO / DADOS ================== */
@@ -724,6 +808,7 @@ async function sync(){
     if(ativa){
       if(ativa.id==='page-metas') renderMetas();
       if(ativa.id==='page-acomp') renderAcomp();
+      if(ativa.id==='page-semana') renderSemana();
     }
     return true;
   }catch(e){ setConn('off'); return false; }
@@ -803,16 +888,18 @@ async function salvar(){
     : ['',titulo,document.getElementById('f-tipo-rec').value,valor,data,"'"+mes];
   sessao.unshift({tipo,titulo,valor,data,mes,
     tipo_cat:g?document.getElementById('f-tipo').value:document.getElementById('f-tipo-rec').value,
-    classe:g?document.getElementById('f-classe').value:'', metodo:g?document.getElementById('f-metodo').value:''});
+    classe:g?document.getElementById('f-classe').value:'', metodo:g?document.getElementById('f-metodo').value:'',
+    parcela:g?(document.getElementById('f-parcela').value||'1/1'):''});
   sessionStorage.setItem('ff',JSON.stringify(sessao));
+  const aviso = g ? semAviso(valor,document.getElementById('f-parcela').value) : '';
   if(scriptUrl){
     setSB('sb-form','sending','Salvando no Google Sheets...');
     const r = await enviar({tipo:g?'gasto':'receita', rows:[row]});
     const ok = r.includes('OK');
-    setSB('sb-form',ok?'ok':'err',ok?'✓ Salvo no Google Sheets':'✗ Erro ao salvar — verifique a URL em Configurar.');
+    setSB('sb-form',ok?'ok':'err',ok?'✓ Salvo no Google Sheets'+aviso:'✗ Erro ao salvar — verifique a URL em Configurar.');
     showToast(ok?'Salvo — '+fmt(valor):'Erro ao salvar no Sheets',ok?'ok':'err');
   }else{
-    setSB('sb-form','ok','✓ Salvo localmente — configure o Sheets para sincronizar');
+    setSB('sb-form','ok','✓ Salvo localmente — configure o Sheets para sincronizar'+aviso);
     showToast('Salvo localmente','ok');
   }
   document.getElementById('f-titulo').value=''; document.getElementById('f-valor').value='';
@@ -1084,7 +1171,7 @@ function autoTipo(t){
   if(/uber|99 ?te?c|taxi|onibus|riocard|flashmoove|metro/.test(t)) return 'Transporte';
   if(MARKETPLACE.test(t)) return '';
   if(/mercado|supermerc|hortifruti|acougue|hiper|casas pedro|atacad|assai|carrefour/.test(t)) return 'Mercado';
-  if(/ifood|mcdonalds|burger|pizza|sushi|restaurante|lanche|padaria|alimenta|cantina|almoco|jantar/.test(t)) return 'Alimentação';
+  if(/ifood|mcdonalds|burger|pizza|sushi|restaurante|lanche|padaria|alimenta|cantina|almoco|jantar|cookie|doce|sorvete|bacio|confeitaria|cafe|coffee|starbucks|acai/.test(t)) return 'Alimentação';
   if(/farmacia|drogaria|droga|saude|medic|clinica|psico|dentist|academia|gym|suplement|growth/.test(t)) return 'Saúde';
   if(/zig|ingresso|ticket|show|evento|festa|balada|bar |beats|cachaca|cerveja|bebida|drinks|choperia|cinema|brawl/.test(t)) return 'Social';
   if(/beleza|sephora|salao|cabel|nars|hidratante|creme/.test(t)) return 'Beleza';
@@ -1098,7 +1185,7 @@ function autoClasse(t){
   if(MARKETPLACE.test(t)) return '';
   if(/uber|99 ?te?c|flashmoove|mercado|supermerc|hortifruti|acougue|atacad|assai|carrefour|academia|psico|farmacia|drogaria|medic|suplement|growth|netflix|spotify|hbo|apple|icloud|google|disney|lightroom|to.?do|ifood|lanche|padaria|cantina/.test(t)) return 'Básico';
   if(/conta|agua|luz|telefon|vivo/.test(t)) return 'Dívida';
-  if(/zig|ingresso|ticket|show|festa|bar |beats|cachaca|restaurante|cinema|booking|airbnb|viage/.test(t)) return 'Lazer';
+  if(/zig|ingresso|ticket|show|festa|bar |beats|cachaca|restaurante|cinema|booking|airbnb|viage|cookie|doce|sorvete|bacio|confeitaria|bebida|cerveja/.test(t)) return 'Lazer';
   if(/livro|curso|claude|material/.test(t)) return 'Educação';
   return '';
 }
@@ -1213,6 +1300,272 @@ async function lancarFluxos(){
   if(ok) showToast(sel.length+' fluxos lançados','ok');
 }
 
+/* ================== SEMANA (envelope + limites) ================== */
+// Tudo fora do VR/VT. "Variável" = gasto do dia a dia: sem fixos (Fluxos, classe Dívida, Claude, laser)
+// e sem parcelas antigas (2/3, 3/3...). Limites ficam salvos neste navegador (ff_semana).
+const SEM_KEY='ff_semana';
+const SEM_DEF={salario:2950, fixos:625, teto_padrao:1850, envelope:0,
+  tetos:{'2026-10':2300,'2026-11':1850,'2026-12':2000},
+  lim:{comprinhas:5, fds:120, uber:200, comer:200, pix:0, parcNova:0},
+  meta:{alvo:10000, atual:7255, data:'12/10/2026'}};
+const SEM_MARCOS=[['2026-11-01','1/nov',7935],['2026-12-01','1/dez',9075],['2026-12-31','31/dez',10000]];
+const DIAS_S=['seg','ter','qua','qui','sex','sáb','dom'];
+const MESES_S=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+let SEM=semLoad(), semWeek=semMonday(new Date()), semCfgOpen=false;
+function semLoad(){
+  const d=JSON.parse(JSON.stringify(SEM_DEF));
+  try{ const s=JSON.parse(localStorage.getItem(SEM_KEY)||'null'); if(!s) return d;
+    return {...d,...s,tetos:{...d.tetos,...(s.tetos||{})},lim:{...d.lim,...(s.lim||{})},meta:{...d.meta,...(s.meta||{})}};
+  }catch(e){ return d; }
+}
+function semSave(){ try{ localStorage.setItem(SEM_KEY,JSON.stringify(SEM)); }catch(e){} }
+function fmt0(v){ return (v<0?'−':'')+'R$ '+Math.round(Math.abs(v)).toLocaleString('pt-BR'); }
+function ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function semMonday(d){ const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
+function addD(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function diaDe(s){ const p=String(s).slice(0,10).split('-').map(Number); return new Date(p[0],p[1]-1,p[2]); }
+
+function semFixo(titulo,classe){
+  const t=norm(titulo);
+  if(norm(classe).startsWith('div')) return true;
+  if(/claude|laser/.test(t)) return true;
+  return FLUXOS.some(f=>f.titulo && t.includes(norm(f.titulo)));
+}
+function semItens(){
+  const vistos=new Set(DG.map(r=>assinat(r[1],r[5],r[7])));
+  const rows=[...DG, ...sessao.filter(r=>r.tipo==='gasto'&&!vistos.has(assinat(r.titulo,r.valor,r.mes)))
+    .map(r=>['',r.titulo,r.tipo_cat,r.classe,r.metodo,r.valor,r.data,r.mes,r.parcela||'1/1'])];
+  const its=rows.map(r=>{
+    const t=norm(r[1]), met=String(r[4]||'');
+    const o={titulo:r[1], tipo:r[2], classe:r[3], metodo:met, v:+r[5]||0, dia:String(r[6]).slice(0,10), mes:r[7]||String(r[6]).slice(0,7)};
+    o.flash=norm(met).includes('flash'); o.credito=norm(met).includes('credito');
+    let n=1,m=1; const mp=String(r[8]||'').match(/(\d+)\s*\/\s*(\d+)/), mt=t.match(/(?:parcela\s*|-\s*)(\d+)\s*\/\s*(\d+)/);
+    if(mp){ n=+mp[1]; m=+mp[2]; } if(m===1&&mt){ n=+mt[1]; m=+mt[2]; }
+    o.n=n; o.m=m; o.fixo=semFixo(r[1],r[3]);
+    o.parcAntiga=!o.fixo&&m>1&&n>1; o.parcNova=!o.fixo&&m>1&&n===1;
+    o.variavel=!o.flash&&!o.fixo&&!o.parcAntiga;
+    o.pix=t.includes('pix no credito');
+    o.uber=/uber|99 ?(tec|pop)|^99\b/.test(t)&&!/99 ?food/.test(t);
+    o.comer=norm(r[2]).startsWith('aliment');
+    o.comprinha=o.variavel&&o.v<40;
+    return o;
+  }).filter(o=>!o.flash&&o.v>0);
+  // itens importados da fatura em lote ficam com a data da importação, não a da compra
+  const cnt={}; its.forEach(o=>cnt[o.dia]=(cnt[o.dia]||0)+1);
+  its.forEach(o=>o.lote=cnt[o.dia]>=6&&(o.pix||o.m>1||/parcela|nupay/.test(norm(o.titulo))));
+  return its;
+}
+function semMes(its,mes){
+  const it=its.filter(o=>o.mes===mes), sum=f=>it.filter(f).reduce((a,o)=>a+o.v,0);
+  const p=mes.split('-').map(Number);
+  return {it, fix:sum(o=>o.fixo), ant:sum(o=>o.parcAntiga), vari:sum(o=>o.variavel), varDeb:sum(o=>o.variavel&&!o.credito),
+    get total(){ return this.fix+this.ant+this.vari; }, teto:SEM.tetos[mes]||SEM.teto_padrao, dim:new Date(p[0],p[1],0).getDate()};
+}
+/** Envelope rolante: o que resta de variável no mês ÷ semanas que faltam (a partir do início da semana). */
+function semEnv(its,ws){
+  const mes=ymd(addD(ws,3)).slice(0,7);
+  const ini0=Object.keys(SEM.tetos).sort()[0];
+  if(ini0 && mes<ini0 && !SEM.tetos[mes]) return null;   // antes do plano: sem teto definido
+  if(SEM.envelope>0) return SEM.envelope;
+  const mc=semMes(its,mes), p=mes.split('-').map(Number);
+  const m0=new Date(p[0],p[1]-1,1), ini=ws<m0?m0:ws;
+  const antes=mc.it.filter(o=>o.variavel&&o.dia<ymd(ini)).reduce((a,o)=>a+o.v,0);
+  const dias=mc.dim-ini.getDate()+1;
+  return Math.max(0,(mc.teto-Math.max(mc.fix,SEM.fixos)-mc.ant-antes)/Math.max(1,dias/7));
+}
+function semWeekItems(its,ws){ const a=ymd(ws), b=ymd(addD(ws,6)); return its.filter(o=>o.dia>=a&&o.dia<=b); }
+function semRestante(){
+  try{ const its=semItens(), ws=semMonday(new Date());
+    const e=semEnv(its,ws); if(e==null) return null;
+    return e-semWeekItems(its,ws).filter(o=>o.variavel&&!o.lote).reduce((a,o)=>a+o.v,0);
+  }catch(e){ return null; }
+}
+function semNav(d){ semWeek = d===0 ? semMonday(new Date()) : addD(semWeek,7*d); renderSemana(); }
+
+function renderSemana(){
+  const body=document.getElementById('semana-body'); if(!body) return;
+  const ws=semWeek, we=addD(ws,6), hoje=new Date(), hs=ymd(hoje);
+  document.getElementById('sem-label').textContent=ws.getDate()+' '+MESES_S[ws.getMonth()]+' – '+we.getDate()+' '+MESES_S[we.getMonth()];
+  if(!dadosOk && !sessao.length){ body.innerHTML = scriptUrl ? '<div class="skel"></div>' : '<div class="empty">Sem dados ainda — conecte o Sheets em Configurar.</div>'; return; }
+  const its=semItens(), mes=ymd(addD(ws,3)).slice(0,7), mc=semMes(its,mes), mNome=MESES_S[+mes.slice(5)-1];
+  const soma=a=>a.reduce((s,o)=>s+o.v,0);
+  const cor=s=>s==='good'?'var(--sage)':s==='warn'?'var(--amber)':'var(--oxblood)';
+  const ic=s=>s==='good'?'✓':s==='warn'?'!':s==='na'?'·':'✕';
+
+  // envelope da semana
+  const wi=semWeekItems(its,ws), wv=wi.filter(o=>o.variavel&&!o.lote), wl=wi.filter(o=>o.variavel&&o.lote);
+  const envR=semEnv(its,ws), semTeto=envR==null, env=envR||0, gasto=soma(wv), resta=env-gasto, pct=semTeto?0:(env>0?gasto/env:(gasto>0?2:0));
+  const atual=ymd(semMonday(hoje))===ymd(ws), diasR=atual?7-((hoje.getDay()+6)%7):0;
+  const st=semTeto?'na':pct>1?'crit':pct>=.8?'warn':'good', stTxt=semTeto?'sem teto':pct>1?'estourou':pct>=.8?'atenção':'no limite';
+  const pd=DIAS_S.map((d,i)=>{ const s=ymd(addD(ws,i)), x=wv.filter(o=>o.dia===s); return {d,s,v:soma(x),n:x.length}; });
+  const maxD=Math.max(env/3,...pd.map(x=>x.v),1);
+
+  // limites de atenção
+  const L=SEM.lim, mi=mc.it;
+  const fds=soma(wv.filter(o=>((diaDe(o.dia).getDay()+6)%7)>=4));
+  const lims=[
+    ['Comprinhas abaixo de R$ 40','semana',wv.filter(o=>o.comprinha).length,L.comprinhas,'n',fmt0(soma(wv.filter(o=>o.comprinha)))+' na semana · o maior vazamento de 2026 (~R$ 690/mês)'],
+    ['Fim de semana (sex–dom)','semana',fds,L.fds,'r','57% do seu gasto de 2026 caiu de sexta a domingo'],
+    ['Uber / 99','mês',soma(mi.filter(o=>o.uber)),L.uber,'r',mi.filter(o=>o.uber).length+' corridas · você já baixou de ~R$ 700 para ~R$ 300'],
+    ['Comer fora no cartão','mês',soma(mi.filter(o=>o.comer&&o.variavel)),L.comer,'r','comida do dia a dia vai no VR'],
+    ['Pix no crédito','mês',mi.filter(o=>o.pix).length,L.pix,'n',fmt0(soma(mi.filter(o=>o.pix)))+' · é crédito, não Pix'],
+    ['Parcelamentos novos','mês',mi.filter(o=>o.parcNova).length,L.parcNova,'n','regra: nada parcelado abaixo de R$ 150']
+  ];
+  const limHtml=lims.map(([t,per,v,lim,u,det])=>{
+    const p=lim>0?v/lim:(v>0?2:0), s=p>1?'crit':p>=.8?'warn':'good';
+    const val=u==='r'?fmt0(v)+' / '+fmt0(lim):v+' / '+lim;
+    return `<div class="meter-row"><div class="meter-head"><span class="meter-name">${t} <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· ${per}</span></span><span class="st ${s}">${ic(s)} ${val}</span></div>
+      <div class="meter-track"><div class="meter-fill" data-w="${Math.min(100,p*100).toFixed(1)}" style="background:${cor(s)}"></div></div>
+      <div class="muted" style="font-size:12px;margin-top:4px">${det}</div></div>`;
+  }).join('');
+
+  // fatura do mês
+  const fat=mc.total, fp=mc.teto>0?fat/mc.teto:0, fs=fp>1?'crit':fp>=.85?'warn':'good';
+  const aporte=SEM.salario-Math.max(fat,mc.teto), base=Math.max(mc.teto,fat,1), w=v=>(v/base*100).toFixed(1);
+  const debPct=mc.vari>0?Math.round(mc.varDeb/mc.vari*100):0;
+
+  // últimas 8 semanas
+  const hist=[]; for(let k=7;k>=0;k--){ const w0=addD(ws,-7*k); hist.push({w0,v:soma(semWeekItems(its,w0).filter(o=>o.variavel&&!o.lote)),env:semEnv(its,w0)}); }
+  const maxH=Math.max(...hist.map(h=>Math.max(h.v,h.env||0)),1), histCom=hist.filter(h=>h.env!=null);
+
+  // meta do ano
+  const M=SEM.meta, mp=Math.min(100,M.atual/M.alvo*100);
+  const prox=SEM_MARCOS.find(x=>x[0]>=hs)||SEM_MARCOS[SEM_MARCOS.length-1];
+
+  // lista
+  const lista=wi.filter(o=>!o.fixo).sort((a,b)=>b.dia.localeCompare(a.dia)||b.v-a.v);
+  const tg=(txt,c)=>`<span class="tag" style="background:${c}1f;color:${c};margin:3px 4px 0 0">${txt}</span>`;
+  const tags=o=>(o.lote?tg('importado','#8A7F72'):'')+(o.parcAntiga?tg('parcela '+o.n+'/'+o.m,'#B8542C'):'')+(o.parcNova?tg('parcelou '+o.m+'x','#8E2B22'):'')
+    +(o.pix?tg('Pix crédito','#8E2B22'):'')+(o.comprinha?tg('comprinha','#A97B1F'):'')+(o.uber?tg('Uber/99','#2E3A54'):'');
+
+  body.innerHTML=`
+  <div class="rec-banner">
+    <div class="rec-item"><div class="rec-v mono">${semTeto?'—':fmt0(env)}</div><div class="rec-l">envelope da semana</div></div>
+    <div class="rec-item"><div class="rec-v mono">${fmt0(gasto)}</div><div class="rec-l">gasto variável</div></div>
+    <div class="rec-item"><div class="rec-v mono" style="color:${resta>=0?'var(--gold)':'#E07E55'}">${semTeto?'—':fmt0(Math.abs(resta))}</div><div class="rec-l">${semTeto?'sem teto':resta>=0?'ainda pode':'passou do envelope'}</div></div>
+    <div class="rec-item"><div class="rec-v mono">${atual&&resta>0?fmt0(resta/diasR):'—'}</div><div class="rec-l">por dia até domingo</div></div>
+  </div>
+  <div class="mo-grid">
+    <div class="mo-card">
+      <div class="mo-head"><div><div class="card-title">Envelope da semana</div><div class="card-sub" style="margin-bottom:0">${semTeto?'semana anterior ao plano: sem teto definido':'o que resta de variável em '+mNome+' ÷ semanas que faltam'}</div></div><span class="st ${st}">${ic(st)} ${stTxt}</span></div>
+      <div class="meter-track" style="height:10px;margin-top:18px"><div class="meter-fill" data-w="${Math.min(100,pct*100).toFixed(1)}" style="background:${cor(st)}"></div></div>
+      <div class="sem-days">${pd.map((x,i)=>`<div class="sem-day ${i>=4?'fds':''} ${x.s===hs?'hoje':''}" title="${x.d} ${x.s.slice(8)}/${x.s.slice(5,7)}: ${fmt0(x.v)} em ${x.n} compra(s)"><span class="v mono">${x.v?Math.round(x.v):''}</span><div class="col" style="height:${(x.v/maxD*80).toFixed(1)}%"></div><span>${x.d}</span></div>`).join('')}</div>
+      ${wl.length?`<div class="callout" style="font-size:13px">${wl.length} item(ns) importado(s) da fatura nesta semana (${fmt0(soma(wl))}) ficaram fora do envelope: a data é a da importação, não a da compra. Eles contam na fatura ao lado. Para a semana ficar fiel, registre a compra no dia, na aba Registrar.</div>`:''}
+    </div>
+    <div class="mo-card">
+      <div class="mo-head"><div><div class="card-title">Fatura de ${mNome}</div><div class="card-sub" style="margin-bottom:0">paga com o salário do 1º dia útil seguinte</div></div><span class="st ${fs}">${Math.round(fp*100)}% do teto</span></div>
+      <div class="sem-nums">
+        <div><div class="rec-v mono">${fmt0(fat)}</div><div class="rec-l">lançado</div></div>
+        <div><div class="rec-v mono" style="color:${mc.teto-fat>=0?'var(--sage)':'var(--oxblood)'}">${fmt0(Math.abs(mc.teto-fat))}</div><div class="rec-l">${mc.teto-fat>=0?'cabe até o teto de '+fmt0(mc.teto):'acima do teto'}</div></div>
+        <div><div class="rec-v mono" style="color:var(--gold)">${fmt0(Math.max(0,aporte))}</div><div class="rec-l">aporte seguinte*</div></div>
+      </div>
+      <div class="sem-seg"><span style="width:${w(mc.fix)}%;background:var(--gold)"></span><span style="width:${w(mc.ant)}%;background:var(--clay)"></span><span style="width:${w(mc.vari)}%;background:var(--slate)"></span></div>
+      <div class="legend"><span><i style="background:var(--gold)"></i>Fixos ${fmt0(mc.fix)}</span><span><i style="background:var(--clay)"></i>Parcelas antigas ${fmt0(mc.ant)}</span><span><i style="background:var(--slate)"></i>Variável ${fmt0(mc.vari)}</span></div>
+      <div class="meta-orc" style="margin-top:16px;border-top:1px solid var(--line);padding-top:12px"><span>Variável pago no débito/Pix <span class="muted">· meta da virada: 100% em abr/27</span></span><b class="mono">${debPct}%</b></div>
+      <div class="muted" style="font-size:12px;margin-top:8px">*Se a fatura fechar no teto: ${fmt0(SEM.salario)} (salário + mesada) − ${fmt0(Math.max(fat,mc.teto))}. Cada real abaixo do teto vira aporte.</div>
+    </div>
+  </div>
+  <div class="mo-grid" style="margin-top:22px">
+    <div class="mo-card"><div class="card-title">Limites de atenção</div><div class="card-sub">verde até 80% · âmbar até 100% · vermelho passou</div>${limHtml}</div>
+    <div class="mo-card">
+      <div class="card-title">Últimas 8 semanas</div><div class="card-sub" style="margin-bottom:8px">gasto variável × envelope (traço dourado)</div>
+      <div class="sem-hist">${hist.map((h,i)=>`<div class="b ${i===7?'cur':''}" title="semana de ${h.w0.getDate()}/${h.w0.getMonth()+1}: gasto ${fmt0(h.v)} · ${h.env==null?'sem teto':'envelope '+fmt0(h.env)}"><div class="area"><div class="col ${h.env!=null&&h.v>h.env?'over':''}" style="height:${(h.v/maxH*100).toFixed(1)}%;${h.env==null?'opacity:.35':''}"></div>${h.env==null?'':'<div class="env" style="bottom:'+(h.env/maxH*100).toFixed(1)+'%"></div>'}</div><span>${h.w0.getDate()}/${h.w0.getMonth()+1}</span></div>`).join('')}</div>
+      <div class="muted" style="margin-top:10px">${histCom.length?histCom.filter(h=>h.v<=h.env).length+' de '+histCom.length+' semanas com teto ficaram dentro do envelope':'o histórico começa a contar a partir de out/26'}</div>
+      <div style="border-top:1px solid var(--line);margin-top:20px;padding-top:18px">
+        <div class="card-title">Meta 2026 · ${fmt0(M.alvo)}</div>
+        <div class="meter-head" style="margin-top:12px"><span class="meter-vals"><b>${fmt0(M.atual)}</b> de ${fmt0(M.alvo)}</span><span class="meter-vals">faltam <b>${fmt0(Math.max(0,M.alvo-M.atual))}</b></span></div>
+        <div class="meter-track" style="height:10px"><div class="meter-fill" data-w="${mp.toFixed(1)}" style="background:var(--gold)"></div></div>
+        <div class="muted" style="margin-top:8px">próximo marco: <b>${prox[1]}</b> → ${fmt0(prox[2])} ${M.atual>=prox[2]?'<span class="st good">✓ já bateu</span>':''}</div>
+        <div style="display:flex;gap:12px;align-items:flex-end;margin-top:14px;flex-wrap:wrap">
+          <div class="field" style="flex:1;min-width:170px"><label class="flabel">Patrimônio hoje (corretora + caixa + a receber)</label><input class="finput mono" id="sem-pat" type="number" step="0.01" min="0" value="${M.atual}"></div>
+          <button class="btn" onclick="semSalvarPat()">Atualizar</button>
+        </div>
+        <div class="muted" style="font-size:12px;margin-top:6px">atualizado em ${esc(M.data)}</div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:22px;padding:0;overflow-x:auto">
+    <table class="tbl"><thead><tr><th>Dia</th><th>O quê</th><th>Categoria</th><th>Valor</th></tr></thead><tbody>
+    ${lista.length?lista.map(o=>`<tr><td class="muted mono" style="white-space:nowrap">${DIAS_S[(diaDe(o.dia).getDay()+6)%7]} ${o.dia.slice(8)}</td><td style="font-weight:600">${esc(o.titulo)}<br>${tags(o)}</td><td class="muted">${esc(o.tipo||'—')} · ${esc(o.metodo||'—')}</td><td class="v-neg mono" style="white-space:nowrap">${fmt0(o.v)}</td></tr>`).join('')
+      :'<tr><td colspan="4" class="muted" style="text-align:center;padding:28px">Nada lançado nesta semana ainda.</td></tr>'}
+    </tbody></table>
+  </div>
+  <details class="sem-cfg" ${semCfgOpen?'open':''} ontoggle="semCfgOpen=this.open">
+    <summary>Ajustar tetos e limites</summary>
+    ${semCfgHtml()}
+    <div style="margin-top:22px"><button class="btn btn-primary" onclick="semSalvarCfg()">Salvar limites</button>
+    <span class="muted" style="margin-left:12px">ficam salvos neste navegador</span></div>
+  </details>`;
+  setTimeout(()=>{ body.querySelectorAll('.meter-fill[data-w]').forEach(el=>{ el.style.width=el.dataset.w+'%'; }); },60);
+}
+function semCfgHtml(){
+  const ms=[mesAtual()]; let p=ms[0].split('-').map(Number);
+  for(let i=0;i<2;i++){ p[1]++; if(p[1]>12){ p[1]=1; p[0]++; } ms.push(p[0]+'-'+String(p[1]).padStart(2,'0')); }
+  const flux=FLUXOS.reduce((a,x)=>a+(x.on?(+x.valor||0):0),0);
+  const f=(id,l,v)=>`<div class="field"><label class="flabel">${l}</label><input class="finput mono" id="sc-${id}" type="number" step="1" min="0" value="${v}"></div>`;
+  return `<div class="fgrid">
+    ${f('salario','Salário + mesada (R$)',SEM.salario)}
+    ${f('fixos','Fixos do mês (Fluxos '+fmt0(flux)+' + Claude + laser)',SEM.fixos)}
+    ${f('envelope','Envelope semanal fixo (0 = automático)',SEM.envelope)}
+    ${f('teto_padrao','Teto padrão da fatura (R$)',SEM.teto_padrao)}
+    ${ms.map(x=>f('t_'+x,'Teto da fatura · '+nomeMes(x),SEM.tetos[x]||SEM.teto_padrao)).join('')}
+    ${f('l_comprinhas','Comprinhas < R$ 40 por semana',SEM.lim.comprinhas)}
+    ${f('l_fds','Fim de semana por semana (R$)',SEM.lim.fds)}
+    ${f('l_uber','Uber/99 por mês (R$)',SEM.lim.uber)}
+    ${f('l_comer','Comer fora por mês (R$)',SEM.lim.comer)}
+    ${f('l_pix','Pix no crédito por mês (usos)',SEM.lim.pix)}
+    ${f('l_parcNova','Parcelamentos novos por mês',SEM.lim.parcNova)}
+  </div>`;
+}
+function semSalvarCfg(){
+  document.querySelectorAll('[id^="sc-"]').forEach(i=>{
+    const k=i.id.slice(3), v=Math.max(0,parseFloat(i.value)||0);
+    if(k.startsWith('t_')) SEM.tetos[k.slice(2)]=v; else if(k.startsWith('l_')) SEM.lim[k.slice(2)]=v; else SEM[k]=v;
+  });
+  semSave(); renderSemana(); showToast('Limites salvos','ok');
+}
+function semSalvarPat(){
+  const v=parseFloat(document.getElementById('sem-pat').value);
+  if(!(v>0)){ showToast('Informe o patrimônio','err'); return; }
+  SEM.meta.atual=v; SEM.meta.data=new Date().toLocaleDateString('pt-BR'); semSave(); renderSemana(); showToast('Patrimônio atualizado','ok');
+}
+/* ---------- registro rápido ---------- */
+function rapidoSugere(){
+  const s=document.getElementById('r-tipo'); if(s.dataset.manual) return;
+  s.value=autoTipo(document.getElementById('r-titulo').value)||'';
+}
+async function rapidoSalvar(){
+  const titulo=document.getElementById('r-titulo').value.trim();
+  const valor=parseFloat(document.getElementById('r-valor').value);
+  if(!titulo||!(valor>0)){ showToast('Preencha o quê e o valor','err'); return; }
+  const tipoC=document.getElementById('r-tipo').value||autoTipo(titulo)||'Outros';
+  const metodo=document.getElementById('r-metodo').value;
+  const classe=autoClasse(titulo)||(/^(Social|Viagem)$/.test(tipoC)?'Lazer':tipoC==='Educação'?'Educação':'Básico');
+  const data=ymd(new Date()), mes=data.slice(0,7);
+  sessao.unshift({tipo:'gasto',titulo,valor,data,mes,tipo_cat:tipoC,classe,metodo,parcela:'1/1'});
+  sessionStorage.setItem('ff',JSON.stringify(sessao));
+  const aviso=semAviso(valor,'1/1');
+  renderSemana();
+  ['r-titulo','r-valor'].forEach(id=>document.getElementById(id).value='');
+  const sel=document.getElementById('r-tipo'); sel.value=''; sel.dataset.manual='';
+  document.getElementById('r-titulo').focus();
+  if(scriptUrl){
+    setSB('sb-rapido','sending','Salvando '+titulo+'…');
+    const r=await enviar({tipo:'gasto',rows:[['',titulo,tipoC,classe,metodo,valor,data,"'"+mes,'1/1']]});
+    const ok=r.includes('OK');
+    setSB('sb-rapido',ok?'ok':'err',ok?'✓ '+titulo+' · '+fmt0(valor)+' ('+tipoC+' · '+classe+')'+aviso:'✗ Erro ao salvar no Sheets — verifique a URL em Configurar.');
+  }else setSB('sb-rapido','ok','✓ Salvo localmente'+aviso);
+}
+
+/** Mensagem curta depois de salvar um gasto: quanto resta na semana + alerta de parcelinha. */
+function semAviso(valor,parcela){
+  let s=''; const r=semRestante();
+  if(r!=null) s+= r>=0 ? ' · restam '+fmt0(r)+' no envelope da semana' : ' · passou '+fmt0(-r)+' do envelope da semana';
+  const m=String(parcela||'').match(/(\d+)\s*\/\s*(\d+)/);
+  if(m && +m[1]===1 && +m[2]>1 && valor*(+m[2])<150) s+=' · atenção: parcelamento abaixo de R$ 150';
+  return s;
+}
+
 /* ================== CONFIG ================== */
 const APPS_SCRIPT_TXT = `var METAS_HEADERS = ['Mes','Basico','Lazer','Divida','Educacao','Investido','VR_Basico','VR_Lazer','VT_Basico','VT_Lazer','Atualizado'];
 
@@ -1285,6 +1638,7 @@ function doGet(e) {
         metas:    lerAba(ss, 'metas')
       }));
     }
+    if (p.acao === 'rapido') return handle(rapidoParaGasto(p));
     if (p.payload) return handle(JSON.parse(p.payload));
     return out('FlashFinance API v2 OK');
   } catch (err) { return out('ERROR:' + err); }
@@ -1320,6 +1674,19 @@ function handle(data) {
     return out('OK:' + rows.length + ':ids=' + primeiro + '-' + ultimo);
   }
   return out('ERROR:acao desconhecida');
+}
+
+/* ---------- REGISTRO RÁPIDO (Atalhos do iPhone, link) ---------- */
+// ?acao=rapido&titulo=Padaria&valor=12,50&tipo=Alimentação&metodo=Crédito Nubank  (data = hoje)
+function rapidoParaGasto(p) {
+  var bruto = String(p.valor || '0').replace(/[^0-9,.\\-]/g, '').replace(/\\.(?=\\d{3}(\\D|$))/g, '').replace(',', '.');
+  var v = parseFloat(bruto) || 0;
+  if (!v || !p.titulo) throw new Error('titulo e valor sao obrigatorios');
+  var tz = Session.getScriptTimeZone() || 'America/Sao_Paulo';
+  var data = Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd');
+  var tipo = p.tipo || 'Outros';
+  var classe = p.classe || (/^(Social|Viagem)$/.test(tipo) ? 'Lazer' : (tipo === 'Educação' ? 'Educação' : 'Básico'));
+  return { tipo: 'gasto', rows: [['', String(p.titulo).slice(0, 120), tipo, classe, p.metodo || 'Crédito Nubank', v, data, "'" + data.slice(0, 7), p.parcela || '1/1']] };
 }
 
 /* ---------- IDs ---------- */
@@ -1493,7 +1860,14 @@ function lerAba(ss, nome) {
 }
 function out(s) { return ContentService.createTextOutput(s); }`;
 
-function salvarUrl(){ scriptUrl=document.getElementById('script-url').value.trim(); localStorage.setItem('ff_url',scriptUrl); }
+function salvarUrl(){ scriptUrl=document.getElementById('script-url').value.trim(); localStorage.setItem('ff_url',scriptUrl); atalhoUrl(); }
+function linkAtalho(){ return (scriptUrl||'https://script.google.com/macros/s/SUA_URL/exec')+'?acao=rapido&titulo=TITULO&valor=VALOR&tipo=CATEGORIA&metodo='+encodeURIComponent('Crédito Nubank'); }
+function atalhoUrl(){
+  const box=document.getElementById('atalho-url'); if(!box) return;
+  const btn=box.querySelector('.copy-btn'); box.textContent=''; if(btn) box.appendChild(btn);
+  box.appendChild(document.createTextNode(linkAtalho()));
+}
+function copAtalho(){ navigator.clipboard.writeText(linkAtalho()); showToast('Link do atalho copiado','ok'); }
 async function testarConn(){
   salvarUrl();
   if(!scriptUrl){ showToast('Cole a URL primeiro','err'); return; }
@@ -1514,6 +1888,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   const mesesL=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   const h=new Date();
   document.getElementById('mast-date').textContent=dias[h.getDay()]+', '+h.getDate()+' de '+mesesL[h.getMonth()]+' de '+h.getFullYear();
+  atalhoUrl();
+  renderSemana();
   if(scriptUrl){ document.getElementById('script-url').value=scriptUrl; sync(); }
 });
 </script>
