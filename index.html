@@ -502,6 +502,24 @@ code{color:var(--primary-2);border-radius:6px;background:#EAF2FC;border-color:tr
 .sem-seg{border:0;border-radius:99px;overflow:hidden;background:var(--paper-2)}
 .sem-cfg summary{color:var(--ink-2);letter-spacing:.8px}
 
+/* acompanhar · mês em curso */
+.ac-h2{font-family:var(--serif);font-weight:800;font-size:20px;letter-spacing:-.4px;margin:40px 0 16px}
+.ac-card{padding:8px 24px}
+.ac-row{display:grid;grid-template-columns:200px 1fr 150px;gap:20px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
+.ac-row:last-of-type{border-bottom:0}
+.ac-name{font-weight:700;font-size:15px;display:flex;flex-direction:column;gap:2px}
+.ac-name .muted{font-weight:400;font-size:12px}
+.ac-disp{text-align:right;font-family:var(--serif);font-weight:800;font-size:22px;letter-spacing:-.4px;display:flex;flex-direction:column;line-height:1.15}
+.ac-disp .muted{font-family:var(--ui);font-weight:500;font-size:11.5px;letter-spacing:0}
+.ac-inv{background:linear-gradient(90deg,rgba(4,102,200,.06),transparent);margin:0 -24px;padding:16px 24px;border-radius:0 0 var(--r) var(--r)}
+.ac-foot{font-size:13px;padding:12px 0 14px;border-top:1px solid var(--line)}
+@media(max-width:880px){
+  .ac-card{padding:4px 16px}
+  .ac-row{grid-template-columns:1fr auto;gap:8px 14px}
+  .ac-bar{grid-column:1/-1;grid-row:2}
+  .ac-inv{margin:0 -16px;padding:14px 16px}
+}
+
 @media(max-width:880px){
   .mast-mid{padding:14px 16px 10px}
   .mast-nav{padding:0 12px 12px;gap:4px}
@@ -526,10 +544,10 @@ code{color:var(--primary-2);border-radius:6px;background:#EAF2FC;border-color:tr
   <nav class="mast-nav">
     <button class="active" data-page="semana" onclick="showPage('semana',this)">Semana</button>
     <button data-page="registro" onclick="showPage('registro',this)">Registrar</button>
+    <button data-page="acomp" onclick="showPage('acomp',this)">Acompanhar</button>
     <button data-page="recentes" onclick="showPage('recentes',this)">Recentes</button>
     <button data-page="importar" onclick="showPage('importar',this)">Importar CSV</button>
     <button data-page="metas" onclick="showPage('metas',this)">Metas</button>
-    <button data-page="acomp" onclick="showPage('acomp',this)">Acompanhar</button>
     <button data-page="fluxos" onclick="showPage('fluxos',this)">Fluxos mensais</button>
     <button data-page="guia" onclick="showPage('guia',this)">Configurar</button>
   </nav>
@@ -701,9 +719,9 @@ code{color:var(--primary-2);border-radius:6px;background:#EAF2FC;border-color:tr
   </div>
   <div class="rec-banner stagger" id="rec-banner">
     <div class="rec-item"><div class="rec-v mono" id="rec-total">—</div><div class="rec-l">Receita total</div></div>
-    <div class="rec-item"><div class="rec-v mono" id="rec-vr">—</div><div class="rec-l">VR · FlashEats</div></div>
-    <div class="rec-item"><div class="rec-v mono" id="rec-vt">—</div><div class="rec-l">VT · FlashMoove</div></div>
-    <div class="rec-item"><div class="rec-v mono" id="rec-liq" style="color:var(--gold)">—</div><div class="rec-l">Receita líquida · base</div></div>
+    <div class="rec-item"><div class="rec-v mono" id="rec-vr">—</div><div class="rec-l">VR + VT · fora das metas</div></div>
+    <div class="rec-item"><div class="rec-v mono" id="rec-vt">—</div><div class="rec-l" id="rec-proj-l">Projetos · extra, vai para investimento</div></div>
+    <div class="rec-item"><div class="rec-v mono" id="rec-liq" style="color:var(--gold)">—</div><div class="rec-l">Base das metas · salário + mesada</div></div>
   </div>
   <div class="meta-grid stagger" id="meta-grid"></div>
   <div class="invest" id="invest-band">
@@ -750,10 +768,17 @@ code{color:var(--primary-2);border-radius:6px;background:#EAF2FC;border-color:tr
 <!-- ============ ACOMPANHAR ============ -->
 <section class="page" id="page-acomp">
   <div class="page-head">
-    <div class="kicker">Nº 005 — Meta × realizado</div>
-    <h1>Acompanhar <em>o ano</em></h1>
-    <div class="dek">Cada mês afere as metas salvas contra o gasto real — dinheiro do bolso, sem os benefícios.</div>
+    <div class="kicker">Nº 002 — Meta × realizado</div>
+    <h1>Acompanhar <em>o mês</em></h1>
+    <div class="dek">Quanto ainda dá para gastar em cada categoria e quanto vai para investimento. Sem VR, sem VT, e projeto é sempre extra.</div>
   </div>
+  <div class="toolbar">
+    <span class="flabel">Mês das compras</span>
+    <select class="mes-sel" id="acomp-mes" onchange="renderAcomp()"></select>
+    <span class="muted" id="acomp-fatura"></span>
+  </div>
+  <div id="acomp-atual"></div>
+  <h2 class="ac-h2">Histórico</h2>
   <div id="acomp-body"><div class="skel"></div></div>
 </section>
 
@@ -1012,15 +1037,19 @@ function calcMes(m){
   const recT = R.reduce((a,r)=>a+(+r[3]||0),0);
   const vr = R.filter(r=>norm(r[2]).includes('flasheats')).reduce((a,r)=>a+(+r[3]||0),0);
   const vt = R.filter(r=>norm(r[2]).includes('flashmoove')).reduce((a,r)=>a+(+r[3]||0),0);
-  const liq = recT-vr-vt;
+  // Projeto é SEMPRE extra (a partir de nov/26): fica fora da base das metas e vai 100% para investimento.
+  const proj = R.filter(r=>norm(r[2]).includes('projeto')).reduce((a,r)=>a+(+r[3]||0),0);
+  const projExtra = m >= PROJ_EXTRA_DESDE;
+  const liq = recT-vr-vt-(projExtra?proj:0);   // base das metas: sem VR, sem VT e sem projetos
   const real = G.filter(r=>!norm(r[4]).includes('flash'));
   const cl = {basico:0,lazer:0,divida:0,educacao:0};
   real.forEach(r=>{ const c=norm(r[3]); if(cl[c]!==undefined) cl[c]+=(+r[5]||0); });
   const vrG = G.filter(r=>norm(r[4]).includes('flasheats')).reduce((a,r)=>a+(+r[5]||0),0);
   const vtG = G.filter(r=>norm(r[4]).includes('flashmoove')).reduce((a,r)=>a+(+r[5]||0),0);
   const gastoReal = real.reduce((a,r)=>a+(+r[5]||0),0);
-  return {recT,vr,vt,liq,cl,vrG,vtG,gastoReal,sobra:liq-gastoReal,n:G.length};
+  return {recT,vr,vt,liq,proj,projExtra,cl,vrG,vtG,gastoReal,sobra:liq-gastoReal,n:G.length};
 }
+const PROJ_EXTRA_DESDE='2026-11';
 
 /* ================== REGISTRAR ================== */
 function setTipo(t){
@@ -1092,8 +1121,9 @@ function renderMetas(){
   og.className = 'st '+(origem==='salva'?'good':'na');
   const d = calcMes(m);
   document.getElementById('rec-total').textContent=fmt(d.recT);
-  document.getElementById('rec-vr').textContent=fmt(d.vr);
-  document.getElementById('rec-vt').textContent=fmt(d.vt);
+  document.getElementById('rec-vr').textContent=fmt(d.vr+d.vt);
+  document.getElementById('rec-vt').textContent=fmt(d.proj);
+  document.getElementById('rec-proj-l').textContent = d.projExtra ? 'Projetos · extra, vai para investimento' : 'Projetos · contavam na base (até out/26)';
   document.getElementById('rec-liq').textContent=fmt(d.liq);
   document.getElementById('vr-rec-lbl').textContent='recebido '+fmt(d.vr);
   document.getElementById('vt-rec-lbl').textContent='recebido '+fmt(d.vt);
@@ -1188,15 +1218,92 @@ function aferirMes(m){
   CLASSES.forEach(c=>{ const orc=d.liq*(meta.vals[c]||0)/100; if(orc>0&&d.cl[c]>orc) fora++; });
   return {temMeta, fora, meta, d};
 }
+/* ---------- mês em curso: quanto ainda posso gastar ---------- */
+const APORTE_KEY='ff_aportes';
+function aportesLoad(){ try{ return JSON.parse(localStorage.getItem(APORTE_KEY)||'{}'); }catch(e){ return {}; } }
+function aportesSave(o){ try{ localStorage.setItem(APORTE_KEY,JSON.stringify(o)); }catch(e){} }
+function proxMes(m){ let [y,mm]=m.split('-').map(Number); mm++; if(mm>12){mm=1;y++;} return y+'-'+String(mm).padStart(2,'0'); }
+function registrarAporte(m){
+  const v=parseFloat(document.getElementById('ap-valor').value);
+  if(!(v>0)){ showToast('Informe o valor investido','err'); return; }
+  const a=aportesLoad(); a[m]={v, d:new Date().toLocaleDateString('pt-BR')}; aportesSave(a);
+  showToast('Aporte de '+fmt(v)+' registrado','ok'); renderAcomp();
+}
+function desfazerAporte(m){ const a=aportesLoad(); delete a[m]; aportesSave(a); renderAcomp(); }
+function renderMesAtual(m){
+  const box=document.getElementById('acomp-atual'); if(!box) return;
+  const meta=metaDoMes(m), d=calcMes(m);
+  const prevista=!(d.liq>0) && m>=PROJ_EXTRA_DESDE && SEM.salario>0;   // salário ainda não lançado: usa o do plano
+  const base=prevista?SEM.salario:d.liq;
+  const fat=document.getElementById('acomp-fatura');
+  if(fat) fat.textContent='compras de '+nomeMes(m)+' · fatura paga com o salário de '+nomeMes(proxMes(m));
+  if(!(base>0)){ box.innerHTML=`<div class="empty">Ainda não há salário/mesada lançados em ${nomeMes(m)}.<br>Lance as receitas para ver quanto dá para gastar.</div>`; return; }
+  const hoje=new Date(), atual=m===mesAtual();
+  const [yy,mo]=m.split('-').map(Number), dim=new Date(yy,mo,0).getDate();
+  const diasRest = atual ? dim-hoje.getDate()+1 : 0;
+  let livre=0, html='';
+  CLASSES.forEach(c=>{
+    const orc=base*(meta.vals[c]||0)/100, g=d.cl[c], disp=orc-g, pct=orc>0?g/orc*100:0;
+    if(disp>0) livre+=disp;
+    const st=statusClasse(g,orc), cor=st==='good'?'var(--sage)':st==='warn'?'var(--amber)':st==='crit'?'var(--oxblood)':'var(--ink-4)';
+    html+=`<div class="ac-row">
+      <div class="ac-name">${CLASSES_NOME[c]}<span class="muted">${(meta.vals[c]||0).toLocaleString('pt-BR')}% · meta ${fmt(orc)}</span></div>
+      <div class="ac-bar"><div class="meter-track"><div class="meter-fill" data-w="${Math.min(100,pct).toFixed(1)}" style="background:${cor}"></div></div>
+        <div class="muted mono" style="font-size:12px;margin-top:4px">gasto ${fmt(g)} · ${orc>0?Math.round(pct)+'%':'sem meta'}</div></div>
+      <div class="ac-disp mono" style="color:${disp>=0?'var(--sage)':'var(--oxblood)'}">${disp>=0?fmt(disp):'−'+fmt(-disp)}<span class="muted">${disp>=0?'ainda pode':'passou'}</span></div>
+    </div>`;
+  });
+  // investimento: definido no início do mês, não "o que sobrar"
+  const invPct=meta.vals.investido!=null?meta.vals.investido:Math.round((100-CLASSES.reduce((a,c)=>a+(meta.vals[c]||0),0))*100)/100;
+  const regraNova = m>=PROJ_EXTRA_DESDE;   // nov/26+: investe a meta no início; antes: investia o que sobrava
+  const sobraProj=base-d.gastoReal;
+  const invMeta=base*invPct/100, projInv=d.projExtra?d.proj:0;
+  const invTotal = regraNova ? invMeta+projInv : Math.max(0,sobraProj);
+  const ap=aportesLoad()[m];
+  html+=`<div class="ac-row ac-inv">
+      <div class="ac-name">Investido<span class="muted">${regraNova?invPct.toLocaleString('pt-BR')+'% · definido no início':'regra antiga: o que sobrou (meta era '+invPct.toLocaleString('pt-BR')+'%)'}</span></div>
+      <div class="ac-bar">${ap
+        ? `<span class="st good">✓ ${fmt(ap.v)} investidos em ${esc(ap.d)}</span> <u class="muted" style="cursor:pointer;font-size:12px" onclick="desfazerAporte('${m}')">desfazer</u>`
+        : `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="st warn">! investir no dia do salário (${nomeMes(proxMes(m))})</span>
+           <input class="finput mono" id="ap-valor" type="number" step="0.01" min="0" value="${Math.round(invTotal)}" style="width:110px;padding:4px 0">
+           <button class="btn" style="padding:8px 14px" onclick="registrarAporte('${m}')">Marcar como investido</button></div>`}
+        <div class="muted" style="font-size:12px;margin-top:6px">${!regraNova?'sobra real do mês: base − gasto real (projetos incluídos na base)':projInv>0?'meta '+fmt(invMeta)+' + projetos '+fmt(projInv)+' (extra) = '+fmt(invTotal):'projetos que entrarem somam aqui, 100% para investimento'}</div></div>
+      <div class="ac-disp mono" style="color:var(--primary)">${fmt(invTotal)}<span class="muted">a investir</span></div>
+    </div>`;
+  const ritmo = atual&&diasRest>0 ? `<div class="rec-item"><div class="rec-v mono">${fmt(livre/diasRest)}</div><div class="rec-l">por dia até ${dim}/${String(mo).padStart(2,'0')} (${diasRest} dias)</div></div>` : '';
+  box.innerHTML=`
+    <div class="rec-banner" style="margin-bottom:18px">
+      <div class="rec-item"><div class="rec-v mono">${fmt(base)}</div><div class="rec-l">base · salário + mesada${prevista?' (prevista: lance as receitas)':''}</div></div>
+      <div class="rec-item"><div class="rec-v mono">${fmt(d.gastoReal)}</div><div class="rec-l">gasto real (sem VR/VT)</div></div>
+      <div class="rec-item"><div class="rec-v mono" style="color:var(--gold)">${fmt(livre)}</div><div class="rec-l">ainda pode gastar no mês</div></div>
+      ${ritmo}
+    </div>
+    <div class="card ac-card">${html}
+      <div class="ac-foot muted">Se todas as categorias ficarem dentro da meta, sobram <b class="mono">${fmt(Math.max(0,sobraProj-livre))}</b> já garantidos para o investimento.
+      ${meta.origem!=='salva'?' Meta '+(meta.origem==='herdada'?'herdada do mês anterior':'padrão')+': <u style="cursor:pointer" onclick="irParaMetas(\''+m+'\')">salvar nas Metas</u>.':''}</div>
+    </div>`;
+  setTimeout(()=>box.querySelectorAll('.meter-fill[data-w]').forEach(el=>{ el.style.width=el.dataset.w+'%'; }),60);
+}
+function popularAcompMes(){
+  const sel=document.getElementById('acomp-mes'); if(!sel) return;
+  const set=new Set([...mesesDados(), mesAtual()]);
+  const todos=[...set].sort().reverse();
+  const cur=sel.value;
+  sel.innerHTML=todos.map(x=>`<option value="${x}">${nomeMes(x)}${x===mesAtual()?' · atual':''}</option>`).join('');
+  sel.value=(cur&&todos.includes(cur))?cur:mesAtual();
+}
 function renderAcomp(){
   const body=document.getElementById('acomp-body');
+  popularAcompMes();
+  const mSel=(document.getElementById('acomp-mes')||{}).value||mesAtual();
+  renderMesAtual(mSel);
   const meses=mesesDados().filter(m=>getG(m).length||METAS[m]);
   if(!meses.length){ body.innerHTML='<div class="empty">Sem dados ainda — conecte o Sheets em Configurar.</div>'; return; }
   let tLiq=0,tReal=0,tSobra=0;
   meses.forEach(m=>{ const d=calcMes(m); tLiq+=d.liq; tReal+=d.gastoReal; tSobra+=d.sobra; });
   const banner=`<div class="rec-banner" style="margin-bottom:24px">
     <div class="rec-item"><div class="rec-v mono" style="color:${tSobra>=0?'var(--sage)':'var(--oxblood)'}">${(tSobra<0?'-':'')+fmt(tSobra)}</div><div class="rec-l">sobrou no total · ${meses.length} meses</div></div>
-    <div class="rec-item"><div class="rec-v mono">${fmt(tLiq)}</div><div class="rec-l">receita líquida acumulada</div></div>
+    <div class="rec-item"><div class="rec-v mono">${fmt(tLiq)}</div><div class="rec-l">base acumulada (sem VR/VT)</div></div>
     <div class="rec-item"><div class="rec-v mono">${fmt(tReal)}</div><div class="rec-l">gasto real acumulado</div></div>
     <div class="rec-item"><div class="rec-v mono" style="color:var(--gold)">${tLiq>0?Math.round(tSobra/tLiq*100):0}%</div><div class="rec-l">taxa de poupança</div></div>
   </div>`;
@@ -1246,9 +1353,9 @@ function cardMes(m){
       <div class="mo-title">${nomeMes(m)}</div>
       <div class="mo-sobra"><div class="mo-sobra-v mono" data-count="${d.sobra.toFixed(2)}" style="color:${d.sobra>=0?'var(--sage)':'var(--oxblood)'}">—</div><div class="mo-sobra-l">sobra do mês</div></div>
     </div>
-    <div class="mo-sub">${badge} <span class="muted mono">líquida ${fmt(d.liq)} · gasto real ${fmt(d.gastoReal)} · ${d.n} lançs</span></div>
+    <div class="mo-sub">${badge} <span class="muted mono">base ${fmt(d.liq)} · gasto real ${fmt(d.gastoReal)} · ${d.n} lançs</span></div>
     ${meters}
-    <div class="flash-chips">${chip('VR',sVR)}${chip('VT',sVT)}</div>
+    <div class="flash-chips">${chip('VR',sVR)}${chip('VT',sVT)}${d.projExtra&&d.proj>0?`<span class="st na">+ projetos ${fmt(d.proj)} → investir</span>`:''}</div>
   </div>`;
 }
 function irParaMetas(m){
@@ -1493,18 +1600,20 @@ async function lancarFluxos(){
 // Tudo fora do VR/VT. "Variável" = gasto do dia a dia: sem fixos (Fluxos, classe Dívida, Claude, laser)
 // e sem parcelas antigas (2/3, 3/3...). Limites ficam salvos neste navegador (ff_semana).
 const SEM_KEY='ff_semana';
-const SEM_DEF={salario:2950, fixos:625, teto_padrao:1850, envelope:0,
-  tetos:{'2026-10':2300,'2026-11':1850,'2026-12':2000},
-  semanal:{'2026-10':105,'2026-11':235,'2026-12':225},   // meta da semana (plano): verba do dia a dia ÷ semanas do mês
+const SEM_DEF={salario:3000, fixos:750, teto_padrao:2000, envelope:0,
+  tetos:{'2026-10':2300,'2026-11':2100,'2026-12':2000},
+  semanal:{'2026-10':105,'2026-11':200,'2026-12':200},   // meta da semana (plano): verba do dia a dia ÷ semanas do mês
   lim:{comprinhas:5, fds:120, uber:200, comer:200, pix:0, parcNova:0},
-  meta:{alvo:10000, atual:7255, data:'12/10/2026'}, inicio:'2026-10-12'};
-const SEM_MARCOS=[['2026-11-01','1/nov',7935],['2026-12-01','1/dez',9085],['2027-01-04','4/jan',10100]];
+  meta:{alvo:10000, atual:7255, data:'12/10/2026'}, inicio:'2026-10-12', versao:2};
+const SEM_MARCOS=[['2026-11-02','2/nov',7890],['2026-12-01','1/dez',8840],['2027-01-04','4/jan',9900]];   // + projetos (extra) fecham os 10 mil
 const DIAS_S=['seg','ter','qua','qui','sex','sáb','dom'];
 const MESES_S=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 let SEM=semLoad(), semWeek=semMonday(new Date()), semCfgOpen=false;
 function semLoad(){
   const d=JSON.parse(JSON.stringify(SEM_DEF));
   try{ const s=JSON.parse(localStorage.getItem(SEM_KEY)||'null'); if(!s) return d;
+    if((s.versao||1)<d.versao){ s.salario=d.salario; s.fixos=d.fixos; s.teto_padrao=d.teto_padrao; s.versao=d.versao;   // plano de nov/26: valores novos valem por cima dos salvos
+      ['2026-11','2026-12'].forEach(k=>{ if(s.tetos) delete s.tetos[k]; if(s.semanal) delete s.semanal[k]; }); }
     return {...d,...s,tetos:{...d.tetos,...(s.tetos||{})},semanal:{...d.semanal,...(s.semanal||{})},lim:{...d.lim,...(s.lim||{})},meta:{...d.meta,...(s.meta||{})}};
   }catch(e){ return d; }
 }
