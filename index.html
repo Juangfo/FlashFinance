@@ -1282,9 +1282,10 @@ function lerCSV(file){
 function atualizaContagem(){
   const n=importRows.length;
   const parc=importRows.filter(r=>r.parcela&&r.parcela!=='1/1').length;
-  const falta=importRows.filter(r=>!r.tipo||!r.classe).length;
+  const falta=importRows.filter(r=>r.sel&&(!r.tipo||!r.classe)).length;
+  const dup=importRows.filter(r=>r.dup).length, est=importRows.filter(r=>r.estorno).length;
   document.getElementById('import-count').textContent =
-    n+' lançamentos · '+parc+' parcelados · '+falta+' precisam de você';
+    n+' lançamentos · '+parc+' parcelados · '+est+' estornos · '+dup+' já na planilha (desmarcados) · '+falta+' precisam de você';
 }
 /** Detecta "Parcela 2/3", "2/3", "(1/4)" no fim do título do Nubank. */
 function detectaParcela(title){
@@ -1296,26 +1297,58 @@ function detectaParcela(title){
   if(!a||!b||a>b||b>72) return '1/1';
   return a+'/'+b;
 }
+/** Divide uma linha de CSV respeitando aspas: "Lojas, Ltda","4,49" → [Lojas, Ltda | 4,49]. */
+function splitCSV(line){
+  const out=[]; let cur='', q=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){ if(q&&line[i+1]==='"'){ cur+='"'; i++; } else q=!q; }
+    else if(ch===','&&!q){ out.push(cur); cur=''; }
+    else cur+=ch;
+  }
+  out.push(cur);
+  return out.map(s=>s.trim());
+}
+/** Número no formato do Nubank: "4,49" · "- 12,97" · "1.234,56" · "12.97". */
+function numBR(s){
+  s=String(s||'').replace(/\s/g,'');
+  if(/,\d{1,2}$/.test(s)) s=s.replace(/\./g,'').replace(',','.');
+  return parseFloat(s.replace(/[^0-9.\-]/g,''))||0;
+}
 function parseNubankCSV(text){
   const lines=text.replace(/\r/g,'').trim().split('\n').filter(l=>l.trim());
   if(lines.length<2) return [];
-  const cols=lines[0].split(',').map(c=>c.trim().replace(/"/g,'').toLowerCase());
+  const cols=splitCSV(lines[0]).map(c=>c.toLowerCase());
   const di=cols.findIndex(c=>c.includes('date')||c.includes('data'));
   const ti=cols.findIndex(c=>c.includes('title')||c.includes('descri'));
   const ai=cols.findIndex(c=>c.includes('amount')||c.includes('valor'));
   const rows=[];
   for(let i=1;i<lines.length;i++){
-    const p=lines[i].split(',').map(c=>c.trim().replace(/"/g,''));
+    const p=splitCSV(lines[i]);
     if(p.length<3) continue;
     let date,title,amount;
-    if(di>=0&&ti>=0&&ai>=0){ date=p[di]||''; title=p[ti]||''; amount=parseFloat((p[ai]||'0').replace(',','.').replace(/[^0-9.\-]/g,''))||0; }
-    else{ date=p[0]; title=p[1]; amount=parseFloat((p[2]||'0').replace(',','.'))||0; }
+    if(di>=0&&ti>=0&&ai>=0){ date=p[di]||''; title=p[ti]||''; amount=numBR(p[ai]); }
+    else{ date=p[0]; title=p[1]; amount=numBR(p[2]); }
     if(!title||!amount) continue;
+    if(/pagamento recebido|pagamento de fatura|pagamento efetuado/i.test(title)) continue;   // pagamento da fatura não é gasto
     let nd=date;
     if(date.includes('/')){ const q=date.split('/'); if(q.length===3) nd=(q[2].length===4?q[2]:'20'+q[2])+'-'+q[1].padStart(2,'0')+'-'+q[0].padStart(2,'0'); }
-    rows.push({date:nd,title,amount:Math.abs(amount),tipo:autoTipo(title),classe:autoClasse(title),
-      metodo:'Crédito Nubank',parcela:detectaParcela(title),sel:true});
+    rows.push({date:nd,title,amount:Math.round(amount*100)/100,estorno:amount<0,tipo:autoTipo(title),classe:autoClasse(title),
+      metodo:'Crédito Nubank',parcela:amount<0?'1/1':detectaParcela(title),sel:true});
   }
+  // estorno herda categoria/classe da compra estornada (mesmo título e valor) para as classes se anularem
+  rows.filter(r=>r.estorno).forEach(e=>{
+    const c=rows.find(r=>!r.estorno&&norm(r.title)===norm(e.title)&&Math.abs(r.amount+e.amount)<0.01);
+    if(c){ e.tipo=c.tipo; e.classe=c.classe; }
+  });
+  // já está na planilha? mesmo dia, mesmo começo de título e valor (aceita centavos cortados por importações antigas)
+  const chave=t=>norm(t).replace(/^pix no credito\s*-\s*/,'').replace(/[^a-z0-9]/g,'').slice(0,10);
+  const base=DG.map(r=>({d:String(r[6]).slice(0,10),t:chave(r[1]),v:+r[5]||0}));
+  rows.forEach(r=>{
+    const t=chave(r.title); let best=-1, dif=1;
+    base.forEach((b,i)=>{ const x=Math.abs(b.v-r.amount); if(b.d===r.date&&b.t===t&&x<dif){ best=i; dif=x; } });
+    if(best>=0){ r.dup=true; r.sel=false; base.splice(best,1); }
+  });
   return rows;
 }
 /** Marketplaces: o nome contém "mercado" mas não é supermercado — deixar p/ o usuário. */
@@ -1352,8 +1385,8 @@ function renderImportTable(){
     return `<tr id="irow-${i}" class="${falta?'falta':''} ${r.sel?'row-sel':''}">
       <td><input type="checkbox" class="chk" ${r.sel?'checked':''} onchange="toggleRow(${i},this)"></td>
       <td class="muted mono">${esc(r.date)}</td>
-      <td style="font-weight:600;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.title)}">${esc(r.title)}</td>
-      <td class="v-neg mono">${fmt(r.amount)}</td>
+      <td style="font-weight:600;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.title)}">${r.dup?'<span class="tag" style="background:#7D85971f;color:#5C677D;margin-right:6px">já na planilha</span>':''}${esc(r.title)}</td>
+      <td class="${r.estorno?'v-pos':'v-neg'} mono" style="white-space:nowrap">${r.estorno?'estorno −':''}${fmt(r.amount)}</td>
       <td><select class="isel ${r.tipo?'':'auto'}" onchange="updateRow(${i},'tipo',this.value)"><option value="">— escolher —</option>${CATS.map(t=>`<option ${r.tipo===t?'selected':''}>${t}</option>`).join('')}</select></td>
       <td><select class="isel ${r.classe?'':'auto'}" onchange="updateRow(${i},'classe',this.value)"><option value="">— escolher —</option>${['Básico','Lazer','Dívida','Educação'].map(c=>`<option ${r.classe===c?'selected':''}>${c}</option>`).join('')}</select></td>
       <td><select class="isel" onchange="updateRow(${i},'metodo',this.value)">${['Crédito Nubank','Pix C6','FlashEats','FlashMoove'].map(x=>`<option ${r.metodo===x?'selected':''}>${x}</option>`).join('')}</select></td>
@@ -1504,9 +1537,9 @@ function semItens(){
     o.pix=t.includes('pix no credito');
     o.uber=/uber|99 ?(tec|pop)|^99\b/.test(t)&&!/99 ?food/.test(t);
     o.comer=norm(r[2]).startsWith('aliment');
-    o.comprinha=o.variavel&&o.v<40;
+    o.comprinha=o.variavel&&o.v>0&&o.v<40;
     return o;
-  }).filter(o=>!o.flash&&o.v>0);
+  }).filter(o=>!o.flash&&o.v!==0);   // estornos entram negativos e anulam a compra
   // itens importados da fatura em lote ficam com a data da importação, não a da compra
   const cnt={}; its.forEach(o=>cnt[o.dia]=(cnt[o.dia]||0)+1);
   its.forEach(o=>o.lote=cnt[o.dia]>=6&&(o.pix||o.m>1||/parcela|nupay/.test(norm(o.titulo))));
