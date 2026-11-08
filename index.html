@@ -667,15 +667,15 @@ code{color:var(--primary-2);border-radius:6px;background:#EAF2FC;border-color:tr
 <!-- ============ IMPORTAR ============ -->
 <section class="page" id="page-importar">
   <div class="page-head">
-    <div class="kicker">Nº 003 — Nubank / fatura</div>
+    <div class="kicker">Nº 003 — Nubank e Flash</div>
     <h1>Importar <em>extrato</em></h1>
-    <div class="dek">Arraste o CSV. Categoria, classe e parcela são detectadas — as linhas destacadas são as que precisam de você.</div>
+    <div class="dek">Arraste o CSV da fatura do Nubank ou o extrato do Flash (VR/VT). O formato é reconhecido sozinho. As linhas destacadas são as que precisam de você.</div>
   </div>
   <div class="drop" id="drop-zone" onclick="document.getElementById('csv-input').click()">
     <input type="file" id="csv-input" accept=".csv" style="display:none" onchange="lerCSV(this.files[0])">
     <div class="drop-ico">↓</div>
     <div class="drop-t">Soltar o CSV aqui</div>
-    <div class="drop-s">ou clique para selecionar — arquivo exportado pelo Nubank</div>
+    <div class="drop-s">ou clique para selecionar — fatura do Nubank ou extrato do Flash</div>
   </div>
   <div id="import-preview" style="display:none;margin-top:30px">
     <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;flex-wrap:wrap;gap:14px">
@@ -686,7 +686,9 @@ code{color:var(--primary-2);border-radius:6px;background:#EAF2FC;border-color:tr
           <span><i style="background:var(--clay)"></i> parcelado detectado</span>
         </div>
       </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <label class="flabel" for="imp-mes" style="margin:0">Lançar no mês</label>
+        <select class="mes-sel" id="imp-mes" style="min-width:150px"></select>
         <button class="btn" onclick="classificarTodos('classe','Básico')">Tudo básico</button>
         <button class="btn" onclick="classificarTodos('classe','Lazer')">Tudo lazer</button>
         <button class="btn btn-primary" onclick="enviarImportados()">Enviar ao Sheets →</button>
@@ -1377,8 +1379,11 @@ let importRows=[];
 function lerCSV(file){
   const rd=new FileReader();
   rd.onload=e=>{
-    importRows=parseNubankCSV(e.target.result);
+    const txt=e.target.result, head=norm(txt.split('\n')[0]||'');
+    const flash=/movimenta|saldo/.test(head);
+    importRows=flash?parseFlashCSV(txt):parseNubankCSV(txt);
     if(!importRows.length){ showToast('Nenhum lançamento encontrado','err'); return; }
+    popularImpMes(flash);
     renderImportTable();
     document.getElementById('import-preview').style.display='block';
     atualizaContagem();
@@ -1386,13 +1391,59 @@ function lerCSV(file){
   };
   rd.readAsText(file,'UTF-8');
 }
+/** Extrato do Flash (VR/VT): Data,Hora,Movimentação,Valor,Meio de Pagamento,Saldo.
+ *  Valor negativo = gasto · "Depósito" = receita (VR/VT) · Uber/99 = VT (FlashMoove), o resto = VR (FlashEats). */
+function parseFlashCSV(text){
+  const lines=text.replace(/\r/g,'').trim().split('\n').filter(l=>l.trim());
+  if(lines.length<2) return [];
+  const cols=splitCSV(lines[0]).map(c=>norm(c));
+  const di=cols.findIndex(c=>c.startsWith('data')), hi=cols.findIndex(c=>c.startsWith('hora'));
+  const ti=cols.findIndex(c=>c.includes('movimenta')||c.includes('descri')), vi=cols.findIndex(c=>c.startsWith('valor'));
+  const rows=[];
+  for(let i=1;i<lines.length;i++){
+    const p=splitCSV(lines[i]); if(p.length<4) continue;
+    const v=numBR(p[vi]); if(!v) continue;
+    const q=(p[di]||'').split('/'); if(q.length!==3) continue;
+    const date=q[2]+'-'+q[1].padStart(2,'0')+'-'+q[0].padStart(2,'0');
+    const bruto=(p[ti]||'').trim();
+    const title=bruto.replace(/\s+(NITEROI|RIO DE JANEIR\w*|SAO PAULO|Niteroi|RJ)\b.*$/i,'').trim()||bruto;
+    const n=norm(bruto), hora=hi>=0?p[hi]:'';
+    if(/deposito|credito de beneficio|recarga|beneficio creditado/.test(n)){
+      rows.push({date,hora,title:'Depósito Flash',amount:Math.round(v*100)/100,receita:true,metodo:v>=300?'FlashEats':'FlashMoove',tipo:'—',classe:'—',parcela:'1/1',sel:true});
+      continue;
+    }
+    const mob=/uber|99\*|\b99\b|cabify|metro|riocard/.test(n);
+    const amount=Math.round(-v*100)/100;   // saída negativa vira gasto positivo; entrada não-depósito vira estorno
+    rows.push({date,hora,title:mob?(/uber/.test(n)?'Uber (Flash)':'99 (Flash)'):title,amount,estorno:amount<0,
+      tipo:mob?'Transporte':(autoTipo(bruto)||'Alimentação'),classe:mob?'Básico':(autoClasse(bruto)||'Básico'),
+      metodo:mob?'FlashMoove':'FlashEats',parcela:'1/1',sel:true});
+  }
+  // já está na planilha? para o Flash, mesma data + mesmo valor + método Flash (os títulos variam)
+  const baseG=DG.filter(r=>norm(r[4]).includes('flash')).map(r=>({d:String(r[6]).slice(0,10),v:+r[5]||0}));
+  const baseR=DR.filter(r=>norm(r[2]).includes('flash')).map(r=>({d:String(r[4]).slice(0,10),v:+r[3]||0}));
+  rows.forEach(r=>{
+    const base=r.receita?baseR:baseG;
+    const i=base.findIndex(b=>Math.abs(b.v-r.amount)<0.01&&(r.receita?Math.abs(new Date(b.d)-new Date(r.date))<=6*864e5:b.d===r.date));
+    if(i>=0){ r.dup=true; r.sel=false; base.splice(i,1); }
+  });
+  return rows;
+}
+/** Mês de lançamento: "pela data" ou um mês fixo (ex.: tudo depois do depósito do VR vai para o mês seguinte). */
+function popularImpMes(flash){
+  const sel=document.getElementById('imp-mes'); if(!sel) return;
+  const ms=[]; let [y,m]=mesAtual().split('-').map(Number); m-=2; if(m<1){m+=12;y--;}
+  for(let k=0;k<4;k++){ ms.push(y+'-'+String(m).padStart(2,'0')); m++; if(m>12){m=1;y++;} }
+  sel.innerHTML='<option value="">pela data da compra</option>'+ms.map(x=>`<option value="${x}">${nomeMes(x)}</option>`).join('');
+  sel.value='';
+}
+function mesImport(r){ const v=(document.getElementById('imp-mes')||{}).value; return v||getMes(r.date); }
 function atualizaContagem(){
   const n=importRows.length;
   const parc=importRows.filter(r=>r.parcela&&r.parcela!=='1/1').length;
   const falta=importRows.filter(r=>r.sel&&(!r.tipo||!r.classe)).length;
-  const dup=importRows.filter(r=>r.dup).length, est=importRows.filter(r=>r.estorno).length;
+  const dup=importRows.filter(r=>r.dup).length, est=importRows.filter(r=>r.estorno).length, rec=importRows.filter(r=>r.receita).length;
   document.getElementById('import-count').textContent =
-    n+' lançamentos · '+parc+' parcelados · '+est+' estornos · '+dup+' já na planilha (desmarcados) · '+falta+' precisam de você';
+    n+' lançamentos · '+(rec?rec+' depósitos (receita) · ':'')+parc+' parcelados · '+est+' estornos · '+dup+' já na planilha (desmarcados) · '+falta+' precisam de você';
 }
 /** Detecta "Parcela 2/3", "2/3", "(1/4)" no fim do título do Nubank. */
 function detectaParcela(title){
@@ -1493,10 +1544,13 @@ function renderImportTable(){
       <td><input type="checkbox" class="chk" ${r.sel?'checked':''} onchange="toggleRow(${i},this)"></td>
       <td class="muted mono">${esc(r.date)}</td>
       <td style="font-weight:600;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.title)}">${r.dup?'<span class="tag" style="background:#7D85971f;color:#5C677D;margin-right:6px">já na planilha</span>':''}${esc(r.title)}</td>
-      <td class="${r.estorno?'v-pos':'v-neg'} mono" style="white-space:nowrap">${r.estorno?'estorno −':''}${fmt(r.amount)}</td>
-      <td><select class="isel ${r.tipo?'':'auto'}" onchange="updateRow(${i},'tipo',this.value)"><option value="">— escolher —</option>${CATS.map(t=>`<option ${r.tipo===t?'selected':''}>${t}</option>`).join('')}</select></td>
+      <td class="${r.estorno||r.receita?'v-pos':'v-neg'} mono" style="white-space:nowrap">${r.receita?'+ receita ':r.estorno?'estorno −':''}${fmt(r.amount)}</td>
+      ${r.receita
+        ? `<td colspan="2"><span class="tag" style="background:#12916A1f;color:#0E7A59">depósito → entra como receita</span></td>
+           <td><select class="isel" onchange="updateRow(${i},'metodo',this.value)">${['FlashEats','FlashMoove'].map(x=>`<option ${r.metodo===x?'selected':''}>${x}</option>`).join('')}</select></td>`
+        : `<td><select class="isel ${r.tipo?'':'auto'}" onchange="updateRow(${i},'tipo',this.value)"><option value="">— escolher —</option>${CATS.map(t=>`<option ${r.tipo===t?'selected':''}>${t}</option>`).join('')}</select></td>
       <td><select class="isel ${r.classe?'':'auto'}" onchange="updateRow(${i},'classe',this.value)"><option value="">— escolher —</option>${['Básico','Lazer','Dívida','Educação'].map(c=>`<option ${r.classe===c?'selected':''}>${c}</option>`).join('')}</select></td>
-      <td><select class="isel" onchange="updateRow(${i},'metodo',this.value)">${['Crédito Nubank','Pix C6','FlashEats','FlashMoove'].map(x=>`<option ${r.metodo===x?'selected':''}>${x}</option>`).join('')}</select></td>
+      <td><select class="isel" onchange="updateRow(${i},'metodo',this.value)">${['Crédito Nubank','Pix C6','FlashEats','FlashMoove'].map(x=>`<option ${r.metodo===x?'selected':''}>${x}</option>`).join('')}</select></td>`}
       <td><input class="parc-in mono ${multi?'multi':''}" value="${esc(r.parcela)}" onchange="updateRow(${i},'parcela',this.value)" title="parcela X/Y"></td>
     </tr>`;}).join('');
 }
@@ -1533,14 +1587,20 @@ async function enviarImportados(){
   if(falta){ showToast(falta+' linha(s) sem categoria/classe','err');
     setSB('sb-import','err','Classifique as '+falta+' linha(s) destacadas antes de enviar.'); return; }
   setSB('sb-import','sending','Enviando '+sel.length+' lançamentos...');
-  const rows=sel.map(r=>['',r.title,r.tipo,r.classe,r.metodo,r.amount,r.date,"'"+getMes(r.date),r.parcela||'1/1']);
-  const B=80; let ok=true;
-  for(let i=0;i<rows.length;i+=B){
+  const gs=sel.filter(r=>!r.receita), rs=sel.filter(r=>r.receita);
+  const rows=gs.map(r=>['',r.title,r.tipo,r.classe,r.metodo,r.amount,r.date,"'"+mesImport(r),r.parcela||'1/1']);
+  const B=40; let ok=true;
+  for(let i=0;i<rows.length&&ok;i+=B){
     const r=await enviar({tipo:'gasto',rows:rows.slice(i,i+B)});
     if(!r.includes('OK')){ ok=false; break; }
     await sleep(500);
   }
-  setSB('sb-import',ok?'ok':'err',ok?'✓ '+sel.length+' lançamentos enviados ao Sheets':'✗ Erro durante envio — verifique a URL');
+  if(ok&&rs.length){   // depósitos do Flash viram receita FlashEats/FlashMoove
+    const r=await enviar({tipo:'receita',rows:rs.map(x=>['',x.metodo==='FlashEats'?'VR (Flash)':'VT (Flash)',x.metodo,x.amount,x.date,"'"+mesImport(x)])});
+    if(!r.includes('OK')) ok=false;
+  }
+  setSB('sb-import',ok?'ok':'err',ok?'✓ '+gs.length+' gastos'+(rs.length?' e '+rs.length+' receita(s)':'')+' enviados ao Sheets':'✗ Erro durante envio — verifique a URL');
+  if(ok){ importRows.forEach(r=>{ if(r.sel){ r.sel=false; r.dup=true; } }); renderImportTable(); atualizaContagem(); sync(); }
   if(ok) showToast(sel.length+' lançamentos enviados','ok');
 }
 
