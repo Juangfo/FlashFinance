@@ -1257,6 +1257,17 @@ function registrarAporte(m){
   showToast('Aporte de '+fmt(v)+' registrado','ok'); renderAcomp();
 }
 function desfazerAporte(m){ const a=aportesLoad(); delete a[m]; aportesSave(a); renderAcomp(); }
+/** Dinheiro ainda liberado nas metas do mês: soma do "ainda pode" de cada categoria (sem VR/VT).
+ *  Usado no Acompanhar e no envelope semanal, para os dois mostrarem a mesma coisa. */
+function livreDoMes(m){
+  const meta=metaDoMes(m), d=calcMes(m);
+  const prevista=!(d.liq>0) && m>=PROJ_EXTRA_DESDE && SEM.salario>0;
+  const base=prevista?SEM.salario:d.liq;
+  let livre=0, estouro=0; const passou=[];
+  CLASSES.forEach(c=>{ const orc=base*(meta.vals[c]||0)/100, disp=orc-(d.cl[c]||0);
+    if(disp>0) livre+=disp; else if(disp<0){ estouro+=-disp; passou.push(CLASSES_NOME[c]); } });
+  return {livre,estouro,passou,base,meta,d,prevista};
+}
 function renderMesAtual(m){
   const box=document.getElementById('acomp-atual'); if(!box) return;
   const meta=metaDoMes(m), d=calcMes(m);
@@ -1306,7 +1317,7 @@ function renderMesAtual(m){
       ${ritmo}
     </div>
     <div class="card ac-card">${html}
-      <div class="ac-foot muted">Se todas as categorias ficarem dentro da meta, sobram <b class="mono">${fmt(Math.max(0,sobraProj-livre))}</b> já garantidos para o investimento.
+      <div class="ac-foot muted">Mesmo gastando tudo o que ainda cabe nas categorias (${fmt(livre)}), sobram <b class="mono">${fmt(Math.max(0,sobraProj-livre))}</b> para investir${regraNova&&projInv>0?', mais '+fmt(projInv)+' de projetos':''}.${(()=>{ const L=livreDoMes(m); return regraNova&&L.estouro>0.005?' A meta de investimento era '+fmt(invMeta)+'; '+L.passou.join(' e ')+' '+(L.passou.length>1?'passaram':'passou')+' '+fmt(L.estouro)+', e esse excesso sai do investimento.':''; })()}
       ${meta.origem!=='salva'?' Meta '+(meta.origem==='herdada'?'herdada do mês anterior':'padrão')+': <button type="button" class="link-btn" onclick="irParaMetas(\''+m+'\')">salvar nas Metas</button>.':''}</div>
     </div>`;
   setTimeout(()=>box.querySelectorAll('.meter-fill[data-w]').forEach(el=>{ el.style.width=el.dataset.w+'%'; }),60);
@@ -1761,9 +1772,9 @@ const SEM_KEY='ff_semana';
 // salário LÍQUIDO (holerite nov/26: R$ 2.526,41 depois do INSS) + mesada R$ 250
 const SEM_DEF={salario:2776, fixos:750, teto_padrao:1850, envelope:0,
   tetos:{'2026-10':2300,'2026-11':2100,'2026-12':2000},   // dez: a 2ª parcela do 13º (~R$ 290 líquida) sustenta o teto de R$ 2.000
-  semanal:{'2026-10':105,'2026-11':200,'2026-12':200},   // meta da semana (plano): verba do dia a dia ÷ semanas do mês
+  semanal:{'2026-10':105},   // de nov/26 em diante o envelope é vivo (metas ÷ semanas que faltam)
   lim:{comprinhas:5, fds:120, uber:200, comer:200, pix:0, parcNova:0},
-  meta:{alvo:10000, atual:7753, data:'08/11/2026'}, inicio:'2026-10-12', versao:3};
+  meta:{alvo:10000, atual:7753, data:'08/11/2026'}, inicio:'2026-10-12', versao:4};
 const SEM_MARCOS=[['2026-12-01','1/dez',8760],['2027-01-04','4/jan',9840]];   // base: R$ 7.753 em 08/11 + aportes com o salário líquido; projetos fecham os 10 mil
 const DIAS_S=['seg','ter','qua','qui','sex','sáb','dom'];
 const MESES_S=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
@@ -1827,7 +1838,17 @@ function semEnv(its,ws){
   if(ini0 && mes<ini0 && !SEM.tetos[mes]) return null;   // antes do plano: sem teto definido
   if(ymd(ws)<ymd(semMonday(diaDe(SEM.inicio||'2026-10-12')))) return null;   // semanas anteriores ao plano
   if(SEM.envelope>0) return SEM.envelope;
-  if(SEM.semanal&&SEM.semanal[mes]>0) return SEM.semanal[mes];   // meta fixa do plano
+  if(SEM.semanal&&SEM.semanal[mes]>0) return SEM.semanal[mes];   // valor fixo, só se configurado em "Ajustar tetos e limites"
+  if(mes>=PROJ_EXTRA_DESDE){
+    // ENVELOPE VIVO: dinheiro ainda liberado nas metas do mês ÷ semanas que faltam (a partir desta semana).
+    // Soma de volta o variável já gasto desta semana em diante, para a semana ter o envelope "cheio" e mostrar o consumo.
+    const L=livreDoMes(mes), p=mes.split('-').map(Number), dim=new Date(p[0],p[1],0).getDate();
+    const m0=new Date(p[0],p[1]-1,1), ini=ws<m0?m0:ws;
+    const devolve=its.filter(o=>o.mes===mes&&o.variavel&&!o.lote&&o.dia>=ymd(ini)).reduce((a,o)=>a+o.v,0);
+    // semanas que faltam = semanas (seg–dom) cuja quinta-feira cai neste mês, a partir desta
+    let semanas=0; for(let w=new Date(ws); ymd(addD(w,3)).slice(0,7)===mes; w=addD(w,7)) semanas++;
+    return Math.max(0,(L.livre+devolve)/Math.max(1,semanas));
+  }
   const mc=semMes(its,mes), p=mes.split('-').map(Number);
   const m0=new Date(p[0],p[1]-1,1), ini=ws<m0?m0:ws;
   const antes=mc.it.filter(o=>o.variavel&&o.dia<ymd(ini)).reduce((a,o)=>a+o.v,0);
@@ -1908,7 +1929,7 @@ function renderSemana(){
   </div>
   <div class="mo-grid">
     <div class="mo-card">
-      <div class="mo-head"><div><div class="card-title">Envelope da semana</div><div class="card-sub" style="margin-bottom:0">${semTeto?'semana anterior ao plano: sem teto definido':(SEM.semanal&&SEM.semanal[mes]>0?'meta do plano para '+mNome+': só o dia a dia (fixos e parcelas já descontados)':'o que resta de variável em '+mNome+' ÷ semanas que faltam')}</div></div><span class="st ${st}">${ic(st)} ${stTxt}</span></div>
+      <div class="mo-head"><div><div class="card-title">Envelope da semana</div><div class="card-sub" style="margin-bottom:0">${semTeto?'semana anterior ao plano: sem teto definido':(SEM.semanal&&SEM.semanal[mes]>0?'valor fixo configurado para '+mNome:(mes>=PROJ_EXTRA_DESDE?'dinheiro ainda liberado nas metas de '+mNome+' ÷ semanas que faltam':'o que resta de variável em '+mNome+' ÷ semanas que faltam'))}</div></div><span class="st ${st}">${ic(st)} ${stTxt}</span></div>
       <div class="meter-track" style="height:10px;margin-top:18px"><div class="meter-fill" data-w="${Math.min(100,pct*100).toFixed(1)}" style="background:${cor(st)}"></div></div>
       <div class="sem-days">${pd.map((x,i)=>`<div class="sem-day ${i>=4?'fds':''} ${x.s===hs?'hoje':''}" title="${x.d} ${x.s.slice(8)}/${x.s.slice(5,7)}: ${fmt0(x.v)} em ${x.n} compra(s)"><span class="v mono">${x.v?Math.round(x.v):''}</span><div class="col" style="height:${(x.v/maxD*80).toFixed(1)}%"></div><span>${x.d}</span></div>`).join('')}</div>
       ${wl.length?`<div class="callout" style="font-size:13px">${wl.length} item(ns) importado(s) da fatura nesta semana (${fmt0(soma(wl))}) ficaram fora do envelope: a data é a da importação, não a da compra. Eles contam na fatura ao lado. Para a semana ficar fiel, registre a compra no dia, na aba Registrar.</div>`:''}
