@@ -1758,20 +1758,22 @@ async function lancarFluxos(){
 // Tudo fora do VR/VT. "Variável" = gasto do dia a dia: sem fixos (Fluxos, classe Dívida, Claude, laser)
 // e sem parcelas antigas (2/3, 3/3...). Limites ficam salvos neste navegador (ff_semana).
 const SEM_KEY='ff_semana';
-const SEM_DEF={salario:3000, fixos:750, teto_padrao:2000, envelope:0,
-  tetos:{'2026-10':2300,'2026-11':2100,'2026-12':2000},
+// salário LÍQUIDO (holerite nov/26: R$ 2.526,41 depois do INSS) + mesada R$ 250
+const SEM_DEF={salario:2776, fixos:750, teto_padrao:1850, envelope:0,
+  tetos:{'2026-10':2300,'2026-11':2100,'2026-12':2000},   // dez: a 2ª parcela do 13º (~R$ 290 líquida) sustenta o teto de R$ 2.000
   semanal:{'2026-10':105,'2026-11':200,'2026-12':200},   // meta da semana (plano): verba do dia a dia ÷ semanas do mês
   lim:{comprinhas:5, fds:120, uber:200, comer:200, pix:0, parcNova:0},
-  meta:{alvo:10000, atual:7255, data:'12/10/2026'}, inicio:'2026-10-12', versao:2};
-const SEM_MARCOS=[['2026-12-01','1/dez',8700],['2027-01-04','4/jan',9755]];   // base: R$ 7.753 em 08/11; sobras do envelope + projetos fecham os 10 mil
+  meta:{alvo:10000, atual:7753, data:'08/11/2026'}, inicio:'2026-10-12', versao:3};
+const SEM_MARCOS=[['2026-12-01','1/dez',8760],['2027-01-04','4/jan',9840]];   // base: R$ 7.753 em 08/11 + aportes com o salário líquido; projetos fecham os 10 mil
 const DIAS_S=['seg','ter','qua','qui','sex','sáb','dom'];
 const MESES_S=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 let SEM=semLoad(), semWeek=semMonday(new Date()), semCfgOpen=false;
 function semLoad(){
   const d=JSON.parse(JSON.stringify(SEM_DEF));
   try{ const s=JSON.parse(localStorage.getItem(SEM_KEY)||'null'); if(!s) return d;
-    if((s.versao||1)<d.versao){ s.salario=d.salario; s.fixos=d.fixos; s.teto_padrao=d.teto_padrao; s.versao=d.versao;   // plano de nov/26: valores novos valem por cima dos salvos
-      ['2026-11','2026-12'].forEach(k=>{ if(s.tetos) delete s.tetos[k]; if(s.semanal) delete s.semanal[k]; }); }
+    if((s.versao||1)<d.versao){ s.salario=d.salario; s.fixos=d.fixos; s.teto_padrao=d.teto_padrao; s.versao=d.versao;   // revisão do plano: valores novos valem por cima dos salvos
+      ['2026-11','2026-12'].forEach(k=>{ if(s.tetos) delete s.tetos[k]; if(s.semanal) delete s.semanal[k]; });
+      if(s.meta && (s.meta.atual||0) < d.meta.atual) s.meta={...s.meta,atual:d.meta.atual,data:d.meta.data}; }
     return {...d,...s,tetos:{...d.tetos,...(s.tetos||{})},semanal:{...d.semanal,...(s.semanal||{})},lim:{...d.lim,...(s.lim||{})},meta:{...d.meta,...(s.meta||{})}};
   }catch(e){ return d; }
 }
